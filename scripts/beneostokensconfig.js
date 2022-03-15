@@ -1769,7 +1769,7 @@
     "047_swifttalon_raptor":{
     /* Special 1: 2791 Special 2: -42 Special 3: -42 Special 4: -42 Special 5: -42 */
         "top": {
-            "idle":{"fx":["BFXShadow"], "a":"idle", "t": 1, "s": 1.2},
+            "idle":{"fx":["BFXShadow"], "a":"idle", "t": 1, "s": 2},
             "combat_idle":{"fx":["BFXShadow"], "a":"idle", "t": 1, "s": 1.2},
             "move": {"fx":["BFXShadow"], "a": "walk", "t": 1, "s": 1.7},
             "die": {"fx":["BFXShadow"], "a": "die", "t": 1400, "s": 1.4},
@@ -1782,6 +1782,28 @@
         "config": {
             "scalefactor": 1,
             "compendium": "047 swifttalon raptor",
+			"variants": {}
+        },
+    },
+ 
+    "048_stormwyvern":{
+    /* Special 1: 4208 Special 2: 2583 Special 3: 2124 Special 4: -42 Special 5: -42 */
+        "top": {
+            "idle":{"fx":["BFXShadow"], "a":"special_4", "t": 1, "s": 2.5},
+            "combat_idle":{"fx":["BFXShadow"], "a":"idle", "t": 1, "s": 3.5},
+            "move": {"fx":["BFXShadow"], "a": "walk", "t": 1, "s": 3.5},
+            "die": {"fx":["BFXShadow"], "a": "die", "t": 3499, "s": 3.5},
+            "hit": {"fx":["BFXShadow"], "a": "hit", "t": 1666, "s": 3.5},
+            "dead": {"fx":["BFXShadowDead","BFXDeadRedBlood"], "a": "dead", "t": 1, "s": 3.8},
+            "Bite" : {"actionType":"attack", "fx":["BFXShadow"], "a" : "attack" , "t": 2999, "s": 3.5},
+            "Unleash Electricity" : {"actionType":"other", "fx":["BFXShadow"], "a" : "special_1" , "t": 4208, "s": 3},
+            "Arcing Wingslam" : {"actionType":"attack", "fx":["BFXShadow"], "a" : "special_2" , "t": 2583, "s": 3},
+            "Stormstinger" : {"actionType":"other", "fx":["BFXShadow"], "a" : "special_3" , "t": 2124, "s": 3.5},
+        },
+
+        "config": {
+            "scalefactor": 1,
+            "compendium": "048 stormwyvern",
 			"variants": {}
         },
     },
