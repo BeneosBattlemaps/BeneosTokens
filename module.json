@@ -1,0 +1,47 @@
+{
+	"name": "beneostokens",
+	"title": "Beneos Tokens",
+	"description": "Compendium pack with high quality animated tokens and abilities",
+	"author": "Beneos | Ben#0159",
+	"version": "0.2",
+	"minimumCoreVersion": "9.238",
+	"compatibleCoreVersion":"9",
+	"dependencies": [
+		{
+			"name": "tokenmagic",
+			"manifest": "https://raw.githubusercontent.com/Feu-Secret/Tokenmagic/master/tokenmagic/module.json",
+			"type": "module"
+		},
+		{
+			"name": "lib-wrapper",
+			"manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
+			"type": "module"
+		}
+	],
+	"scripts": ["./scripts/beneosfx.js", "./scripts/beneostokensconfig.js", "./scripts/beneoshelpers.js"],
+	"styles": ["css/beneos.css"],
+	"esmodules": ["./scripts/beneostokens.js"],
+	"packs": [
+		{
+		"name": "beneostokens_TopDown",
+		"label": "Beneos Tokens TopDown",
+		"path": "packs/beneostokens_TopDown.db",
+		"entity": "Actor",
+		"module": "beneostokens"
+		},
+		{
+		"name": "beneostokens_journal",
+		"label": "Beneos Tokens Journals",
+		"path": "packs/beneostokens_journal.db",
+		"entity": "JournalEntry",
+		"module": "beneostokens"
+		},
+		{
+		"name": "beneostokens_Iso",
+		"label": "Beneos Tokens Iso",
+		"path": "packs/beneostokens_Iso.db",
+		"entity": "Actor",
+		"module": "beneostokens"
+		}
+	]
+  }

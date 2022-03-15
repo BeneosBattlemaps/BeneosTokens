@@ -1,0 +1,79 @@
+#token-hud .beneos-selector-wrap {
+    position: absolute;
+    left: 75px;
+    display: none;
+    top: 50%;
+    transform: translate(0%, -50%);
+    width: max-content;
+    max-width: 400px;
+    max-height: 350px;
+    text-align: start;
+    overflow-y: auto;
+	
+}
+
+#token-hud .beneos-variants-wrap {
+    position: absolute;
+    left: 75px;
+    display: none;
+    top: 50%;
+    transform: translate(0%, -50%);
+    width: max-content;
+    max-width: 300px;
+    max-height: 350px;
+    text-align: start;
+    overflow-y: auto;
+
+}
+
+#token-hud .beneos-button-select {
+    max-width: 380px;
+	width: 100%;
+    overflow-wrap: break-word;
+    padding-top: 0;
+    padding-bottom: 0;
+    width: max-content ;
+    padding: 0 ;
+    margin: 0 ;
+    line-height: 40px;
+}
+
+#token-hud .beneos-variants-wrap .beneos-button-select{
+    padding-left:20px;
+}
+
+#token-hud .beneos-token-button {    
+	max-width: 380px;	
+    height: 50px;
+    margin: 4px 0px 4px 8px;
+    object-fit: contain;
+}
+
+
+#token-hud img {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	margin: auto;
+}
+
+#token-hud span {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	font-size: 18px;
+	margin: auto;
+}
+
+#token-hud .beneos-button-select {
+	width: 100%;
+	text-align: left;
+	
+}
+
+#token-hud .beneos-active {
+    display: block;
+}
+.token-sheet .beneos-disabled {
+    display: none;
+}
