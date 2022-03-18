@@ -1,9 +1,9 @@
 {
-	"name": "beneostokens",
-	"title": "Beneos Tokens",
+	"name": "beneostokens_beta",
+	"title": "Beneos Tokens - BETA",
 	"description": "Compendium pack with high quality animated tokens and abilities",
 	"author": "Beneos | Ben#0159",
-	"version": "0.2",
+	"version": "0.3",
 	"minimumCoreVersion": "9.238",
 	"compatibleCoreVersion":"9",
 	"dependencies": [
@@ -23,9 +23,9 @@
 	"esmodules": ["./scripts/beneostokens.js"],
 	"packs": [
 		{
-		"name": "beneostokens_TopDown",
-		"label": "Beneos Tokens TopDown",
-		"path": "packs/beneostokens_TopDown.db",
+		"name": "beneostokens_actors",
+		"label": "Beneos Tokens",
+		"path": "packs/beneostokens_actors.db",
 		"entity": "Actor",
 		"module": "beneostokens"
 		},
@@ -34,13 +34,6 @@
 		"label": "Beneos Tokens Journals",
 		"path": "packs/beneostokens_journal.db",
 		"entity": "JournalEntry",
-		"module": "beneostokens"
-		},
-		{
-		"name": "beneostokens_Iso",
-		"label": "Beneos Tokens Iso",
-		"path": "packs/beneostokens_Iso.db",
-		"entity": "Actor",
 		"module": "beneostokens"
 		}
 	]

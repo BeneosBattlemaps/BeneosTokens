@@ -1,23 +1,26 @@
 import { libWrapper } from "./shim.js";
+import { BeneosCompendiumManager } from "./beneos_compendium.js";
 
+/********************************************************************************** */
 Hooks.once('init', () => {
 
 	// HAck to prevent errors when the animated textures are not fully loaded
-	Token.prototype.oldRefresh = Token.prototype.refresh;
+	Token.prototype.oldRefresh = Token.prototype.refresh
 	Token.prototype.refresh = function() {
 		if (this.icon === undefined) {
-			return this;
+			return this
 		}
-		return Token.prototype.oldRefresh.call(this);
+		return Token.prototype.oldRefresh.call(this)
 	}
 })
 
+/********************************************************************************** */
 Hooks.once('ready', () => {
 
 	if (beneosDebug) console.log ("----------------------------------------------");
 	if (beneosDebug) console.log(`Loading ${BENEOS_MODULE_NAME} module...`);
 	if (beneosDebug) console.log ("----------------------------------------------");
-
+  
 	seed(Date.now());
 
 	if (typeof ForgeVTT != "undefined" && ForgeVTT.usingTheForge) {
@@ -72,7 +75,9 @@ Hooks.once('ready', () => {
 		config: true,
 		default: 10,
 		type: Number
-	});
+	})
+
+  BeneosCompendiumManager.buildDynamicCompendiums()
 
 	//Token Magic Hack  Replacement to prevent double filters when changing animations
 	if (typeof TokenMagic !== 'undefined') {
@@ -361,7 +366,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 	// REPLACEMENT TOKEN HUD
 	let beneosTokensHUD = [];
 	Object.entries(beneosTokens).forEach(([key, value]) => {
-		beneosTokensHUD.push ({"token": beneosBasePath + 'modules/beneostokens/tokens/' + key + '/' + key + "-idle_face_still.webp", "name": key.replaceAll("_"," "), 'tokenvideo': beneosBasePath + 'modules/beneostokens/tokens/' + key + '/' + key + "-idle_face.webm"});
+		beneosTokensHUD.push ({"token": beneosBasePath + BENEOS_DEFAULT_TOKEN_PATH + "/" + key + '/' + key + "-idle_face_still.webp", 
+    "name": key.replaceAll("_"," "), 'tokenvideo': beneosBasePath + BENEOS_DEFAULT_TOKEN_PATH + "/" + key + '/' + key + "-idle_face.webm"});
 	});
 	const beneosTokensDisplay =  await renderTemplate('modules/beneostokens/templates/beneoshud.html', { beneosBasePath, beneosTokensHUD})
 

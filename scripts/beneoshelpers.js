@@ -1,25 +1,29 @@
-const BENEOS_MODULE_NAME = "Beneos Tokens";
-const BENEOS_MODULE_ID = "beneostokens";
+/********************************************************************************** */
+// Constants and globals
+const BENEOS_MODULE_NAME = "Beneos Tokens"
+const BENEOS_MODULE_ID = "beneostokens_beta"
+const BENEOS_DEFAULT_TOKEN_PATH = "beneostokens_data/"
 
+let beneosDebug = true
+let beneosAnimations = new Object
+let beneosFadingSteps = 10
+let beneosFadingWait = 30
+let beneosFadingTime = beneosFadingSteps * beneosFadingWait
+let beneosBasePath = ""
+let beneosHealth = []
+let beneosPreload = []
+let m_w = 123456789
+let m_z = 987654321
+let mask = 0xffffffff
 
-let beneosDebug = true;
-let beneosAnimations = new Object;
-let beneosFadingSteps = 10;
-let beneosFadingWait = 30;
-let beneosFadingTime = beneosFadingSteps * beneosFadingWait;
-let beneosBasePath = "";
-let beneosHealth = [];
-let beneosPreload = [];
-let m_w = 123456789;
-let m_z = 987654321;
-let mask = 0xffffffff;
-
+/********************************************************************************** */
 // Prepare seed for random
 function seed(i) {
     m_w = (123456789 + i) & mask;
     m_z = (987654321 - i) & mask;
 }
 
+/********************************************************************************** */
 //Random function better than the default rand.
 function random()  {
     m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & mask;
@@ -30,9 +34,9 @@ function random()  {
 }
 
 
+/********************************************************************************** */
 //Check if an image exist.
 //TODO: improve it so the request is done in a better way.
-
 function BeneosCheckImageExists(imagefile) {
     let req = new XMLHttpRequest();
     req.open('HEAD', imagefile, false);
@@ -44,6 +48,7 @@ function BeneosCheckImageExists(imagefile) {
     return false;
 }
 
+/********************************************************************************** */
 // Checks if the token image is inside the beneos tokens module
 function BeneosCheckIsBeneosToken(token) {
 
@@ -65,6 +70,7 @@ function BeneosCheckIsBeneosToken(token) {
 }
 
 
+/********************************************************************************** */
 //Foundry default get token give errors from time to time. It's better to get them directly from de canvas.
 function BeneosGetToken(tokenid) {
     for (i in canvas.tokens.placeables)  {
@@ -77,8 +83,8 @@ function BeneosGetToken(tokenid) {
 }
 
 
+/********************************************************************************** */
 // Function to add FX from the Token Magic module or from the ones defined in the configuration files.
-
 async function BeneosAddFx (token , bfx, replace = true) {
     if (!game.dnd5e) { return}
     if (typeof TokenMagic !== 'undefined') {
@@ -118,7 +124,7 @@ async function BeneosAddFx (token , bfx, replace = true) {
     }
 }
 
-
+/********************************************************************************** */
 //Function to change the token animations
 function BeneosChangeanimation (token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading) {
     if (!BeneosCheckImageExists(animation)) {
@@ -143,6 +149,7 @@ function BeneosChangeanimation (token, animation, tkscale, tkangle, tkalpha, tka
     setTimeout(function() { if (beneosDebug) console.log("[BENEOS TOKENS] Finished changing animation: " + animation); token.document.update({img: animation, scale: tkscale, rotation: tkangle, data: {img: animation}}); beneosAnimations[token.id] = false}, tkanimtime - 10);
 }
 
+/********************************************************************************** */
 //Retrieves the necessary data from a token in order to be able to fire automatic animations based on the current token image file.
 function BeneosGetTokenImageInfo(token) {
 
@@ -158,8 +165,8 @@ function BeneosGetTokenImageInfo(token) {
             return false;
         }
     }
-    let apath = file.split("/");
-    let bindex = apath.indexOf("beneostokens");
+    let apath = file.split("/")
+    let bindex = apath.indexOf( BENEOS_DEFAULT_TOKEN_PATH )
     let btoken = apath[bindex + 2].toLowerCase();
     let path = beneosBasePath + apath[bindex - 1] + "/" + apath[bindex] + "/" + apath[bindex + 1] + "/";
     let subpath = btoken + "/" + variant + "/";
@@ -174,12 +181,17 @@ function BeneosGetTokenImageInfo(token) {
 
     let extension = animation.substr(index4+1);
 
-    return {"id" : token.id, "path": path, "subpath": subpath, "currentstatus" : currentstatus, "basefilename" : basefilename, "variant" : variant, "extension" : extension, "btoken" : btoken};
+    // Auto-fix with new path settings -> TODO
+    if (path == undefined) path = ""
+    if (subpath == undefined) subpath = ""
+
+    let dataPath = {"id" : token.id, "path": BENEOS_DEFAULT_TOKEN_PATH, "subpath": subpath, "currentstatus" : currentstatus, "basefilename" : basefilename, "variant" : variant, "extension" : extension, "btoken" : btoken};
+    console.log("Datapath found :", dataPath)
+    return dataPath
 
 }
 
-
-
+/********************************************************************************** */
 // Function to force update the renewal of beneos tokens in a scene.
 function UpdateBeneosSceneTokens() {
     for (i in canvas.tokens.placeables)  {
@@ -193,6 +205,7 @@ function UpdateBeneosSceneTokens() {
     }
 }
 
+/********************************************************************************** */
 // Function made for be able to read the action fired and make it compatible with EasyRolls and MIDI-QOL
 function BeneosGetAction (message, tokendata) {
 
@@ -261,8 +274,7 @@ function BeneosGetAction (message, tokendata) {
     return action;
 }
 
-
-
+/********************************************************************************** */
 //Function that preloads token animations. We need to do it to prevent the "scale not found" error in Foundry
 function BeneosPreloadToken(token) {
     let tokendata = BeneosGetTokenImageInfo(token);
@@ -298,16 +310,17 @@ function BeneosPreloadToken(token) {
 
 }
 
+/********************************************************************************** */
 function BeneosPreloadImage(finalimage) {
     TextureLoader.loader.loadImageTexture (finalimage);
 }
 
+/********************************************************************************** */
 function BeneosPreloadVideo(finalimage) {
     TextureLoader.loader.loadVideoTexture (finalimage);
 }
 
-
-
+/********************************************************************************** */
 // Main function that allows to control the automatic animations and decide which animations has to be shown.
 function  BeneosUpdateToken (tokenid, BeneosUpdateAction, BeneosExtraData) {
 

@@ -10,8 +10,8 @@ export let libWrapper = undefined;
 Hooks.once('init', () => {
     // Check if the real module is already loaded - if so, use it
     if(globalThis.libWrapper && !(globalThis.libWrapper.is_fallback ?? true)) {
-        libWrapper = globalThis.libWrapper;
-        return;
+        libWrapper = globalThis.libWrapper
+        return
     }
 
     // Fallback implementation
