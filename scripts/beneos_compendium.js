@@ -18,7 +18,7 @@ export class BeneosCompendiumReset extends FormApplication {
     ui.notifications.info("BeneosTokens : Cleanup of compendiums has started....")
     await this.deleteCompendiumContent( "beneostokens_beta.beneostokens_actors")
     await this.deleteCompendiumContent("beneostokens_beta.beneostokens_journal")
-    ui.notifications.info("BeneosTokens : Cleanup of compendiums finished, reloading !")
+    ui.notifications.info("BeneosTokens : Cleanup of compendiums finished.")
     
     // Force reload
    // window.location.reload(true)
@@ -38,7 +38,7 @@ export class BeneosCompendiumManager {
   /********************************************************************************** */
   // Main root importer/builder function
   static async buildDynamicCompendiums() {
-    ui.notifications.info("BeneosTokens : Compendium building .... !")
+    ui.notifications.info("BeneosTokens : Compendium building .... Please wait !")
 
     // TODO - Get data token folder
     let tokenDataFolder = BENEOS_DEFAULT_TOKEN_PATH
@@ -127,13 +127,30 @@ export class BeneosCompendiumManager {
   /********************************************************************************** */
   /** Replace the initial image from exported JSON to the new actual path */
   static replaceImgPathHTMLContent(currentFolder, content) {
-    let res = content.match("img\\s+src=\"([\\w/\\.\\-]*)")
+    let res = content.match("img\\s+src=\"([\\w/\\.\\-]*)\"")
     if (res && res[1]) { // Image found !
       let filename = res[1].substring( res[1].lastIndexOf("/")+1 )
-      filename = filename.replace(".gif", ".webm") // Patch to webm
+      if ( filename[2] == "_") { // No 3 digits in the preview file
+        filename = "0" + filename
+      }
+      filename = filename.toLowerCase().replace(".gif", ".webm") // Patch to webm
       let newPath = currentFolder + "/" +  filename  
-      let newContent = content.replace(res[1], newPath)
+
+      let newContent = content.replace(res[1], newPath) // Replace filepath
+      newContent = newContent.replace("width=\"673\" height=\"376\"", "") // Delete width/height gif
+      newContent = newContent.replace("<img ", "<video autoplay=\"autoplay\" loop=\"loop\" width=\"674\" height=\"377\" ") // Replace img tag
       return newContent
+    } else {
+      let res = content.match("video\\s+src=\"([\\w/\\.\\-]*)\"")
+      if ( res && res[1]) {
+        let filename = res[1].substring( res[1].lastIndexOf("/")+1 )
+        if ( filename[2] == "_") { // No 3 digits in the preview file
+          filename = "0" + filename
+        }
+        let newPath = currentFolder + "/" +  filename  
+        let newContent = content.replace(res[1], newPath) // Replace filepath
+        return newContent
+      }
     }
     return content
   }
