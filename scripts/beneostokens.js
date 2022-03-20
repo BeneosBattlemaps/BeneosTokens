@@ -1,5 +1,5 @@
 import { libWrapper } from "./shim.js";
-import { BeneosCompendiumManager } from "./beneos_compendium.js";
+import { BeneosCompendiumManager,BeneosCompendiumReset } from "./beneos_compendium.js";
 
 /********************************************************************************** */
 Hooks.once('init', () => {
@@ -32,7 +32,15 @@ Hooks.once('ready', () => {
 
 	if (game.user.isGM) {
 
-		game.settings.register(BENEOS_MODULE_ID, 'beneos-forcefacetoken', {
+    game.settings.registerMenu(BENEOS_MODULE_ID, "beneos-clean-compendium", {
+      name: "Empty compendium to re-import all tokens data",
+      label: "Reset BeneosTokens Compendiums",
+      hint: "'Cleanup BeneosTokens compendium and tokens configs",
+      type: BeneosCompendiumReset,
+      restricted: true
+  })
+
+    game.settings.register(BENEOS_MODULE_ID, 'beneos-forcefacetoken', {
 			name: 'Use face rings instead of animations?',
 			default: false,
 			type: Boolean,
@@ -40,7 +48,7 @@ Hooks.once('ready', () => {
 			config: true,
 			hint: 'Whether to use animated ring tokens or not.',
 			onChange: value => UpdateBeneosSceneTokens()
-		});
+		})
 
 		game.settings.register(BENEOS_MODULE_ID, 'beneos-tokenview', {
 			name: 'Beneos Token View',
@@ -77,7 +85,7 @@ Hooks.once('ready', () => {
 		type: Number
 	})
 
-  BeneosCompendiumManager.buildDynamicCompendiums()
+  // BeneosCompendiumManager.buildDynamicCompendiums()
 
 	//Token Magic Hack  Replacement to prevent double filters when changing animations
 	if (typeof TokenMagic !== 'undefined') {
