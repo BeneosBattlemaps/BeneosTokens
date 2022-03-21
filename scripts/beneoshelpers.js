@@ -10,6 +10,7 @@ let beneosFadingSteps = 10
 let beneosFadingWait = 30
 let beneosFadingTime = beneosFadingSteps * beneosFadingWait
 let beneosBasePath = ""
+let dataPath = BENEOS_DEFAULT_TOKEN_PATH
 let beneosHealth = []
 let beneosPreload = []
 let m_w = 123456789

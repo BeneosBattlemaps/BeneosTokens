@@ -34,11 +34,23 @@ Hooks.once('ready', () => {
 
     game.settings.registerMenu(BENEOS_MODULE_ID, "beneos-clean-compendium", {
       name: "Empty compendium to re-import all tokens data",
-      label: "Reset BeneosTokens Compendiums",
+      label: "Reset & Rebuild BeneosTokens Compendiums",
       hint: "'Cleanup BeneosTokens compendium and tokens configs",
+			scope: 'world',
+			config: true,
       type: BeneosCompendiumReset,
       restricted: true
-  })
+    })
+
+    game.settings.registerMenu(BENEOS_MODULE_ID, "beneos-datapath", {
+      name: "Storage path of tokens assets",
+      hint: "'Location of tokens and associated datas",
+			scope: 'world',
+			config: true,
+      default: BENEOS_DEFAULT_TOKEN_PATH,
+      type: String,
+      restricted: true
+    })
 
     game.settings.register(BENEOS_MODULE_ID, 'beneos-forcefacetoken', {
 			name: 'Use face rings instead of animations?',
@@ -85,7 +97,7 @@ Hooks.once('ready', () => {
 		type: Number
 	})
 
-  // BeneosCompendiumManager.buildDynamicCompendiums()
+  dataPath = game.settings.get(BENEOS_MODULE_ID, 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
 
 	//Token Magic Hack  Replacement to prevent double filters when changing animations
 	if (typeof TokenMagic !== 'undefined') {
@@ -374,8 +386,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 	// REPLACEMENT TOKEN HUD
 	let beneosTokensHUD = [];
 	Object.entries(beneosTokens).forEach(([key, value]) => {
-		beneosTokensHUD.push ({"token": beneosBasePath + BENEOS_DEFAULT_TOKEN_PATH + "/" + key + '/' + key + "-idle_face_still.webp", 
-    "name": key.replaceAll("_"," "), 'tokenvideo': beneosBasePath + BENEOS_DEFAULT_TOKEN_PATH + "/" + key + '/' + key + "-idle_face.webm"});
+		beneosTokensHUD.push ({"token": beneosBasePath + dataPath + "/" + key + '/' + key + "-idle_face_still.webp", 
+    "name": key.replaceAll("_"," "), 'tokenvideo': beneosBasePath + dataPath + "/" + key + '/' + key + "-idle_face.webm"});
 	});
 	const beneosTokensDisplay =  await renderTemplate('modules/beneostokens/templates/beneoshud.html', { beneosBasePath, beneosTokensHUD})
 

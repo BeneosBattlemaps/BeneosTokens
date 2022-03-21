@@ -41,7 +41,7 @@ export class BeneosCompendiumManager {
     ui.notifications.info("BeneosTokens : Compendium building .... Please wait !")
 
     // TODO - Get data token folder
-    let tokenDataFolder = BENEOS_DEFAULT_TOKEN_PATH
+    let tokenDataFolder = beneosBasePath + dataPath
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens_beta.beneostokens_actors")
@@ -119,7 +119,7 @@ export class BeneosCompendiumManager {
     for(let item of records.items) {      
       if (item.img && item.img.match("_ability_icons") ) {
         let filename = item.img.substring( item.img.lastIndexOf("/")+1 )
-        item.img = BENEOS_DEFAULT_TOKEN_PATH + "/_ability_icons/" +  filename          
+        item.img = beneosBasePath + dataPath + "/_ability_icons/" +  filename          
       }
     }
   }
