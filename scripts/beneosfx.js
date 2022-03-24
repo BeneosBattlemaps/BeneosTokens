@@ -33,7 +33,7 @@ let	beneosFX = {
     "BFXDeadRedBlood": [{
         filterType: "sprite",
         filterId: "BFXDeadRedBlood",
-        eval_imagePath: "'modules/beneostokens/tokens/000_module_assets/blood_splat_'+( (Math.floor(random()*7)+1))+'.webp'",
+        eval_imagePath: "'__BENEOS_DATA_PATH__/000_module_assets/blood_splat_'+( (Math.floor(random()*7)+1))+'.webp'",
         gridPadding: 2,
         eval_scaleX: "0.5+random()",
         eval_scaleY: "0.5+random()",
@@ -45,7 +45,7 @@ let	beneosFX = {
     "BFXDeadBlackBlood": [{
         filterType: "sprite",
         filterId: "BFXDeadBlackBlood",
-        eval_imagePath: "'modules/beneostokens/tokens/000_module_assets/blood_splat_black_'+( (Math.floor(random()*7)+1))+'.webp'",
+        eval_imagePath: "'__BENEOS_DATA_PATH__/000_module_assets/blood_splat_black_'+( (Math.floor(random()*7)+1))+'.webp'",
         gridPadding: 2,
         eval_scaleX: "0.5+random()",
         eval_scaleY: "0.5+random()",
@@ -57,7 +57,7 @@ let	beneosFX = {
     "BFXDeadBlueBlood": [{
         filterType: "sprite",
         filterId: "BFXDeadBlueBlood",
-        eval_imagePath: "'modules/beneostokens/tokens/000_module_assets/blood_blue_black_'+( (Math.floor(random()*7)+1))+'.webp'",
+        eval_imagePath: "'__BENEOS_DATA_PATH__/000_module_assets/blood_blue_black_'+( (Math.floor(random()*7)+1))+'.webp'",
         gridPadding: 2,
         eval_scaleX: "0.5+random()",
         eval_scaleY: "0.5+random()",
@@ -69,7 +69,7 @@ let	beneosFX = {
     "BFXDeadGreenBlood": [{
         filterType: "sprite",
         filterId: "BFXDeadGreenBlood",
-        eval_imagePath: "'modules/beneostokens/tokens/000_module_assets/blood_splat_green_'+( (Math.floor(random()*7)+1))+'.webp'",
+        eval_imagePath: "'__BENEOS_DATA_PATH__/000_module_assets/blood_splat_green_'+( (Math.floor(random()*7)+1))+'.webp'",
         gridPadding: 2,
         eval_scaleX: "0.5+random()",
         eval_scaleY: "0.5+random()",
@@ -81,7 +81,7 @@ let	beneosFX = {
     "BFXDeadYellowBlood": [{
         filterType: "sprite",
         filterId: "BFXDeadYellowBlood",
-        eval_imagePath: "'modules/beneostokens/tokens/000_module_assets/blood_splat_yellow_'+( (Math.floor(random()*7)+1))+'.webp'",
+        eval_imagePath: "'__BENEOS_DATA_PATH__/000_module_assets/blood_splat_yellow_'+( (Math.floor(random()*7)+1))+'.webp'",
         gridPadding: 2,
         eval_scaleX: "0.5+random()",
         eval_scaleY: "0.5+random()",
