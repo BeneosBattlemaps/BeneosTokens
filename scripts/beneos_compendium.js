@@ -8,6 +8,8 @@ export class BeneosCompendiumReset extends FormApplication {
   async deleteCompendiumContent(comp) {
     let pack = game.packs.get(comp)
     await pack.getIndex()
+    await pack.configure({ locked: false })
+
     for (let item of pack.index.contents) {
       let doc = await pack.getDocument(item._id)
       await doc.delete()
@@ -18,6 +20,7 @@ export class BeneosCompendiumReset extends FormApplication {
   /********************************************************************************** */
   async performReset() {
     ui.notifications.info("BeneosTokens : Cleanup of compendiums has started....")
+
     await this.deleteCompendiumContent("beneostokens_beta.beneostokens_actors")
     await this.deleteCompendiumContent("beneostokens_beta.beneostokens_journal")
     ui.notifications.info("BeneosTokens : Cleanup of compendiums finished.")
@@ -48,11 +51,11 @@ export class BeneosCompendiumManager {
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens_beta.beneostokens_actors")
     let journalPack = game.packs.get("beneostokens_beta.beneostokens_journal")
+    await actorPack.getIndex()
+    await journalPack.getIndex()
 
     await actorPack.configure({ locked: false })
     await journalPack.configure({ locked: false })
-    actorPack.getIndex()
-    journalPack.getIndex()
 
     // Parse subfolder
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)

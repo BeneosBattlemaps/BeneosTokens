@@ -211,7 +211,8 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static checkImageExists(imagefile) {
-    if (this.file_cache[imagefile]) {
+    return true
+    /*if (this.file_cache[imagefile]) {
       return true
     } else {
       let req = new XMLHttpRequest()
@@ -224,7 +225,7 @@ export class BeneosUtility {
       if (beneosDebug) console.log("[BENEOS TOKENS] " + imagefile + " does not exist")
       return false
     }
-    return false
+    return false*/
   }
 
   /********************************************************************************** */
@@ -307,13 +308,14 @@ export class BeneosUtility {
   static preloadToken(token) {
     let tokendata = this.getTokenImageInfo(token)
 
-    if (typeof (this.beneosTokens[tokendata.btoken]) == "undefined") {
-      if (this.isDebug()) console.log("[BENEOS TOKENS] Config not found " + tokendata.btoken)
+    let myToken = this.beneosTokens[tokendata.btoken]
+    if (typeof (myToken) == "undefined") {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Config not found " + tokendata.btoken)
       return;
     }
 
-    if (typeof (this.beneosTokens[tokendata.btoken][tokendata.variant]) == "undefined") {
-      if (this.isDebug()) console.log("[BENEOS TOKENS] Variant not found " + tokendata.variant)
+    if (typeof (myToken[tokendata.variant]) == "undefined") {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Variant not found " + tokendata.variant)
       return;
     }
 
@@ -348,7 +350,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   //Function to change the token animations
-  static changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading) {
+  static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading) {
     if (!this.checkImageExists(animation)) {
       this.debugMessage("[BENEOS TOKENS] Image does not exists:" + animation)
       return
@@ -366,12 +368,12 @@ export class BeneosUtility {
     token.img = animation
     this.beneosAnimations[token.id] = true
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
-    token.document.update({ img: animation, /*scale: tkscale,*/ rotation: tkangle, data: { img: animation } })
+    token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
     this.addFx(token, bfx, true)
 
     setTimeout(function () {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
-      token.document.update({ img: animation, /*scale: tkscale,*/ rotation: tkangle, data: { img: animation } })
+      token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
       BeneosUtility.beneosAnimations[token.id] = false
       },
       tkanimtime - 10)
@@ -482,11 +484,12 @@ export class BeneosUtility {
       }
     }
 
-    if (!BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant].hasOwnProperty(action)) return null;
+    let myToken = BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant]
+    if (!myToken.hasOwnProperty(action)) return null;
 
     if (checkActionType && 
-        BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant][action]["actionType"] && 
-        BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant][action]["actionType"] != actionType) {
+      myToken[action]["actionType"] && 
+      myToken[action]["actionType"] != actionType) {
       return null
     }
 
@@ -527,16 +530,17 @@ export class BeneosUtility {
       return
     }
 
-    if (typeof (this.beneosTokens[tokendata.btoken]) == "undefined") {
+    let myToken = BeneosUtility.beneosTokens[tokendata.btoken]
+    if (typeof (myToken) == "undefined") {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Config not found " + tokendata.btoken)
       return
     }
-    if (typeof (BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant]) == "undefined") { 
+    if (typeof (myToken[tokendata.variant]) == "undefined") { 
       BeneosUtility.debugMessage("[BENEOS TOKENS] Variant not found")
       return
     }
 
-    let benVariant = this.beneosTokens[tokendata.btoken][tokendata.variant]
+    let benVariant = myToken[tokendata.variant]
 
     let attributes = actorData.data.attributes
     if (attributes == "undefined") { 
@@ -558,7 +562,7 @@ export class BeneosUtility {
     if (token.data.alpha != undefined) { benAlpha = token.data.alpha }
     let scaleFactor = token.data.document.getFlag(BeneosUtility.moduleID(), "scalefactor")
     if (!scaleFactor) {
-      scaleFactor = BeneosUtility.beneosTokens[tokendata.btoken].config["scalefactor"]
+      scaleFactor = myToken.config["scalefactor"]
       token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
     }
     if ("forceupdate" in BeneosExtraData) BeneosUtility.beneosAnimations[token.id] = false;
@@ -678,7 +682,7 @@ export class BeneosUtility {
       let token = canvas.tokens.placeables[i];
       if (token !== undefined && ("id" in token)) {
         this.preloadToken(token)
-        if (BeneosUtility.isDebug()) console.log("[BENEOS TOKENS] Force updating " + token.id)
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Force updating " + token.id)
         this.beneosAnimations[token.id] = false
         this.updateToken(token.id, "standing", { forceupdate: true })
       }

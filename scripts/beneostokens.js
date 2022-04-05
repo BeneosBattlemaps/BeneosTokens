@@ -247,7 +247,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
         BeneosUtility.beneosTokens[tokendata.btoken] != undefined && 
         BeneosUtility.beneosTokens[tokendata.btoken]["config"] != undefined) {
       if (BeneosUtility.beneosTokens[tokendata.btoken]["config"]["compendium"] != undefined) {
-      let beneosPack = game.packs.get("beneostokens.beneostokens_journal");
+      let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal");
       if (beneosPack) {
         let beneosJournalEntry = null;
         let beneosCompendiumEntry = beneosPack.index.getName(BeneosUtility.beneosTokens[tokendata.btoken]["config"]["compendium"]);
@@ -256,7 +256,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
         }
         if (beneosJournalEntry) {
 
-          const beneosJournalDisplay = await renderTemplate('modules/beneostokens/templates/beneosjournal.html', { beneosBasePath: BeneosUtility.getBasePath() })
+          const beneosJournalDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosjournal.html', 
+          { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath() })
           html.find('div.left').append(beneosJournalDisplay);
           html.find('img.beneosJournalAction').click((event) => {
             event.preventDefault();
@@ -275,7 +276,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
         beneosVariantsHUD.push({ "name": key });
       });
 
-      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens/templates/beneosvariants.html', { beneosBasePath:BeneosUtility.getBasePath(), beneosVariantsHUD })
+      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosvariants.html', 
+      { beneosBasePath:BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosVariantsHUD })
 
       if (!BeneosUtility.isBeneosModule() || BeneosUtility.moduleID() == 'iso') {
         return
@@ -312,7 +314,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
       "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm"
     });
   });
-  const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/beneoshud.html', { beneosBasePath:BeneosUtility.getBasePath(), beneosTokensHUD })
+  const beneosTokensDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneoshud.html', 
+    { beneosBasePath:BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
 
   //if (!game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')  || game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview') == 'iso') return;
   if (BeneosUtility.moduleID() == 'iso') {
