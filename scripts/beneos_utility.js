@@ -52,6 +52,14 @@ export class BeneosUtility {
         restricted: true
       })
 
+      game.settings.register(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', {
+        name: 'Global JSON config for tokens',
+        default: {},
+        type: String,
+        scope: 'world',
+        config: false
+      })
+
       /*game.settings.register(BeneosUtility.moduleID(), 'beneos-forcefacetoken', {
         name: 'Use face rings instead of animations?',
         default: false,
@@ -62,13 +70,6 @@ export class BeneosUtility {
         onChange: value => BeneosUtility.updateSceneTokens()
       })
 
-      game.settings.register(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', {
-        name: 'Global JSON config for tokens',
-        default: {},
-        type: String,
-        scope: 'world',
-        config: false
-      })
 
       game.settings.register(BeneosUtility.moduleID(), 'beneos-tokenview', {
         name: 'Beneos Token View',
@@ -109,7 +110,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   static init() {
     this.file_cache = {}
-    this.tokenview = game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview')
+    //this.tokenview = game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview')
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
     this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
@@ -188,11 +189,6 @@ export class BeneosUtility {
     let result = ((this.m_z << 16) + (this.m_w & 65535)) >>> 0
     result /= 4294967296
     return result
-  }
-
-  /********************************************************************************** */
-  static getTokenView() {
-    return this.tokenview
   }
 
   /********************************************************************************** */
@@ -532,31 +528,23 @@ export class BeneosUtility {
   static updateToken(tokenid, BeneosUpdateAction, BeneosExtraData) {
 
     let token = BeneosUtility.getToken(tokenid)
-    if (token === null || token == undefined) {
+    if (!token || !BeneosUtility.checkIsBeneosToken(token) || !token.data.img) {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos/No image")
       return
     }
 
-    let actor = token.actor
-    if (actor === null || actor == undefined) return
-    let actorData = actor.data
-    if (actorData === null || actorData == undefined) return
-    if (!BeneosUtility.checkIsBeneosToken(token)) {
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos")
-      return;
-    }
-
-    if (!token.data.img) {
-      console.log("No image found!!!!", tokenData, token)
+    let actorData = token.actor?.data
+    if ( !actorData) {
       return
-    }
+    } 
+
     let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
-    //console.log("TOKEN DATA used", tokenData, token.img, token.data.img)
     if (tokenData.variant != "top") {
       return // Not in "top" mode, so exit
     }
 
     let myToken = BeneosUtility.beneosTokens[tokenData.tokenKey]
-    if (typeof (myToken) == "undefined") {
+    if ( !myToken ) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Config not found " + tokenData)
       return
     }
@@ -567,7 +555,7 @@ export class BeneosUtility {
     }
 
     let attributes = actorData.data.attributes
-    if (attributes == "undefined") {
+    if (!attributes) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] No attributes")
       return
     }
@@ -575,49 +563,51 @@ export class BeneosUtility {
     let hp = attributes.hp.value
     let benRotation = 0
     let benAlpha = 1
-
     if (hp == "undefined") {
       BeneosUtility.debugMessage("[BENEOS TOKENS] No hp")
       return
     }
 
     BeneosUtility.beneosHealth[token.id] = hp
-    if (token.data.rotation != undefined) { benRotation = token.data.rotation }
-    if (token.data.alpha != undefined) { benAlpha = token.data.alpha }
+    if (token.data.rotation) { benRotation = token.data.rotation }
+    if (token.data.alpha) { benAlpha = token.data.alpha }
     let scaleFactor = token.data.document.getFlag(BeneosUtility.moduleID(), "scalefactor")
     if (!scaleFactor || scaleFactor != myToken.config["scalefactor"]) {
       scaleFactor = myToken.config["scalefactor"]
       token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
     }
 
+    let variantData
     switch (BeneosUpdateAction) {
       case "hit":
-        if (typeof (benVariant["hit"]) != "undefined") {
-          BeneosUtility.debugMessage("[BENEOS TOKENS] Hit");
-          if (tokenData.currentstatus != benVariant["hit"]["a"] || ("forceupdate" in BeneosExtraData)) {
-            let finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["hit"]["a"] + "_" + tokenData.variant + ".webm"
-            BeneosUtility.changeAnimation(token, finalimage, benVariant["hit"]["s"] * scaleFactor, benRotation, benAlpha, benVariant["hit"]["t"], benVariant["hit"]["fx"], true)
+        variantData = benVariant["hit"]
+        if (variantData) {
+          BeneosUtility.debugMessage("[BENEOS TOKENS] Hit")
+          if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+            let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
+            BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
             setTimeout(function () {
               BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
-            }, benVariant["hit"]["t"] + (beneosFadingTime * 2))
+            }, variantData.t + (beneosFadingTime * 2))
           }
         }
         break;
       case "move":
         BeneosUtility.debugMessage("[BENEOS TOKENS] Move")
-        if (typeof (benVariant["move"]) != "undefined") {
-          if (tokenData.currentstatus != benVariant["move"]["a"] || ("forceupdate" in BeneosExtraData)) {
-            let finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["move"]["a"] + "_" + tokenData.variant + ".webm"
-            let ray = token._movement;
-            let instantTeleport = Math.max(Math.abs(ray.dx), Math.abs(ray.dy)) <= canvas.grid.size;
-            let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'));
-            let mvangle = (Math.atan2(token._velocity.dy, token._velocity.dx, token._velocity.dx) / (Math.PI / 180)) - 90;
+        variantData = benVariant["move"]
+        if ( variantData ) {
+          if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+            let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
+            let ray = token._movement
+            let instantTeleport = Math.max(Math.abs(ray.dx), Math.abs(ray.dy)) <= canvas.grid.size
+            let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
+            let mvangle = (Math.atan2(token._velocity.dy, token._velocity.dx, token._velocity.dx) / (Math.PI / 180)) - 90
 
             if (instantTeleport) {
               canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
               return
             }
-            BeneosUtility.changeAnimation(token, finalimage, benVariant["move"]["s"] * scaleFactor, mvangle, benAlpha, mvtime, benVariant["move"]["fx"], false);
+            BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
             setTimeout(function () {
               BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
             }, mvtime + 100)
@@ -631,70 +621,74 @@ export class BeneosUtility {
         setTimeout(function () {
           BeneosUtility.updateToken(token.id, "standing", { forceupdate: true });
         }, 3000)
-        break;
+        break
 
       case "standing":
         BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id])
         if (BeneosUtility.beneosHealth[token.id] > 0 || !game.dnd5e) {
           if (token.inCombat) {
-            BeneosUtility.debugMessage("[BENEOS TOKENS] In Combat");
-            if (typeof (benVariant["combat_idle"]) != "undefined") {
-              if (tokenData.currentstatus != benVariant["combat_idle"]["a"] || ("forceupdate" in BeneosExtraData)) {
-                let finalimage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
-                if (finalimage == undefined || finalimage == null || finalimage == "") {
-                  finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["combat_idle"]["a"] + "_" + tokenData.variant + ".webm"
+            BeneosUtility.debugMessage("[BENEOS TOKENS] In Combat")
+            variantData = benVariant["combat_idle"]
+            if (variantData) {
+              if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+                let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
+                if ( !finalImage || finalImage == "") {
+                  finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
-                BeneosUtility.changeAnimation(token, finalimage, benVariant["combat_idle"]["s"] * scaleFactor, benRotation, benAlpha, benVariant["combat_idle"]["t"], benVariant["combat_idle"]["fx"], true)
+                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
               }
             }
           } else {
-            BeneosUtility.debugMessage("[BENEOS TOKENS] Idle");
-            if (typeof (benVariant["idle"]) != "undefined") {
-              if (tokenData.currentstatus != benVariant["idle"]["a"] || ("forceupdate" in BeneosExtraData)) {
-                let finalimage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
-                if (finalimage == undefined || finalimage == null || finalimage == "") {
-                  finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["idle"]["a"] + "_" + tokenData.variant + ".webm";
+            BeneosUtility.debugMessage("[BENEOS TOKENS] Idle")
+            variantData = benVariant["idle"]
+            if ( variantData) {
+              if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+                let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
+                if (!finalImage || finalImage == "") {
+                  finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
-                console.log("IDLE standing", benVariant["idle"]["s"], scaleFactor)
-                BeneosUtility.changeAnimation(token, finalimage, benVariant["idle"]["s"] * scaleFactor, benRotation, benAlpha, benVariant["idle"]["t"], benVariant["idle"]["fx"], true);
+                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
               }
             }
           }
         } else {
-          BeneosUtility.debugMessage("[BENEOS TOKENS] Dead");
-          if (typeof (benVariant["die"]) != "undefined") {
-            if ((tokenData.currentstatus != benVariant["die"]["a"] && tokenData.currentstatus != benVariant["dead"]["a"]) || ("forceupdate" in BeneosExtraData)) {
+          BeneosUtility.debugMessage("[BENEOS TOKENS] Dead")
+          variantData = benVariant["die"]
+          let variantDataDead = benVariant["dead"]
+          if (variantData) {
+            if ((tokenData.currentStatus != variantData.a && tokenData.currentStatus != variantDataDead.a) || ("forceupdate" in BeneosExtraData)) {
               if (tokenData.extension != "webp") {
                 let idToken = token.id
-                let finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["die"]["a"] + "_" + tokenData.variant + ".webm";
-                BeneosUtility.changeAnimation(token, finalimage, benVariant["die"]["s"] * scaleFactor, benRotation, benAlpha, benVariant["die"]["t"], benVariant["die"]["fx"], true);
+                let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
+                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
                 setTimeout(function () {
-                  token = BeneosUtility.getToken(idToken);
-                  finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant["dead"]["a"] + "_" + tokenData.variant + ".webp";
-                  BeneosUtility.changeAnimation(token, finalimage, benVariant["dead"]["s"] * scaleFactor, benRotation, benAlpha, benVariant["dead"]["t"], benVariant["dead"]["fx"], false);
-                }, benVariant["die"]["t"]);
+                  token = BeneosUtility.getToken(idToken)
+                  finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
+                  BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false)
+                }, variantData.t )
               } else {
                 if ("forceupdate" in BeneosExtraData) {
-                  BeneosUtility.addFx(token, benVariant["dead"]["fx"])
+                  BeneosUtility.addFx(token, variantDataDead.fx )
                 }
               }
             }
           }
         }
-        break;
+        break
       case "action":
         let action = BeneosUtility.getAction(BeneosExtraData["action"], tokenData);
         if (!action) return;
         BeneosUtility.debugMessage("[BENEOS TOKENS] Action: " + action)
         if (benVariant.hasOwnProperty(action)) {
-          BeneosUtility.debugMessage("[BENEOS TOKENS] Action found");
-          if (typeof (benVariant[action]) != "undefined") {
-            if (tokenData.currentstatus != benVariant[action]["a"] || ("forceupdate" in BeneosExtraData)) {
-              let finalimage = tokenData.tokenPath + tokenData.tokenKey + "-" + benVariant[action]["a"] + "_" + tokenData.variant + ".webm";
-              BeneosUtility.changeAnimation(token, finalimage, benVariant[action]["s"] * scaleFactor, benRotation, benAlpha, benVariant[action]["t"], benVariant[action]["fx"], true);
+          BeneosUtility.debugMessage("[BENEOS TOKENS] Action found")
+          variantData = benVariant[action]
+          if (variantData) {
+            if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+              let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
+              BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
               setTimeout(function () {
                 BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
-              }, benVariant[action]["t"] + (beneosFadingTime * 2));
+              }, variantData.t + (beneosFadingTime * 2))
             }
           }
         }

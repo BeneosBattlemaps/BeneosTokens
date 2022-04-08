@@ -6,13 +6,13 @@ import { BeneosUtility } from "./beneos_utility.js";
 Hooks.once('init', () => {
 
   // HAck to prevent errors when the animated textures are not fully loaded
-  Token.prototype.oldRefresh = Token.prototype.refresh
+  /*Token.prototype.oldRefresh = Token.prototype.refresh
   Token.prototype.refresh = function () {
     if (this.icon === undefined) {
       return this
     }
     return Token.prototype.oldRefresh.call(this)
-  }
+  }*/
 })
 
 /********************************************************************************** */
@@ -91,7 +91,7 @@ Hooks.once('ready', () => {
         if (changeData.scale != undefined) {
           let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
           for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
-            if (value["a"] == tokenData.currentstatus) {
+            if (value["a"] == tokenData.currentStatus) {
               let scaleFactor = (changeData.scale / value["s"])
               token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
               break

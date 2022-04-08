@@ -65,13 +65,13 @@ export class BeneosCompendiumManager {
 
         // Token config
         let idleList = []
-        let tokenKey = subFolder.substring(subFolder.lastIndexOf("/") + 1)
-        //console.log("KEY", subFolder, key)
+        let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
+        //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
         try {
-          let tokenJSON = await fetch(subFolder + "/tokenconfig_" + tokenKey + ".json")
+          let tokenJSON = await fetch(subFolder + "/tokenconfig_" + key + ".json")
           if (tokenJSON) {
             let recordsToken = await tokenJSON.json()
-            BeneosUtility.beneosTokens[tokenKey] = recordsToken[key]
+            BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
           }
         }
         catch {
@@ -100,7 +100,7 @@ export class BeneosCompendiumManager {
             records.token.img = this.replaceImgPath(dataFolder.target, records.token.img, true)
             this.replaceItemsPath(records)
             let actor = await Actor.create(records, { temporary: true })
-            actor.setFlag("beneostokens", "tokenKey", tokenKey) // Use to identify the token as a beneostoken one
+            //actor.setFlag("beneostokens", "tokenKey", key) // Use to identify the token as a beneostoken one
             actorPack.importDocument(actor)
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
@@ -112,9 +112,9 @@ export class BeneosCompendiumManager {
             journalPack.importDocument(journal)
           }
         }
-        if (tokenKey && BeneosUtility.beneosTokens[tokenKey]) {
+        if (key && BeneosUtility.beneosTokens[key]) {
           //console.log("Final IDLE list : ", idleList)
-          BeneosUtility.beneosTokens[tokenKey].idleList = duplicate(idleList)
+          BeneosUtility.beneosTokens[key].idleList = duplicate(idleList)
         }
       }
     }
