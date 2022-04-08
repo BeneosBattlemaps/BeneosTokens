@@ -1,4 +1,5 @@
-#token-hud .beneos-selector-wrap {
+#token-hud .beneos-selector-wrap, 
+#token-hud .beneos-selector-idle-wrap {
     position: absolute;
     left: 75px;
     display: none;

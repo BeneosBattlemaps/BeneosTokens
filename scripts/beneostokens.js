@@ -24,7 +24,6 @@ Hooks.once('ready', () => {
 
   BeneosUtility.forgeInit()
   BeneosUtility.registerSettings()
-  let dataPath = BeneosUtility.getBeneosDataPath()
 
   //Token Magic Hack  Replacement to prevent double filters when changing animations
   if (typeof TokenMagic !== 'undefined') {
@@ -66,18 +65,19 @@ Hooks.once('ready', () => {
   if (game.dnd5e) {
     BeneosUtility.updateSceneTokens()
 
-
+    /********************************************************************************** */
     Hooks.on("renderChatMessage", (message, data, html) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' || !canvas.ready) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
       BeneosUtility.updateToken(message.data.speaker.token, "action", { "action": message })
-    });
+    })
 
 
+    /********************************************************************************** */
     Hooks.on('preUpdateToken', (token, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' || !canvas.ready || changeData["img"] != undefined) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.img != undefined) {
         return
       }
 
@@ -89,28 +89,24 @@ Hooks.once('ready', () => {
 
       if (BeneosUtility.checkIsBeneosToken(token)) {
         if (changeData.scale != undefined) {
-          let tokendata = BeneosUtility.getTokenImageInfo(token);
-          for (let [key, value] of Object.entries( BeneosUtility.beneosTokens[tokendata.btoken][tokendata.variant])) {
-            if (value["a"] == tokendata.currentstatus) {
-              let scaleFactor = (changeData.scale / value["s"]);
-              token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor);
-              break;
+          let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+          for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
+            if (value["a"] == tokenData.currentstatus) {
+              let scaleFactor = (changeData.scale / value["s"])
+              token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+              break
             }
           }
         }
       }
-    });
+    })
 
+    /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' || !canvas.ready || changeData["img"] != undefined) {
+      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData["img"] != undefined) {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
-
-      if (token == undefined) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
-        return
-      }
 
       if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
         return
@@ -136,8 +132,9 @@ Hooks.once('ready', () => {
     });
 
 
+    /********************************************************************************** */
     Hooks.on('updateActor', (actor, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' == 'iso' || !canvas.ready) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor")
@@ -159,33 +156,37 @@ Hooks.once('ready', () => {
           }
         }
         BeneosUtility.updateToken(token.id, action, changeData)
-      });
-    });
+      })
+    })
 
+    /********************************************************************************** */
     Hooks.on('createCombatant', (combatant) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' || !canvas.ready) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat Start Token")
       BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
-    });
+    })
 
 
+    /********************************************************************************** */
     Hooks.on('deleteCombatant', (combatant, data) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso' || !canvas.ready) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat End Token")
       BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
-    });
+    })
 
+    /********************************************************************************** */
     Hooks.on('createToken', (token) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || BeneosUtility.getTokenView() == 'iso') {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule()) {
         return
       }
       BeneosUtility.createToken(token)
     })
 
+    /********************************************************************************** */
     Hooks.on('canvasReady', () => {
       if (!game.user.isGM) {
         return
@@ -200,89 +201,82 @@ Hooks.once('ready', () => {
     });
   }
 
-
-
+  /********************************************************************************** */
   Hooks.on('controlToken', (token) => {
     if (BeneosUtility.checkIsBeneosToken(token) && typeof (tokenHUDWildcard) == "object") {
-      const actor = game.actors.get(token.data.actorId);
+      const actor = game.actors.get(token.data.actorId)
       actor.getTokenImages = async function () {
 
         let source = "data";
-        let index = token.data.img.lastIndexOf("/") + 1;
-        let pattern = token.data.img.substr(0, index) + "*";
-        const browseOptions = { wildcard: true };
+        let index = token.data.img.lastIndexOf("/") + 1
+        let pattern = token.data.img.substr(0, index) + "*"
+        const browseOptions = { wildcard: true }
         if (/\.s3\./.test(pattern)) {
-          source = "s3";
-          const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern);
+          source = "s3"
+          const { bucket, keyPrefix } = FilePicker.parseS3URL(pattern)
           if (bucket) {
-            browseOptions.bucket = bucket;
-            pattern = keyPrefix;
+            browseOptions.bucket = bucket
+            pattern = keyPrefix
           }
         }
-        else if (pattern.startsWith("icons/")) source = "public";
+        else if (pattern.startsWith("icons/")) source = "public"
         try {
-          const content = await FilePicker.browse(source, pattern, browseOptions);
-          this._tokenImages = content.files;
+          const content = await FilePicker.browse(source, pattern, browseOptions)
+          this._tokenImages = content.files
         } catch (err) {
-          this._tokenImages = [];
-          ui.notifications.error(err);
+          this._tokenImages = []
+          ui.notifications.error(err)
         }
-        return this._tokenImages;
+        return this._tokenImages
       }
     }
-  });
-});
+  })
+})
 
 
-
-
+/********************************************************************************** */
 Hooks.on('renderTokenHUD', async (hud, html, token) => {
-  if (!game.user.isGM){
+  token = BeneosUtility.getToken(token._id)
+  if (!game.user.isGM || !BeneosUtility.checkIsBeneosToken(token)) {
     return
   }
-  token = BeneosUtility.getToken(token._id)
-  let tokendata = BeneosUtility.getTokenImageInfo(token)
+  let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+  let tokenConfig = BeneosUtility.beneosTokens[tokenData.tokenKey]
   // JOURNAL HUD
-  if (  BeneosUtility.checkIsBeneosToken(token) && 
-        BeneosUtility.beneosTokens[tokendata.btoken] != undefined && 
-        BeneosUtility.beneosTokens[tokendata.btoken]["config"] != undefined) {
-      if (BeneosUtility.beneosTokens[tokendata.btoken]["config"]["compendium"] != undefined) {
+  if (tokenConfig && tokenConfig.config) {
+    if (tokenConfig.config.compendium) {
       let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal");
       if (beneosPack) {
-        let beneosJournalEntry = null;
-        let beneosCompendiumEntry = beneosPack.index.getName(BeneosUtility.beneosTokens[tokendata.btoken]["config"]["compendium"]);
+        let beneosJournalEntry = null
+        let beneosCompendiumEntry = beneosPack.index.getName(tokenConfig.config.compendium)
         if (beneosCompendiumEntry && beneosCompendiumEntry._id) {
-          beneosJournalEntry = beneosPack.getDocument(beneosCompendiumEntry._id);
+          beneosJournalEntry = beneosPack.getDocument(beneosCompendiumEntry._id)
         }
         if (beneosJournalEntry) {
-
-          const beneosJournalDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosjournal.html', 
-          { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath() })
+          const beneosJournalDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosjournal.html',
+            { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath() })
           html.find('div.left').append(beneosJournalDisplay);
           html.find('img.beneosJournalAction').click((event) => {
-            event.preventDefault();
-            beneosJournalEntry.then(function (result) { result.sheet.render(true) });
-          });
+            event.preventDefault()
+            beneosJournalEntry.then(function (result) { result.sheet.render(true) })
+          })
         }
       }
     }
 
     //VARIANTS HUD
+    if (tokenConfig.config.variants && Object.keys(tokenConfig.config.variants).length > 0) {
+      let beneosVariantsHUD = []
+      beneosVariantsHUD.push({ "name": "Default" })
+      Object.entries(tokenConfig.config.variants).forEach(([key, value]) => {
+        beneosVariantsHUD.push({ "name": key })
+      })
 
-    if (BeneosUtility.beneosTokens[tokendata.btoken]["config"]["variants"] != undefined && Object.keys(BeneosUtility.beneosTokens[tokendata.btoken]["config"]["variants"]).length > 0) {
-      let beneosVariantsHUD = [];
-      beneosVariantsHUD.push({ "name": "Default" });
-      Object.entries(BeneosUtility.beneosTokens[tokendata.btoken]["config"]["variants"]).forEach(([key, value]) => {
-        beneosVariantsHUD.push({ "name": key });
-      });
-
-      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosvariants.html', 
-      { beneosBasePath:BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosVariantsHUD })
-
-      if (!BeneosUtility.isBeneosModule() || BeneosUtility.moduleID() == 'iso') {
+      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosvariants.html',
+        { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosVariantsHUD })
+      if (!BeneosUtility.isBeneosModule()) {
         return
       }
-
       html.find('div.right').append(beneosVariantsDisplay).click((event) => {
         let beneosClickedButton = event.target.parentElement;
         let beneosTokenButton = html.find('.beneos-token-variants')[0];
@@ -297,56 +291,73 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
           html.find('.beneos-variants-wrap')[0].classList.add('beneos-disabled');
           if (beneosClickedButton.classList.contains("beneos-button-variant")) {
             event.preventDefault();
-            token.document.setFlag("beneostokens", "variant", beneosClickedButton.dataset.variant)
+            token.document.setFlag(BeneosUtility.moduleID(), "variant", beneosClickedButton.dataset.variant)
             setTimeout(function () { BeneosUtility.updateToken(token.id, "standing", { forceupdate: true }) }, 1000)
           }
         }
       });
     }
-
   }
 
+  let beneosTokensIdleHUD = BeneosUtility.getIdleTokens(token)
+  const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosidlehud.html',
+    { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensIdleHUD })
+  html.find('div.right').append(beneosTokensIdleDisplay).click((event) => {
+    let beneosClickedButton = event.target.parentElement
+    let beneosTokenButton = html.find('.beneos-token-hud-idle-action')[0]
+
+    if (beneosClickedButton === beneosTokenButton) {
+      beneosTokenButton.classList.add('active')
+      html.find('.beneos-selector-idle-wrap')[0].classList.add('beneos-active')
+      html.find('.beneos-selector-idle-wrap')[0].classList.remove('beneos-disabled')
+    } else {
+      beneosTokenButton.classList.remove('active')
+      html.find('.beneos-selector-idle-wrap')[0].classList.remove('beneos-active')
+      html.find('.beneos-selector-idle-wrap')[0].classList.add('beneos-disabled')
+      if (beneosClickedButton.classList.contains("beneos-button-idle-token")) {
+        event.preventDefault()
+        let finalImage = beneosClickedButton.dataset.token
+        setTimeout(function () {
+          BeneosUtility.forceIdleTokenUpdate(token.id, finalImage)
+        }, 200)
+      }
+    }
+  })
+
   // REPLACEMENT TOKEN HUD
-  let beneosTokensHUD = [];
+  let beneosTokensHUD = []
   Object.entries(BeneosUtility.beneosTokens).forEach(([key, value]) => {
     beneosTokensHUD.push({
       "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
       "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm"
-    });
-  });
-  const beneosTokensDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneoshud.html', 
-    { beneosBasePath:BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
-
-  //if (!game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')  || game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview') == 'iso') return;
-  if (BeneosUtility.moduleID() == 'iso') {
-    return
-  }
+    })
+  })
+  const beneosTokensDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneoshud.html',
+    { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
 
   html.find('div.right').append(beneosTokensDisplay).click((event) => {
-    let beneosClickedButton = event.target.parentElement;
-    let beneosTokenButton = html.find('.beneos-token-hud-action')[0];
+    let beneosClickedButton = event.target.parentElement
+    let beneosTokenButton = html.find('.beneos-token-hud-action')[0]
 
     if (beneosClickedButton === beneosTokenButton) {
-      beneosTokenButton.classList.add('active');
-      html.find('.beneos-selector-wrap')[0].classList.add('beneos-active');
-      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-disabled');
+      beneosTokenButton.classList.add('active')
+      html.find('.beneos-selector-wrap')[0].classList.add('beneos-active')
+      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-disabled')
     } else {
       beneosTokenButton.classList.remove('active')
-      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-active');
-      html.find('.beneos-selector-wrap')[0].classList.add('beneos-disabled');
+      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-active')
+      html.find('.beneos-selector-wrap')[0].classList.add('beneos-disabled')
       if (beneosClickedButton.classList.contains("beneos-button-token")) {
-        event.preventDefault();
-        let finalimage = beneosClickedButton.dataset.token;
-        token.data.img = finalimage;
-        token.img = finalimage;
+        event.preventDefault()
+        let finalImage = beneosClickedButton.dataset.token
         BeneosUtility.preloadToken(token)
-        BeneosUtility.beneosAnimations[token.id] = false
         setTimeout(function () {
-          BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
-        }, 1000)
+          BeneosUtility.forceChangeToken(token.id, finalImage)
+        }, 200)
       }
     }
   })
+
 })
 
 

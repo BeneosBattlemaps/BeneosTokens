@@ -64,29 +64,35 @@ export class BeneosCompendiumManager {
       if (res && res[1]) {
 
         // Token config
-        let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
-        let compName = ""
+        let idleList = []
+        let tokenKey = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", subFolder, key)
         try {
-          let tokenJSON = await fetch(subFolder + "/tokenconfig_" + key + ".json")
+          let tokenJSON = await fetch(subFolder + "/tokenconfig_" + tokenKey + ".json")
           if (tokenJSON) {
             let recordsToken = await tokenJSON.json()
-            for (let key in recordsToken) {
-              BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
-            }
-            compName = BeneosUtility.beneosTokens[key].config.compendium
+            BeneosUtility.beneosTokens[tokenKey] = recordsToken[key]
           }
         }
         catch {
           console.log("Unable to found token config in", subFolder)
         }
 
-        // Compendium building only if needed
-        //let found = journalPack.index.contents.find(it => it.name.toLowerCase().includes( compName.toLowerCase() ) )
-        //if (!found) {
-        let dataFolder = await FilePicker.browse("data", subFolder)
-        //console.log("Get subfolder", dataFolder)
+        let dataFolder = await FilePicker.browse("data", subFolder)        
+        // Parse subfolders to build idle tokens list
+        for (let subFolder2 of dataFolder.dirs) {
+          let dataFolder2 = await FilePicker.browse("data", subFolder2)
+          for (let filename of dataFolder2.files) {
+            if (filename.toLowerCase().includes("idle_")) {
+              idleList.push(filename)
+            }
+          }
+        }
+        // And root folder to get json definitions and additionnel idle tokens
         for (let filename of dataFolder.files) {
+          if (filename.toLowerCase().includes("idle_")) {
+            idleList.push(filename)
+          }
           if (filename.toLowerCase().includes("actor_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
             let records = await r.json()
@@ -94,6 +100,7 @@ export class BeneosCompendiumManager {
             records.token.img = this.replaceImgPath(dataFolder.target, records.token.img, true)
             this.replaceItemsPath(records)
             let actor = await Actor.create(records, { temporary: true })
+            actor.setFlag("beneostokens", "tokenKey", tokenKey) // Use to identify the token as a beneostoken one
             actorPack.importDocument(actor)
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
@@ -105,15 +112,20 @@ export class BeneosCompendiumManager {
             journalPack.importDocument(journal)
           }
         }
+        if (tokenKey && BeneosUtility.beneosTokens[tokenKey]) {
+          //console.log("Final IDLE list : ", idleList)
+          BeneosUtility.beneosTokens[tokenKey].idleList = duplicate(idleList)
+        }
       }
     }
 
-    //await actorPack.configure({ locked: true })
-    //await journalPack.configure({ locked: true })
     ui.notifications.info("BeneosTokens : Compendium building finished !")
     let toSave = JSON.stringify(BeneosUtility.beneosTokens)
     console.log("Saving data :", toSave)
     game.settings.set(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', toSave) // Save the token config !
+
+    await actorPack.configure({ locked: true })
+    await journalPack.configure({ locked: true })
   }
 
   /********************************************************************************** */
