@@ -47,7 +47,7 @@ export class BeneosUtility {
         hint: "Location of tokens and associated datas",
         scope: 'world',
         config: true,
-        default: BeneosUtility.getBeneosDataPath(),
+        default: BENEOS_DEFAULT_TOKEN_PATH,
         type: String,
         restricted: true
       })
@@ -113,7 +113,7 @@ export class BeneosUtility {
     //this.tokenview = game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview')
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
-    this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
+    //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
 
     this.beneosHealth = []
     this.beneosPreload = []
