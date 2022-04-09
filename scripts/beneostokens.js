@@ -6,13 +6,13 @@ import { BeneosUtility } from "./beneos_utility.js";
 Hooks.once('init', () => {
 
   // HAck to prevent errors when the animated textures are not fully loaded
-  /*Token.prototype.oldRefresh = Token.prototype.refresh
+  Token.prototype.oldRefresh = Token.prototype.refresh
   Token.prototype.refresh = function () {
     if (this.icon === undefined) {
       return this
     }
     return Token.prototype.oldRefresh.call(this)
-  }*/
+  }
 })
 
 /********************************************************************************** */
