@@ -29,7 +29,7 @@
 
 #token-hud .beneos-button-select {
     max-width: 380px;
-	width: 100%;
+	  width: 100%;
     overflow-wrap: break-word;
     padding-top: 0;
     padding-bottom: 0;
@@ -52,6 +52,13 @@
 
 
 #token-hud img {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	margin: auto;
+}
+
+#token-hud video {
 	display: inline-block;
 	vertical-align: middle;
 	line-height: normal;

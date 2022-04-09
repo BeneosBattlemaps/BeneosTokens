@@ -237,8 +237,7 @@ export class BeneosUtility {
       pathVariant = apath[apath.length - 2]
     }
     let filename = apath[apath.length - 1]
-
-    let tokenData = filename.match("([\\d_\\w]+)-([a-z]+)_([a-z_]+).([webpm])")
+    let tokenData = filename.match("([\\d_\\w]+)-([a-z]+_*\\d*)_([a-z_]+).([webpm])")
     let tokenKey = tokenData[1]
     let currentStatus = tokenData[2]
     let variant = tokenData[3]
@@ -304,14 +303,16 @@ export class BeneosUtility {
     //token.refresh()
     this.addFx(token, bfx, true)
 
-    if (tkanimtime < 50) {
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
+
+    /*if (tkanimtime < 50) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
     } else {
       setTimeout(function () {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
         token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
       }, tkanimtime - 10)
-    }
+    }*/
   }
 
   /********************************************************************************** */
@@ -455,8 +456,9 @@ export class BeneosUtility {
         let modeName = idleImg.match("(idle_[\\w_]*).web")
         modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
         tokenList.push({
-          "token": this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
-          "name": modeName, 'tokenvideo': idleImg
+          isVideo: idleImg.includes("webm"),
+          token: idleImg, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
+          name: modeName, tokenvideo: idleImg
         })
       }
     }
@@ -658,12 +660,11 @@ export class BeneosUtility {
           if (variantData) {
             if ((tokenData.currentStatus != variantData.a && tokenData.currentStatus != variantDataDead.a) || ("forceupdate" in BeneosExtraData)) {
               if (tokenData.extension != "webp") {
-                let idToken = token.id
                 let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
-                setTimeout(function () {
-                  token = BeneosUtility.getToken(idToken)
+                setTimeout(function () {                  
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
+                  console.log("Updating DEAD", finalImage, variantData.t)
                   BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false)
                 }, variantData.t )
               } else {
