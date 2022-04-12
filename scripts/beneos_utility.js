@@ -12,6 +12,50 @@ let beneosFadingWait = 30
 let beneosFadingTime = beneosFadingSteps * beneosFadingWait
 let __mask = 0xffffffff
 
+/********************************************************************************** */
+export class BeneosActorTokenMigration extends FormApplication {
+
+  /********************************************************************************** */
+  async performMigrate() {
+    
+    ui.notifications.info("Searching actors and token to migrate ....")
+
+    // Migrate actors
+    for (let actor of game.actors) {
+      if (actor.img && actor.img.includes("beneostokens") && !actor.img.includes(BeneosUtility.tokenDataPath)) {
+        let oldImgData = BeneosUtility.getTokenImageInfo(actor.img)
+        let newImgPath = BeneosUtility.getFullPathWithSlash() + oldImgData.tokenKey + "/" + oldImgData.filename
+        await actor.update({ 'img': newImgPath })
+        console.log("actor update...", actor.name, actor.img)
+      }
+      if (actor.data.token && actor.data.token.img.includes("beneostokens") && !actor.data.token.img.includes(BeneosUtility.tokenDataPath)) {
+        let oldTokenImgData = BeneosUtility.getTokenImageInfo(actor.data.token.img)
+        let newTokenImgPath = BeneosUtility.getFullPathWithSlash() + oldTokenImgData.tokenKey + "/" + oldTokenImgData.pathVariant + "/" + oldTokenImgData.filename
+        await actor.update({ 'token.img': newTokenImgPath })
+        console.log("actor token update...", actor.name, actor.data.token.img)
+      }
+    }
+    // Migrate tokens on scenes
+    for (let scene of game.scenes) {
+      for (let token of scene.tokens) {
+        if (token.data && token.data.img.includes("beneostokens") && !token.data.img.includes(BeneosUtility.tokenDataPath)) {
+          let oldTokenImgData = BeneosUtility.getTokenImageInfo(token.data.img)
+          let newTokenImgPath = BeneosUtility.getFullPathWithSlash() + oldTokenImgData.tokenKey + "/" + oldTokenImgData.pathVariant + "/" + oldTokenImgData.filename
+          console.log("scene token update : ", scene.name, token.name )
+          await token.update({ 'img': newTokenImgPath })
+        }
+      }
+    }
+    ui.notifications.info("Actors/Tokens migration finished !")
+  }
+
+  /********************************************************************************** */
+  render() {
+    this.performMigrate()
+  }
+
+}
+
 /********************************************************************************* */
 export class BeneosUtility {
 
@@ -42,6 +86,16 @@ export class BeneosUtility {
         restricted: true
       })
 
+      game.settings.registerMenu(BeneosUtility.moduleID(), "beneos-migrate", {
+        name: "Migrate all previous actors/tokens to new data organization",
+        label: "Migrate actors and tokens",
+        hint: "Convert all tokens and actors in the current world to the new BeneosTokens organization",
+        scope: 'world',
+        config: true,
+        type: BeneosActorTokenMigration,
+        restricted: true
+      })
+
       game.settings.register(BeneosUtility.moduleID(), "beneos-datapath", {
         name: "Storage path of tokens assets",
         hint: "Location of tokens and associated datas",
@@ -59,31 +113,6 @@ export class BeneosUtility {
         scope: 'world',
         config: false
       })
-
-      /*game.settings.register(BeneosUtility.moduleID(), 'beneos-forcefacetoken', {
-        name: 'Use face rings instead of animations?',
-        default: false,
-        type: Boolean,
-        scope: 'world',
-        config: true,
-        hint: 'Whether to use animated ring tokens or not.',
-        onChange: value => BeneosUtility.updateSceneTokens()
-      })
-
-
-      game.settings.register(BeneosUtility.moduleID(), 'beneos-tokenview', {
-        name: 'Beneos Token View',
-        default: true,
-        type: String,
-        scope: 'world',
-        config: true,
-        choices: {
-          "top": "Top view",
-          "iso": "Iso view"
-        },
-        hint: 'Define if you want to use top or iso perspective. All automatic animations will be disables in Iso mode.',
-        default: "top"
-      })*/
 
       if (game.dnd5e) {
         game.settings.register(BeneosUtility.moduleID(), 'beneos-animations', {
@@ -245,7 +274,7 @@ export class BeneosUtility {
     let extension = tokenData[4]
     let tokenPath = this.getFullPathWithSlash() + tokenKey + "/" + pathVariant + "/"
 
-    let dataPath = { tokenPath: tokenPath, currentStatus: currentStatus, tokenKey: tokenKey, variant: variant, extension: extension }
+    let dataPath = { tokenPath: tokenPath, filename: filename, pathVariant: pathVariant, currentStatus: currentStatus, tokenKey: tokenKey, variant: variant, extension: extension }
     return dataPath
   }
 
@@ -318,8 +347,8 @@ export class BeneosUtility {
   /********************************************************************************** */
   // Function to add FX from the Token Magic module or from the ones defined in the configuration files.
   static async addFx(token, bfx, replace = true) {
-    if (!game.dnd5e) { 
-      return 
+    if (!game.dnd5e) {
+      return
     }
     if (typeof TokenMagic !== 'undefined') {
       let bpresets = []
@@ -536,9 +565,9 @@ export class BeneosUtility {
     }
 
     let actorData = token.actor?.data
-    if ( !actorData) {
+    if (!actorData) {
       return
-    } 
+    }
 
     let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
     if (tokenData.variant != "top") {
@@ -546,7 +575,7 @@ export class BeneosUtility {
     }
 
     let myToken = BeneosUtility.beneosTokens[tokenData.tokenKey]
-    if ( !myToken ) {
+    if (!myToken) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Config not found " + tokenData)
       return
     }
@@ -597,7 +626,7 @@ export class BeneosUtility {
       case "move":
         BeneosUtility.debugMessage("[BENEOS TOKENS] Move")
         variantData = benVariant["move"]
-        if ( variantData ) {
+        if (variantData) {
           if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
             let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
             let ray = token._movement
@@ -634,7 +663,7 @@ export class BeneosUtility {
             if (variantData) {
               if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
                 let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
-                if ( !finalImage || finalImage == "") {
+                if (!finalImage || finalImage == "") {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
                 BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
@@ -643,7 +672,7 @@ export class BeneosUtility {
           } else {
             BeneosUtility.debugMessage("[BENEOS TOKENS] Idle")
             variantData = benVariant["idle"]
-            if ( variantData) {
+            if (variantData) {
               if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
                 let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
                 if (!finalImage || finalImage == "") {
@@ -662,14 +691,14 @@ export class BeneosUtility {
               if (tokenData.extension != "webp") {
                 let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
-                setTimeout(function () {                  
+                setTimeout(function () {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
                   console.log("Updating DEAD", finalImage, variantData.t)
                   BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false)
-                }, variantData.t )
+                }, variantData.t)
               } else {
                 if ("forceupdate" in BeneosExtraData) {
-                  BeneosUtility.addFx(token, variantDataDead.fx )
+                  BeneosUtility.addFx(token, variantDataDead.fx)
                 }
               }
             }
@@ -716,7 +745,7 @@ export class BeneosUtility {
       if (BeneosUtility.checkIsBeneosToken(token)) {
         let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
         let tokenConfig = this.beneosTokens[tokenData.tokenKey]
-        if (typeof tokenConfig === 'object' && tokenConfig ) {
+        if (typeof tokenConfig === 'object' && tokenConfig) {
           BeneosUtility.updateToken(token.id, "standing", {})
         }
       }
