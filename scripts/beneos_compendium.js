@@ -65,12 +65,15 @@ export class BeneosCompendiumManager {
 
         // Token config
         let idleList = []
+        let imgVideoList = []
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
         try {
-          let tokenJSON = await fetch(subFolder + "/tokenconfig_" + key + ".json")
+          let JSONFilePath = subFolder + "/tokenconfig_" + key + ".json"
+          let tokenJSON = await fetch(JSONFilename)
           if (tokenJSON) {
             let recordsToken = await tokenJSON.json()
+            recordsToken.JSONFilePath = JSONFilePath // Auto-reference
             BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
           }
         }
@@ -85,6 +88,9 @@ export class BeneosCompendiumManager {
           for (let filename of dataFolder2.files) {
             if (filename.toLowerCase().includes("idle_")) {
               idleList.push(filename)
+            } 
+            if (filename.toLowerCase().includes(".web") && !filename.toLowerCase().includes(".-preview")) {
+              imgVideoList.push( filename)
             }
           }
         }
@@ -92,6 +98,9 @@ export class BeneosCompendiumManager {
         for (let filename of dataFolder.files) {
           if (filename.toLowerCase().includes("idle_")) {
             idleList.push(filename)
+          }
+          if (filename.toLowerCase().includes(".web") && !filename.toLowerCase().includes(".-preview")) {
+            imgVideoList.push( filename)
           }
           if (filename.toLowerCase().includes("actor_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
@@ -115,6 +124,7 @@ export class BeneosCompendiumManager {
         if (key && BeneosUtility.beneosTokens[key]) {
           //console.log("Final IDLE list : ", idleList)
           BeneosUtility.beneosTokens[key].idleList = duplicate(idleList)
+          BeneosUtility.beneosTokens[key].imgVideoList = duplicate(imgVideoList)
         }
       }
     }

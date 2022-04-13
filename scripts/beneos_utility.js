@@ -17,7 +17,7 @@ export class BeneosActorTokenMigration extends FormApplication {
 
   /********************************************************************************** */
   async performMigrate() {
-    
+
     ui.notifications.info("Searching actors and token to migrate ....")
 
     // Migrate actors
@@ -41,7 +41,7 @@ export class BeneosActorTokenMigration extends FormApplication {
         if (token.data && token.data.img.includes("beneostokens") && !token.data.img.includes(BeneosUtility.tokenDataPath)) {
           let oldTokenImgData = BeneosUtility.getTokenImageInfo(token.data.img)
           let newTokenImgPath = BeneosUtility.getFullPathWithSlash() + oldTokenImgData.tokenKey + "/" + oldTokenImgData.pathVariant + "/" + oldTokenImgData.filename
-          console.log("scene token update : ", scene.name, token.name )
+          console.log("scene token update : ", scene.name, token.name)
           await token.update({ 'img': newTokenImgPath })
         }
       }
@@ -259,6 +259,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   //Retrieves the necessary data from a token in order to be able to fire automatic animations based on the current token image file.
   static getTokenImageInfo(newImage) {
+    let dataPath = {}
 
     let apath = newImage.split("/")
     let pathVariant = ""
@@ -267,14 +268,16 @@ export class BeneosUtility {
     }
     let filename = apath[apath.length - 1]
     let tokenData = filename.match("([\\d_\\w]+)-([a-z]+_*\\d*)_([a-z_]+).([webpm])")
-    let tokenKey = tokenData[1]
-    let currentStatus = tokenData[2]
-    let variant = tokenData[3]
-    variant = (variant == "top_still") ? "top" : variant
-    let extension = tokenData[4]
-    let tokenPath = this.getFullPathWithSlash() + tokenKey + "/" + pathVariant + "/"
+    if (tokenData) {
+      let tokenKey = tokenData[1]
+      let currentStatus = tokenData[2]
+      let variant = tokenData[3]
+      variant = (variant == "top_still") ? "top" : variant
+      let extension = tokenData[4]
+      let tokenPath = this.getFullPathWithSlash() + tokenKey + "/" + pathVariant + "/"
 
-    let dataPath = { tokenPath: tokenPath, filename: filename, pathVariant: pathVariant, currentStatus: currentStatus, tokenKey: tokenKey, variant: variant, extension: extension }
+      dataPath = { img: newImage, tokenPath: tokenPath, filename: filename, pathVariant: pathVariant, currentStatus: currentStatus, tokenKey: tokenKey, variant: variant, extension: extension }
+    }
     return dataPath
   }
 
@@ -479,15 +482,35 @@ export class BeneosUtility {
     let tokenList = []
 
     if (tokenKey) {
-      let tokenData = this.beneosTokens[tokenKey]
-      //console.log("Token", tokenKey, token, tokenData)
-      for (let idleImg of tokenData.idleList) {
+      let tokenConfig = this.beneosTokens[tokenKey]
+      //console.log("Token", tokenKey, token, tokenConfig)
+      for (let idleImg of tokenConfig.idleList) {
         let modeName = idleImg.match("(idle_[\\w_]*).web")
         modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
         tokenList.push({
           isVideo: idleImg.includes("webm"),
           token: idleImg, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
           name: modeName, tokenvideo: idleImg
+        })
+      }
+    }
+    return tokenList
+  }
+
+  /********************************************************************************** */
+  static getAnimatedTokens(token) {
+    let tokenData = this.getTokenImageInfo(token.data.img)
+    let tokenList = []
+
+    if (tokenData && tokenData.tokenKey) {
+      let tokenConfig = this.beneosTokens[tokenData.tokenKey]
+      for (let imgVideo of tokenConfig.imgVideoList) {
+        let modeName = imgVideo.match("-([\\w_]*).web")
+        modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
+        tokenList.push({
+          isVideo: imgVideo.includes("webm"),
+          token: imgVideo, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
+          name: modeName, tokenvideo: imgVideo
         })
       }
     }
@@ -749,6 +772,39 @@ export class BeneosUtility {
           BeneosUtility.updateToken(token.id, "standing", {})
         }
       }
+    }
+  }
+
+  /********************************************************************************** */
+  static async changeSize(tokenId, tokenImg, incDec) {
+    let token = BeneosUtility.getToken(tokenId)
+    if (token === null || token == undefined) {
+      return
+    }
+
+    let tokenData = this.getTokenImageInfo(tokenImg)
+    if (tokenData && tokenData.tokenKey) {
+      let tokenConfig = this.beneosTokens[tokenData.tokenKey]
+      if (tokenConfig) {
+        let currentData = tokenConfig[tokenData.variant][tokenData.currentStatus]
+        currentData.s += incDec
+        let scaleFactor = this.getScaleFactor(token, tokenImg)
+        await token.document.update({ scale: scaleFactor })
+      }
+    }
+  }
+
+  /********************************************************************************** */
+  static async saveJSONConfig(tokenKey) {
+    let tokenConfig = this.beneosTokens[tokenKey]
+    if (tokenConfig) {
+      let jsonData = {}
+      jsonData[tokenKey] = {
+        config: duplicate(tokenConfig.config),
+        top: duplicate(tokenConfig.top)
+      }
+      let json  = JSON.stringify(jsonData)
+      saveDataToFile(json, "text/json", tokenConfig.JSONFilePath)
     }
   }
 }

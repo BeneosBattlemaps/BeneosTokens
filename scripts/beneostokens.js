@@ -299,7 +299,11 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
     }
   }
 
+  // Idle management
   let beneosTokensIdleHUD = BeneosUtility.getIdleTokens(token)
+  if ( game.user.isGM) {
+    beneosTokensIdleHUD = beneosTokensIdleHUD.concat(BeneosUtility.getAnimatedTokens(token))
+  }
   const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosidlehud.html',
     { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensIdleHUD })
   html.find('div.right').append(beneosTokensIdleDisplay).click((event) => {
@@ -357,6 +361,35 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
       }
     }
   })
+
+  // Size management
+  if (game.user.isGM) { 
+    const beneosTokensSize = await renderTemplate('modules/beneostokens_beta/templates/beneosreloadjson.html',
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), tokenData })
+    let buttonSize = html.find('div.right').append(beneosTokensSize)
+    
+    buttonSize.click((event) => {
+      let beneosClickedButton = event.target.parentElement
+      let beneosTokenButton = html.find('.beneos-token-hud-reload')[0]
+      if ( beneosTokenButton == beneosClickedButton) {
+        let tokenImg = $(beneosTokenButton).data("img")      
+        BeneosUtility.changeSize(token.id, tokenImg, 0.1 )
+      } else {
+        let beneosTokenButton = html.find('.beneos-token-hud-save')[0]
+        if ( beneosTokenButton == beneosClickedButton) {
+          BeneosUtility.saveJSONConfig( tokenData.tokenKey )
+        }        
+      }
+    })
+    buttonSize.contextmenu((event) => {
+      let beneosClickedButton = event.target.parentElement
+      let beneosTokenButton = html.find('.beneos-token-hud-reload')[0]
+      if ( beneosTokenButton == beneosClickedButton) {
+        let tokenImg = $(beneosTokenButton).data("img")      
+        BeneosUtility.changeSize(token.id, tokenImg, -0.1 )
+      }
+    })
+  }
 
 })
 
