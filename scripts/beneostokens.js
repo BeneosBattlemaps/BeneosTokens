@@ -301,7 +301,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 
   // Idle management
   let beneosTokensIdleHUD = BeneosUtility.getIdleTokens(token)
-  if ( game.user.isGM) {
+  if ( game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode') ) {
     beneosTokensIdleHUD = beneosTokensIdleHUD.concat(BeneosUtility.getAnimatedTokens(token))
   }
   const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosidlehud.html',
@@ -363,7 +363,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   })
 
   // Size management
-  if (game.user.isGM) { 
+  if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) { 
     const beneosTokensSize = await renderTemplate('modules/beneostokens_beta/templates/beneosreloadjson.html',
       { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), tokenData })
     let buttonSize = html.find('div.right').append(beneosTokensSize)

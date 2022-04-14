@@ -76,6 +76,10 @@ export class BeneosUtility {
   static registerSettings() {
     if (game.user.isGM) {
 
+      game.beneosTokens = { 
+        moduleId: BENEOS_MODULE_ID
+      }
+      
       game.settings.registerMenu(BeneosUtility.moduleID(), "beneos-clean-compendium", {
         name: "Empty compendium to re-import all tokens data",
         label: "Reset & Rebuild BeneosTokens Compendiums",
@@ -105,6 +109,17 @@ export class BeneosUtility {
         type: String,
         restricted: true
       })
+
+      game.settings.register(BeneosUtility.moduleID(), "beneos-god-mode", {
+        name: "Enable God Mode",
+        label: "Enable token editors tools",
+        hint: "",
+        scope: 'world',
+        config: false,
+        type: Boolean,
+        restricted: true
+      })
+
 
       game.settings.register(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', {
         name: 'Global JSON config for tokens',
