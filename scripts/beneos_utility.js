@@ -805,10 +805,18 @@ export class BeneosUtility {
         if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
           status = "idle"
         }
-        let currentData = tokenConfig[tokenData.variant][status]
+        let variantName = tokenData.variant
+        if ( !tokenConfig[tokenData.variant] ) {
+          variantName = "top"
+        }
+        if ( !tokenConfig[variantName ]) {
+          ui.notifications.warn("Unable to find token/variant data for " + variantName  )          
+          return
+        }
+        let currentData = tokenConfig[variantName][status]
         if ( !currentData) {
           for (let variantKey in tokenConfig.top) {
-            let variantData = currentData.top[variantKey]
+            let variantData = tokenConfig.top[variantKey]
             if ( variantData.a == tokenData.currentStatus) {
               currentData = variantData
             }
