@@ -801,9 +801,26 @@ export class BeneosUtility {
     if (tokenData && tokenData.tokenKey) {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       if (tokenConfig) {
-        let currentData = tokenConfig[tokenData.variant][tokenData.currentStatus]
+        let status = tokenData.currentStatus
+        if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
+          status = "idle"
+        }
+        let currentData = tokenConfig[tokenData.variant][status]
+        if ( !currentData) {
+          for (let variantKey in tokenConfig.top) {
+            let variantData = currentData.top[variantKey]
+            if ( variantData.a == tokenData.currentStatus) {
+              currentData = variantData
+            }
+          }
+        }
+        if (!currentData) {
+          ui.notifications.warn("Unable to find token/variant data for " + tokenData.variant + " - " + tokenData.currentStatus)
+          return
+        }
         currentData.s += incDec
-        let scaleFactor = this.getScaleFactor(token, tokenImg)
+        let scaleFactor = currentData.s * tokenConfig.config.scalefactor  
+        token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
         await token.document.update({ scale: scaleFactor })
       }
     }
