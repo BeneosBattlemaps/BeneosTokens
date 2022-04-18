@@ -68,11 +68,11 @@ export class BeneosCompendiumManager {
         let imgVideoList = []
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
+        
         let JSONFilePath = subFolder + "/tokenconfig_" + key + ".json"
-        let tokenJSON
         try {
-          tokenJSON = await fetch( JSONFilename )
-          if (tokenJSON) {
+          let tokenJSON = await fetch( JSONFilePath )
+          if (tokenJSON && tokenJSON.status == 200) {
             let recordsToken = await tokenJSON.json()
             if ( recordsToken){
               recordsToken.JSONFilePath = JSONFilePath // Auto-reference
@@ -82,10 +82,9 @@ export class BeneosCompendiumManager {
             }
           } else {
             ui.notifications.warn("Warning ! Unable to fetch config for token " + key)
-          } 
-        }
-        catch {
-          console.log("Unable to found token config in", JSONFilePath, tokenJSON)
+          }
+        } catch(error) {
+          console.log("Warning ! Error in parsing JSON " + error, JSONFilePath)
         }
 
         let dataFolder = await FilePicker.browse("data", subFolder)        
