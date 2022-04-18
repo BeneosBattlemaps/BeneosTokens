@@ -69,8 +69,9 @@ export class BeneosCompendiumManager {
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
         let JSONFilePath = subFolder + "/tokenconfig_" + key + ".json"
+        let tokenJSON
         try {
-          let tokenJSON = await fetch(JSONFilename)
+          tokenJSON = await fetch( JSONFilename )
           if (tokenJSON) {
             let recordsToken = await tokenJSON.json()
             if ( recordsToken){
@@ -84,7 +85,7 @@ export class BeneosCompendiumManager {
           } 
         }
         catch {
-          console.log("Unable to found token config in", JSONFilePath)
+          console.log("Unable to found token config in", JSONFilePath, tokenJSON)
         }
 
         let dataFolder = await FilePicker.browse("data", subFolder)        
