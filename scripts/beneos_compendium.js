@@ -73,11 +73,15 @@ export class BeneosCompendiumManager {
           let tokenJSON = await fetch(JSONFilename)
           if (tokenJSON) {
             let recordsToken = await tokenJSON.json()
-            recordsToken.JSONFilePath = JSONFilePath // Auto-reference
-            BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
+            if ( recordsToken){
+              recordsToken.JSONFilePath = JSONFilePath // Auto-reference
+              BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
+            } else {
+              ui.notifications.warn("Warning ! Wrong token config for token " + key)
+            }
           } else {
-            ui.notifications.warn("Warning ! Wrong token config for " + key)
-          }
+            ui.notifications.warn("Warning ! Unable to fetch config for token " + key)
+          } 
         }
         catch {
           console.log("Unable to found token config in", subFolder)
