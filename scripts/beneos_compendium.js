@@ -75,6 +75,8 @@ export class BeneosCompendiumManager {
             let recordsToken = await tokenJSON.json()
             recordsToken.JSONFilePath = JSONFilePath // Auto-reference
             BeneosUtility.beneosTokens[key] = duplicate(recordsToken[key])
+          } else {
+            ui.notifications.warn("Warning ! Wrong token config for " + key)
           }
         }
         catch {
