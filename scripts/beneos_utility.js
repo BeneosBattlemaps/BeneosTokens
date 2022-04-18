@@ -166,7 +166,7 @@ export class BeneosUtility {
       this.beneosTokens = JSON.parse(game.settings.get(BeneosUtility.moduleID(), 'beneos-json-tokenconfig'))
     }
     catch {
-      console.log("JSON loading error !")
+      console.log("BeneosTokens : *************** JSON loading error ! **************")
       this.beneosTokens = {}
     }
     console.log("Loaded", this.beneosTokens)
