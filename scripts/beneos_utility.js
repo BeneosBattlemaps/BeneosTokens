@@ -520,13 +520,15 @@ export class BeneosUtility {
     if (tokenData && tokenData.tokenKey) {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       for (let imgVideo of tokenConfig.imgVideoList) {
-        let modeName = imgVideo.match("-([\\w_]*).web")
-        modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
-        tokenList.push({
-          isVideo: imgVideo.includes("webm"),
-          token: imgVideo, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
-          name: modeName, tokenvideo: imgVideo
-        })
+        if ( imgVideo.includes("top") && imgVideo.includes(".webm")) {
+          let modeName = imgVideo.match("-([\\w_]*).web")
+          modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
+          tokenList.push({
+            isVideo: imgVideo.includes("webm"),
+            token: imgVideo, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
+            name: modeName, tokenvideo: imgVideo
+          })
+        }
       }
     }
     return tokenList
@@ -827,6 +829,18 @@ export class BeneosUtility {
           return
         }
         currentData.s += incDec
+
+        console.log("Status detected ", status)
+        // Save scalefactor
+        if ( status == "die" ) {
+          let currentDataDeath = tokenConfig[variantName]["dead"]
+          if (currentDataDeath) {
+            currentDataDeath.s = currentData.s
+            ui.notifications.info("Token Die detected, same size applied to death token")
+          }
+        }
+
+        // Save scalefactor
         let scaleFactor = currentData.s * tokenConfig.config.scalefactor  
         token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
         await token.document.update({ scale: scaleFactor })
