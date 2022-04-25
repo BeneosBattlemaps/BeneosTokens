@@ -81,7 +81,6 @@ Hooks.once('ready', () => {
         return
       }
 
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token")
       if (token == undefined) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
         return
@@ -93,6 +92,7 @@ Hooks.once('ready', () => {
           for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
             if (value["a"] == tokenData.currentStatus) {
               let scaleFactor = (changeData.scale / value["s"])
+              BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token scale....")
               token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
               break
             }
@@ -106,11 +106,11 @@ Hooks.once('ready', () => {
       if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData["img"] != undefined) {
         return
       }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
 
       if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
         return
       }
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
 
       if (changeData.actorData != undefined && changeData.actorData.data != undefined && changeData.actorData.data.attributes != undefined && changeData.actorData.data.attributes.hp != undefined && changeData.actorData.data.attributes.hp.value != 0) {
         if (changeData.actorData.data.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
@@ -122,8 +122,10 @@ Hooks.once('ready', () => {
           return
         }
       }
-      if (changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-        BeneosUtility.updateToken(token.id, "move", changeData)
+      if ( !token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
+        token.isMoving = true
+        console.log(">>>>>>>>>>>>>>> Start moving!!!!!")
+        setTimeout( BeneosUtility.updateToken(token.id, "move", changeData), 50)
         return
       }
 
@@ -301,7 +303,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 
   // Idle management
   let beneosTokensIdleHUD = BeneosUtility.getIdleTokens(token)
-  if ( game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode') ) {
+  if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) {
     beneosTokensIdleHUD = beneosTokensIdleHUD.concat(BeneosUtility.getAnimatedTokens(token))
   }
   const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosidlehud.html',
@@ -363,30 +365,30 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   })
 
   // Size management
-  if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) { 
+  if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) {
     const beneosTokensSize = await renderTemplate('modules/beneostokens_beta/templates/beneosreloadjson.html',
       { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), tokenData })
     let buttonSize = html.find('div.right').append(beneosTokensSize)
-    
+
     buttonSize.click((event) => {
       let beneosClickedButton = event.target.parentElement
       let beneosTokenButton = html.find('.beneos-token-hud-reload')[0]
-      if ( beneosTokenButton == beneosClickedButton) {
-        let tokenImg = $(beneosTokenButton).data("img")      
-        BeneosUtility.changeSize(token.id, tokenImg, 0.1 )
+      if (beneosTokenButton == beneosClickedButton) {
+        let tokenImg = $(beneosTokenButton).data("img")
+        BeneosUtility.changeSize(token.id, tokenImg, 0.1)
       } else {
         let beneosTokenButton = html.find('.beneos-token-hud-save')[0]
-        if ( beneosTokenButton == beneosClickedButton) {
-          BeneosUtility.saveJSONConfig( tokenData.tokenKey )
-        }        
+        if (beneosTokenButton == beneosClickedButton) {
+          BeneosUtility.saveJSONConfig(tokenData.tokenKey)
+        }
       }
     })
     buttonSize.contextmenu((event) => {
       let beneosClickedButton = event.target.parentElement
       let beneosTokenButton = html.find('.beneos-token-hud-reload')[0]
-      if ( beneosTokenButton == beneosClickedButton) {
-        let tokenImg = $(beneosTokenButton).data("img")      
-        BeneosUtility.changeSize(token.id, tokenImg, -0.1 )
+      if (beneosTokenButton == beneosClickedButton) {
+        let tokenImg = $(beneosTokenButton).data("img")
+        BeneosUtility.changeSize(token.id, tokenImg, -0.1)
       }
     })
   }

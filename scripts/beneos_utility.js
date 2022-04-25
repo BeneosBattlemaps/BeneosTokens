@@ -346,10 +346,11 @@ export class BeneosUtility {
     token.data.img = animation
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
     await token.document.update({ img: animation, scale: 1.0, rotation: tkangle, data: { img: animation } })
-    await token.document.update({ scale: tkscale })
+    if ( tkscale != 1.0) {
+      token.document.update( { scale: tkscale } )
+    }
     //token.refresh()
     this.addFx(token, bfx, true)
-
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
 
     /*if (tkanimtime < 50) {
@@ -587,11 +588,18 @@ export class BeneosUtility {
     token.data.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     //console.log("New IDLE image", scaleFactor)
     await token.document.update({ img: newImage, scale: 1.0, rotation: 1.0 })
+
     if (scaleFactor != 1.0) {
-      token.document.update({ scale: scaleFactor })
+      await token.document.update({ scale: scaleFactor })
     }
-    /*canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scalefactor: scalefactor, rotation: 0 })])
-    canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scalefactor: scalefactor, rotation: 0 })])*/
+    if (tokenData.variant == "top") {
+      let tokenConfig = this.beneosTokens[tokenData.tokenKey]
+      if (tokenConfig && tokenConfig.top && tokenConfig.top.idle && tokenConfig.top.idle.fx) {
+        this.addFx(token, tokenConfig.top.idle.fx, true)
+      }
+    }
+    await canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scalefactor: scalefactor, rotation: 0 })])
+    //canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scalefactor: scalefactor, rotation: 0 })])*/
   }
 
   /********************************************************************************** */
@@ -666,7 +674,7 @@ export class BeneosUtility {
       case "move":
         BeneosUtility.debugMessage("[BENEOS TOKENS] Move")
         variantData = benVariant["move"]
-        if (variantData) {
+        if (variantData && !token.isMoving) {
           if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
             let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
             let ray = token._movement
@@ -678,6 +686,8 @@ export class BeneosUtility {
               canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
               return
             }
+            token.isMoving = true
+            //console.log("Move time : ", mvtime, Date.now() )
             BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
             setTimeout(function () {
               BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
@@ -695,7 +705,8 @@ export class BeneosUtility {
         break
 
       case "standing":
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id])
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id], Date.now() )
+        token.isMoving = false
         if (BeneosUtility.beneosHealth[token.id] > 0 || !game.dnd5e) {
           if (token.inCombat) {
             BeneosUtility.debugMessage("[BENEOS TOKENS] In Combat")
@@ -710,7 +721,7 @@ export class BeneosUtility {
               }
             }
           } else {
-            BeneosUtility.debugMessage("[BENEOS TOKENS] Idle")
+            BeneosUtility.debugMessage("[BENEOS TOKENS] Idle", token)
             variantData = benVariant["idle"]
             if (variantData) {
               if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
