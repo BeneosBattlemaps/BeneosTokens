@@ -1,0 +1,19 @@
+<form class="{{cssClass}}" autocomplete="off">
+  
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    <ul class="li-no-style">
+      {{#each results as |result idx|}}
+        <li data-result-index="{{idx}}">{{result.name}} 
+          {{#if result.kind}}
+          ({{beneosUpperFirst result.kind}})
+          {{/if}}
+        </li>
+      {{/each}}
+    </ul>
+
+  </section>
+  
+</form>
+

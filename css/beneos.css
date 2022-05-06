@@ -85,3 +85,7 @@
 .token-sheet .beneos-disabled {
     display: none;
 }
+
+.li-no-style {
+  list-style-type: none;
+}

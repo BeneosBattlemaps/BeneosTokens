@@ -1,5 +1,6 @@
 /********************************************************************************* */
 import { BeneosCompendiumManager, BeneosCompendiumReset } from "./beneos_compendium.js";
+import { BeneosSearchEngineLauncher } from "./beneos_search_engine.js";
 
 /********************************************************************************* */
 const BENEOS_MODULE_NAME = "Beneos Tokens"
@@ -100,6 +101,16 @@ export class BeneosUtility {
         restricted: true
       })
 
+      game.settings.registerMenu(BeneosUtility.moduleID(), "beneos-search-engine", {
+        name: "Search Engine",
+        label: "Search in published tokens/battlemaps",
+        hint: "Search in all the published tokens/battlemaps from BeneosSearch engine",
+        scope: 'world',
+        config: true,
+        type: BeneosSearchEngineLauncher,
+        restricted: true
+      })
+
       game.settings.register(BeneosUtility.moduleID(), "beneos-datapath", {
         name: "Storage path of tokens assets",
         hint: "Location of tokens and associated datas",
@@ -174,8 +185,20 @@ export class BeneosUtility {
     this.m_w = 123456789
     this.m_z = 987654321
     this.seed(Date.now())
+
+    Handlebars.registerHelper('beneosUpperFirst', function (text) {
+      if (typeof text !== 'string') return text
+      return text.charAt(0).toUpperCase() + text.slice(1)
+    })
+
   }
 
+  /********************************************************************************** */
+  static upperFirst(text) {
+    if (typeof text !== 'string') return text
+    return text.charAt(0).toUpperCase() + text.slice(1)
+  }
+  
   /********************************************************************************** */
   static debugMessage(msg, data) {
     if (BeneosUtility.isDebug()) {
@@ -430,7 +453,7 @@ export class BeneosUtility {
       } else {
         let flags = message.data.flags
         if (typeof (MidiQOL) !== 'undefined' && flags["midi-qol"] != undefined && flags["midi-qol"].type != undefined) {
-
+          console.log("MIDI QOL !!!!", message, flags, flags["midi-qol"])
           switch (flags["midi-qol"].type) {
             case 1:
               actionType = "hits";

@@ -1,0 +1,96 @@
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+      <div class="header-fields">
+        <h1 class="charname">Lucky ...</h1>
+      </div>
+  </header>
+  
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    <div class="flexcol">
+      <span class="flexrow">
+        <label>Global text search : </label>
+        <input type="text" class="" id="beneos-search-text" name="beneos-search-text" value="" data-dtype="String" />
+      </span>
+    </div>
+    
+  </section>
+  
+</form>
+
+<form class="{{cssClass}}" autocomplete="off">
+  <header class="sheet-header">
+      <div class="header-fields">
+        <h1 class="charname">... or specific search</h1>
+      </div>
+  </header>
+  
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+
+    <div class="flexcol">
+      <span class="flexrow">
+        <label>Tokens<input type="radio" id="beneos-radio-token" name="beneos-search-select" {{checked searchToken}}/></label>
+        <label>Battlemaps/Scenarii<input type="radio" id="beneos-radio-bmap" name="beneos-search-select" {{checked searchBmap}}/></label>
+      </span>
+
+      <span class="flexrow">
+        <label>Biom : </label>
+        <select name="bioms" class="beneos-selector" id="bioms-selector" data-dtype="String">
+          {{#select biomList}}
+          {{#each biomList as |data key|}}
+          <option value={{key}}>{{beneosUpperFirst key}}</option>
+          {{/each}}
+          {{/select}}
+        </select>
+      </span>
+      
+      {{#if searchBmap}}
+
+        <span class="flexrow">
+          <label>Brightness : </label>
+          <select name="bmap-brightness" class="beneos-selector"  id="bmap-brightness" data-dtype="String">
+            {{#select bmapBrightness}}
+            <option value="any">Any</option>
+            {{#each bmapBrightness as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+  
+      {{else}}
+
+        <span class="flexrow">
+          <label>Token type : </label>
+          <select name="token-types" class="beneos-selector"  id="token-types" data-dtype="String">
+            {{#select tokenTypes}}
+            <option value="any">Any</option>
+            {{#each tokenTypes as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+        <span class="flexrow">
+          <label>Fighting style : </label>
+          <select name="token-fight-style" class="beneos-selector"  id="token-fight-style" data-dtype="String">
+            {{#select fightingStyles}}
+            <option value="any">Any</option>
+            {{#each fightingStyles as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+
+      {{/if}}
+    </div>
+
+
+  </section>
+  
+</form>

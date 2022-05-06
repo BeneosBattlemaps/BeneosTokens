@@ -1,5 +1,4 @@
 import { libWrapper } from "./shim.js";
-import { BeneosCompendiumManager, BeneosCompendiumReset } from "./beneos_compendium.js";
 import { BeneosUtility } from "./beneos_utility.js";
 
 /********************************************************************************** */
