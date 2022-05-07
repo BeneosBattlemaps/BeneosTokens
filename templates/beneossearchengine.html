@@ -59,7 +59,31 @@
             {{/select}}
           </select>
         </span>
-  
+
+        <span class="flexrow">
+          <label>Adventure : </label>
+          <select name="bmap-adventure" class="beneos-selector"  id="bmap-adventure" data-dtype="String">
+            {{#select adventureList}}
+            <option value="any">Any</option>
+            {{#each adventureList as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+        <span class="flexrow">
+          <label>Grid : </label>
+          <select name="bmap-grid" class="beneos-selector"  id="bmap-grid" data-dtype="String">
+            {{#select gridList}}
+            <option value="any">Any</option>
+            {{#each gridList as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
       {{else}}
 
         <span class="flexrow">
@@ -80,6 +104,42 @@
             {{#select fightingStyles}}
             <option value="any">Any</option>
             {{#each fightingStyles as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+        <span class="flexrow">
+          <label>CR : </label>
+          <select name="token-cr" class="beneos-selector"  id="token-cr" data-dtype="String">
+            {{#select crList}}
+            <option value="any">Any</option>
+            {{#each crList as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+        <span class="flexrow">
+          <label>Movement : </label>
+          <select name="token-movement" class="beneos-selector"  id="token-movement" data-dtype="String">
+            {{#select movementList}}
+            <option value="any">Any</option>
+            {{#each movementList as |data key|}}
+            <option value={{key}}>{{beneosUpperFirst key}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+        </span>
+
+        <span class="flexrow">
+          <label>Purpose : </label>
+          <select name="token-purpose" class="beneos-selector"  id="token-purpose" data-dtype="String">
+            {{#select purposeList}}
+            <option value="any">Any</option>
+            {{#each purposeList as |data key|}}
             <option value={{key}}>{{beneosUpperFirst key}}</option>
             {{/each}}
             {{/select}}

@@ -18,20 +18,22 @@ class BeneosDatabaseHolder {
   static buildList(list) {
     let valueList = {}
 
-    if (typeof (list) == "string") {
-      if (!valueList[list]) {
-        valueList[list] = 1
-      } else {
-        valueList[list]++
+    if (list) {
+      if (typeof (list) == "string") {
+        if (!valueList[list]) {
+          valueList[list] = 1
+        } else {
+          valueList[list]++
+        }
+        return valueList
       }
-      return valueList
-    }
 
-    for (let key of list) {
-      if (!valueList[key]) {
-        valueList[key] = 1
-      } else {
-        valueList[key]++
+      for (let key of list) {
+        if (!valueList[key]) {
+          valueList[key] = 1
+        } else {
+          valueList[key]++
+        }
       }
     }
     return valueList
@@ -43,17 +45,27 @@ class BeneosDatabaseHolder {
     this.biomList = {}
     this.fightingStyles = {}
     this.bmapBrightness = {}
+    this.crList = {}
+    this.movementList = {}
+    this.purposeList = {}
+    this.gridList = {}
+    this.adventureList = {}
 
     for (let key in this.tokenData.content) {
       let tokenData = this.tokenData.content[key]
       mergeObject(this.biomList, this.buildList(tokenData.properties.biom))
       mergeObject(this.tokenTypes, this.buildList(tokenData.properties.type))
       mergeObject(this.fightingStyles, this.buildList(tokenData.properties.fightingstyle))
+      mergeObject(this.crList, this.buildList(tokenData.properties.cr))
+      mergeObject(this.movementList, this.buildList(tokenData.properties.movement))
+      mergeObject(this.purposeList, this.buildList(tokenData.properties.purpose))
     }
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
-      mergeObject(this.biomList, this.buildList(bmapData.properties.biom))
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
+      mergeObject(this.biomList, this.buildList(bmapData.properties.biom))
+      mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
+      mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
     }
   }
 
@@ -146,7 +158,12 @@ class BeneosDatabaseHolder {
       biomList: this.biomList,
       tokenTypes: this.tokenTypes,
       fightingStyles: this.fightingStyles,
-      bmapBrightness: this.bmapBrightness
+      bmapBrightness: this.bmapBrightness,
+      movementList: this.movementList,
+      crList: this.crList,
+      purposeList: this.purposeList,
+      adventureList: this.adventureList,
+      gridList: this.gridList
     }
   }
 }
@@ -180,7 +197,7 @@ export class BeneosSearchEngine extends Dialog {
 
     // Common conf
     let dialogConf = { content: html, title: "Beneos Search Engine", buttons: myButtons };
-    let dialogOptions = { classes: ["beneostokens"], left: 200, width: 400, height: 300, 'z-index': 99999 }
+    let dialogOptions = { classes: ["beneostokens"], left: 200, width: 400, height: 380, 'z-index': 99999 }
     super(dialogConf, dialogOptions)
 
     this.dbData = data
@@ -249,6 +266,26 @@ export class BeneosSearchEngine extends Dialog {
     let fightValue = $("#token-fight-style").val()
     if (fightValue && fightValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "fightingstyle", fightValue, searchResults)
+    }
+    let crValue = $("#token-cr").val()
+    if (crValue && crValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "cr", crValue, searchResults)
+    }
+    let moveValue = $("#token-movement").val()
+    if (moveValue && moveValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "movement", moveValue, searchResults)
+    }
+    let purposeValue = $("#token-purpose").val()
+    if (purposeValue && purposeValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "purpose", purposeValue, searchResults)
+    }
+    let gridValue = $("#bmap-grid").val()
+    if (gridValue && gridValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "grid", gridValue, searchResults)
+    }
+    let adventureValue = $("#bmap-adventure").val()
+    if (adventureValue && adventureValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "adventure", adventureValue, searchResults)
     }
 
     this.displayResults(searchResults)
