@@ -53,6 +53,7 @@ class BeneosDatabaseHolder {
 
     for (let key in this.tokenData.content) {
       let tokenData = this.tokenData.content[key]
+      tokenData.kind = "token"
       mergeObject(this.biomList, this.buildList(tokenData.properties.biom))
       mergeObject(this.tokenTypes, this.buildList(tokenData.properties.type))
       mergeObject(this.fightingStyles, this.buildList(tokenData.properties.fightingstyle))
@@ -62,6 +63,7 @@ class BeneosDatabaseHolder {
     }
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
+      bmapData.kind = bmapData.properties.type
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
       mergeObject(this.biomList, this.buildList(bmapData.properties.biom))
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
@@ -179,7 +181,7 @@ export class BeneosSearchResults extends Dialog {
 
     // Common conf
     let dialogConf = { content: html, title: "Beneos Search Results", buttons: myButtons };
-    let dialogOptions = { classes: ["beneostokens"], left: 620, width: 240, height: 580, 'z-index': 99999 }
+    let dialogOptions = { classes: ["beneostokens"], left: 620, width: 380, height: 580, 'z-index': 99999 }
     super(dialogConf, dialogOptions)
   }
 
@@ -345,6 +347,7 @@ export class BeneosSearchEngineLauncher extends FormApplication {
     let html = await renderTemplate('modules/beneostokens_beta/templates/beneossearchengine.html', dbData)
     let searchDialog = new BeneosSearchEngine(html, dbData)
     searchDialog.render(true)
+    setTimeout(searchDialog.processSelectorSearch(), 500)
   }
 
 }

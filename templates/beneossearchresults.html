@@ -5,10 +5,14 @@
 
     <ul class="li-no-style">
       {{#each results as |result idx|}}
-        <li data-result-index="{{idx}}">{{result.name}} 
-          {{#if result.kind}}
-          ({{beneosUpperFirst result.kind}})
-          {{/if}}
+        <li  data-result-index="{{idx}}"> 
+          <label class="beneos-tooltip">
+            <span class="beneos-tooltiptext beneos-tooltip-content"><p>{{result.name}} - {{result.kind}}</p></span>
+            {{result.name}}
+            {{#if result.kind}}
+            ({{beneosUpperFirst result.kind}})
+            {{/if}}
+          </label>
         </li>
       {{/each}}
     </ul>

@@ -89,3 +89,40 @@
 .li-no-style {
   list-style-type: none;
 }
+
+/* Tooltip container */
+.beneos-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.beneos-tooltip-dotted {
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.beneos-tooltip .beneos-tooltiptext {
+  text-align: center;  
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 999;
+  /* Fade in tooltip */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.beneos-tooltip:hover .beneos-tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.beneos-tooltip .beneos-tooltip-content{
+  width: 240px;
+  
+  background: rgba(233, 226, 218, 0.9);
+  border-radius: 0px;
+
+  font-size: 0.8rem;
+  padding: 3px 0;
+}
