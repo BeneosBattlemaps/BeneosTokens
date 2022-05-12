@@ -27,12 +27,21 @@ class BeneosDatabaseHolder {
         }
         return valueList
       }
-
-      for (let key of list) {
-        if (!valueList[key]) {
-          valueList[key] = 1
-        } else {
-          valueList[key]++
+      if ( Array.isArray(list)) {
+        for (let key of list) {
+          if (!valueList[key]) {
+            valueList[key] = 1
+          } else {
+            valueList[key]++
+          }
+        }
+      } else if (typeof(list) == "object") {
+        for (let key in list) {
+          if (!valueList[key]) {
+            valueList[key] = 1
+          } else {
+            valueList[key]++
+          }
         }
       }
     }
