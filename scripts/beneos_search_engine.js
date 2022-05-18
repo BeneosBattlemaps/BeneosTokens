@@ -19,7 +19,8 @@ class BeneosDatabaseHolder {
     let valueList = {}
 
     if (list) {
-      if (typeof (list) == "string") {
+      if (typeof (list) == "string" || typeof (list) == "number") {
+        list = list.toString()
         if (!valueList[list]) {
           valueList[list] = 1
         } else {
@@ -27,8 +28,9 @@ class BeneosDatabaseHolder {
         }
         return valueList
       }
-      if ( Array.isArray(list)) {
+      if ( Array.isArray(list) ) {
         for (let key of list) {
+          key = key.toString()
           if (!valueList[key]) {
             valueList[key] = 1
           } else {
@@ -37,6 +39,7 @@ class BeneosDatabaseHolder {
         }
       } else if (typeof(list) == "object") {
         for (let key in list) {
+          key = list[key].toString()
           if (!valueList[key]) {
             valueList[key] = 1
           } else {
@@ -63,6 +66,8 @@ class BeneosDatabaseHolder {
     for (let key in this.tokenData.content) {
       let tokenData = this.tokenData.content[key]
       tokenData.kind = "token"
+      tokenData.key = key
+      tokenData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/"+key+"-idle_face_still.webp"
       mergeObject(this.biomList, this.buildList(tokenData.properties.biom))
       mergeObject(this.tokenTypes, this.buildList(tokenData.properties.type))
       mergeObject(this.fightingStyles, this.buildList(tokenData.properties.fightingstyle))
@@ -73,11 +78,13 @@ class BeneosDatabaseHolder {
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
       bmapData.kind = bmapData.properties.type
+      bmapData.key = key
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
       mergeObject(this.biomList, this.buildList(bmapData.properties.biom))
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
       mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
     }
+    console.log("CR", this.crList)
   }
 
   /********************************************************************************** */
@@ -108,9 +115,11 @@ class BeneosDatabaseHolder {
     for (let key in objectList) {
       let item = duplicate(objectList[key])
       item.kind = (kind == "token") ? "token" : item.properties.type
+      item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/"+item.key+"-idle_face_still.webp"
       if (this.fieldTextSearch(item, text)) {
         results.push(item)
       } else if (this.fieldTextSearch(item.properties, text)) {
+        //item.picture = "https://github.com/BeneosBattlemaps/battlemaps/thumbnails/"+key+"-idle_face_still.webp"
         results.push(item)
       }
     }
@@ -135,16 +144,18 @@ class BeneosDatabaseHolder {
     for (let key in searchResults) {
       let item = searchResults[key]
       item.kind = (type == "token") ? "token" : item.properties.type
+      item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/"+item.key+"-idle_face_still.webp"
+      console.log("PROP", type, propertyName, value, searchResults, item.properties[propertyName])
       if (item.properties && item.properties[propertyName]) {
         //console.log(item.properties[propertyName], typeof(item.properties[propertyName]))
         if (typeof (item.properties[propertyName]) == "string") {
-          if (item.properties[propertyName].toLowerCase().includes(value)) {
+          if (item.properties[propertyName].toLowerCase().toString().includes(value)) {
             newResults[key] = duplicate(item)
           }
         } else {
           if (Array.isArray(item.properties[propertyName])) {
             for (let valueArray of item.properties[propertyName]) {
-              if ((typeof (valueArray) == "string") && valueArray.toLowerCase().includes(value)) {
+              if ((typeof (valueArray) == "string") && valueArray.toLowerCase().toString().includes(value)) {
                 newResults[key] = duplicate(item)
               }
             }
@@ -280,11 +291,11 @@ export class BeneosSearchEngine extends Dialog {
     }
     let crValue = $("#token-cr").val()
     if (crValue && crValue.toLowerCase() != "any") {
-      searchResults = BeneosDatabaseHolder.searchByProperty(type, "cr", crValue, searchResults)
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "cr", crValue.toString(), searchResults)
     }
     let moveValue = $("#token-movement").val()
     if (moveValue && moveValue.toLowerCase() != "any") {
-      searchResults = BeneosDatabaseHolder.searchByProperty(type, "movement", moveValue, searchResults)
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "movement", moveValue.toString(), searchResults)
     }
     let purposeValue = $("#token-purpose").val()
     if (purposeValue && purposeValue.toLowerCase() != "any") {

@@ -102,9 +102,11 @@
 
 /* Tooltip text */
 .beneos-tooltip .beneos-tooltiptext {
-  text-align: center;  
+  text-align: left;  
   /* Position the tooltip text */
   position: absolute;
+  margin-left: 2rem;
+  margin-top: 2rem;
   z-index: 999;
   /* Fade in tooltip */
   visibility: hidden;

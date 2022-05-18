@@ -34,26 +34,26 @@ for tokendir in LFS.dir(TOKEN_FOLDER) do
           description = "",
           properties = {
             biom = { "any"},
-            cr = actor.data.details.cr,
-            fightingstyle = {},
+            cr = tostring(actor.data.details.cr),
+            fightingstyle = { "any" },
             movement = "",
             purpose = "",
             releaseurl = "",
             thumbnail = thumbnail,
-            size = actor.data.traits.size,
+            size = tostring(actor.data.traits.size),
             stat_ac =  actor.data.attributes.ac.value,
-            stat_hp = actor.data.attributes.hp.value,
+            stat_hp =  actor.data.attributes.hp.value,
             stat_str = actor.data.abilities.str.value,
             stat_dex = actor.data.abilities.dex.value,
             stat_con = actor.data.abilities.con.value,
             stat_int = actor.data.abilities.int.value,
             stat_wis = actor.data.abilities.wis.value,
             stat_cha = actor.data.abilities.cha.value,
-            type = { actor.data.details.type, actor.data.details.race},
+            type = {actor.data.details.type, actor.data.details.race},
             videourl = ""    
           }
         }
-        content[tokenKey] = object
+        content[tokendir] = object
         break
       end
     end
@@ -63,7 +63,7 @@ end
 local fullDB = { 
   id = "beneos_tokens_database",
   type = "token",
-  version = "0.1.0",
+  version = "0.2.0",
   content = content,
 }
 local dbJSON = JSON.encode(fullDB)

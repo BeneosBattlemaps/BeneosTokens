@@ -7,7 +7,14 @@
       {{#each results as |result idx|}}
         <li  data-result-index="{{idx}}"> 
           <label class="beneos-tooltip">
-            <span class="beneos-tooltiptext beneos-tooltip-content"><p>{{result.name}} - {{result.kind}}</p></span>
+            <span class="beneos-tooltiptext beneos-tooltip-content">
+              <ul class="li-no-style">
+                <li>{{result.name}} - {{beneosUpperFirst result.kind}}</li>
+                <li>CR : {{result.properties.cr}} </li>
+                <li>AC : {{result.properties.stat_ac}}</li>
+               <li><img src="{{result.picture}}" class="beneos-search-picture" /></li>
+              </ul>
+            </span>
             {{result.name}}
             {{#if result.kind}}
             ({{beneosUpperFirst result.kind}})
