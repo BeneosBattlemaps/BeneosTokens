@@ -537,6 +537,11 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static isLoaded( tokenKey) {
+    return this.beneosTokens[tokenKey]
+  }
+  
+  /********************************************************************************** */
   static getAnimatedTokens(token) {
     let tokenData = this.getTokenImageInfo(token.data.img)
     let tokenList = []

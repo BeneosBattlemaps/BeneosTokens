@@ -246,7 +246,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   // JOURNAL HUD
   if (tokenConfig && tokenConfig.config) {
     if (tokenConfig.config.compendium) {
-      let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal");
+      let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal")
       if (beneosPack) {
         let beneosJournalEntry = null
         let beneosCompendiumEntry = beneosPack.index.getName(tokenConfig.config.compendium)

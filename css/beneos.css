@@ -128,3 +128,128 @@
   font-size: 0.8rem;
   padding: 3px 0;
 }
+
+.beneos-search-icons-result {
+  border: 0;
+  width: 120px;
+  height: 120px;
+  margin-right: 4px;
+  max-width: 128px;
+  flex-grow:1;
+}
+.beneos-search-middle {
+  flex-grow:3;
+}
+.beneos-search-last {
+  flex-grow:1;
+  max-width: 128px;
+}
+.beneos-search-title-result {
+  font-size: 1.2rem;
+}
+.beneos-search-stat {
+  margin-left: 12px;
+}
+.beneos-search-button {
+  border-width: 1px;
+  border-style: ridge;
+  border-color: black;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-top: 12px;
+  margin-right: 12px;
+  background-color: #cecdc8;
+  max-height: 18px;
+}
+.beneos-search-installed {
+  border-width: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
+  text-align: center;
+  color: #367024;
+  max-height: 18px;
+}
+.beneos-search-notinstalled {
+  border-width: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: #000000;
+  text-align: center;
+  background-color: #d56b52;
+  max-height: 18px;
+}
+.beneos-search-journal-button{  
+  text-align: center;
+  border-width: 1px;
+  border-style: ridge;
+  border-color: black;
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: #d6d6d5;
+  flex-grow: 1;
+  max-height: 18px;
+} 
+.beneos-search-cr-button{  
+  text-align: center;
+  border-width: 1px;
+  margin-top: 4px;
+  border-style: ridge;
+  border-color: black;
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: #cecdc8;
+  flex-grow: 1;
+  max-height: 18px;
+} 
+.beneos-search-yt-icons {
+  max-height: 16px;
+  border: 0;
+}
+.beneos-search-yt-button {
+  text-align: center;
+  border-width: 1px;
+  margin-top: 4px;
+  border-style: ridge;
+  border-color: black;
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: #a79893;
+  flex-grow: 1;
+  max-height: 18px;
+}
+.beneos-search-logo-left {
+  max-width: 64px;
+  max-height: 64px;
+  flex-grow: 1;
+  margin-right: 12px;
+}
+.beneos-search-logo-middle {
+  flex-grow: 3;
+}
+.beneos-search-logo-middle label {
+  color: #191813;
+}
+.beneos-search-logo  {
+  border: 0;
+  max-width: 64px;
+  max-height: 64px;
+}
+.beneos-search-small-icons {
+  border: 0;
+  max-width: 16px;
+  max-height: 16px;
+  flex-grow: 1;
+}
+.beneos-title-center {
+  text-align: center;
+}
+.beneos-search-main-choice {
+  background-color: #bebebe;
+  font-weight: bold;
+}
+.beneos-search-small-text {
+  background-color: #dfdfdf;
+}
+.beneos-not-installed { 
+  background-color: #ff00000E;
+}

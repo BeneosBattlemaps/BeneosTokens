@@ -1,30 +1,55 @@
 <form class="{{cssClass}}" autocomplete="off">
-  
+
   {{!-- Sheet Body --}}
   <section class="sheet-body">
 
-    <ul class="li-no-style">
-      {{#each results as |result idx|}}
-        <li  data-result-index="{{idx}}"> 
-          <label class="beneos-tooltip">
-            <span class="beneos-tooltiptext beneos-tooltip-content">
-              <ul class="li-no-style">
-                <li>{{result.name}} - {{beneosUpperFirst result.kind}}</li>
-                <li>CR : {{result.properties.cr}} </li>
-                <li>AC : {{result.properties.stat_ac}}</li>
-               <li><img src="{{result.picture}}" class="beneos-search-picture" /></li>
-              </ul>
-            </span>
-            {{result.name}}
-            {{#if result.kind}}
-            ({{beneosUpperFirst result.kind}})
-            {{/if}}
-          </label>
-        </li>
-      {{/each}}
-    </ul>
+    {{#each results as |result idx|}}
+    <div data-result-index="{{idx}}" data-token-key="{{result.key}}" class="flexrow token-root-div {{#if result.isInstalled}} {{else}}beneos-not-installed{{/if}}">
+
+      <div class="beneos-search-icons-result">
+        <img class="beneos-search-icons-result" src="{{result.picture}}">
+      </div>
+
+      <div class="beneos-search-middle flexcol">
+        <label class="beneos-search-title-result">{{result.name}}</label>
+        <span class="beneos-search-text01">
+          <label>{{beneosUpperFirst result.properties.size}}</label>
+          {{#each result.properties.type as |type key|}}
+            <label>{{beneosUpperFirst type}}</label>
+          {{/each}}
+          <label class="beneos-search-stat">AC: <strong>{{result.properties.stat_ac}}</strong></label>
+          <label class="beneos-search-stat">HP: <strong>{{result.properties.stat_hp}}</strong></label>
+        </span>
+        <span class="beneos-search-text01">
+          {{#each result.properties.fightingstyle as |fight key|}}
+            <label class="beneos-search-button" data-prop-name="fightingstyle">
+              <a class="beneos-button-fight" data-fight-value="{{fight}}">{{beneosUpperFirst fight}}</a>
+            </label>
+          {{/each}}
+            <label class="beneos-search-button" data-prop-name="purpose">
+              <a class="beneos-button-purpose" data-purpose-value="{{result.properties.purpose}}">{{ beneosUpperFirst result.properties.purpose}}</a>
+            </label>
+        </span>
+        <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
+      </div>
+
+      <div class="beneos-search-last flexcol">
+        {{#if result.isInstalled}}
+          <label class="beneos-search-installed">Installed</label>
+          <label class="beneos-search-journal-button"><a class="beneos-button-journal">Journal</a></label>
+          {{else}}
+          <label class="beneos-search-notinstalled">Not Installed</label>
+          <label class=""></label>
+        {{/if}}
+        </a>
+        <label class="beneos-search-cr-button"><a class="beneos-button-cr" data-cr-value="{{result.properties.cr}}">CR <strong>{{result.properties.cr}}</strong></a></label>
+        <label class="beneos-search-yt-button"><a class="beneos-button-yt" href="{{result.properties.videourl}}"><img class="beneos-search-yt-icons" src="modules/beneostokens_beta/icons/yt_Logo.webp">&nbsp;</a></label>
+      </div>
+
+    </div>
+    <hr>
+    {{/each}}
 
   </section>
-  
-</form>
 
+</form>
