@@ -3,11 +3,7 @@
 	"title": "Beneos Tokens",
 	"description": "Compendium pack with high quality animated tokens and abilities",
 	"author": "Beneos | Ben#0159",
-<<<<<<< HEAD
 	"version": "0.6.0",
-=======
-	"version": "0.21",
->>>>>>> 5d264beab19bebcce0f21f92cfc7a50ed9d5b9e3
 	"minimumCoreVersion": "9.238",
 	"compatibleCoreVersion":"9",
 	"dependencies": [
