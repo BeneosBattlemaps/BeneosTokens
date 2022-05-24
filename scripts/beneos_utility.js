@@ -4,7 +4,7 @@ import { BeneosSearchEngineLauncher } from "./beneos_search_engine.js";
 
 /********************************************************************************* */
 const BENEOS_MODULE_NAME = "Beneos Tokens"
-const BENEOS_MODULE_ID = "beneostokens_beta"
+const BENEOS_MODULE_ID = "beneostokens"
 const BENEOS_DEFAULT_TOKEN_PATH = "beneos_tokens_assets"
 
 let beneosDebug = true

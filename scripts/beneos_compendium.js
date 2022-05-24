@@ -21,8 +21,8 @@ export class BeneosCompendiumReset extends FormApplication {
   async performReset() {
     ui.notifications.info("BeneosTokens : Cleanup of compendiums has started....")
 
-    await this.deleteCompendiumContent("beneostokens_beta.beneostokens_actors")
-    await this.deleteCompendiumContent("beneostokens_beta.beneostokens_journal")
+    await this.deleteCompendiumContent("beneostokens.beneostokens_actors")
+    await this.deleteCompendiumContent("beneostokens.beneostokens_journal")
     ui.notifications.info("BeneosTokens : Cleanup of compendiums finished.")
 
     // Force reload
@@ -49,8 +49,8 @@ export class BeneosCompendiumManager {
     let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
 
     // get the packs to update/check
-    let actorPack = game.packs.get("beneostokens_beta.beneostokens_actors")
-    let journalPack = game.packs.get("beneostokens_beta.beneostokens_journal")
+    let actorPack = game.packs.get("beneostokens.beneostokens_actors")
+    let journalPack = game.packs.get("beneostokens.beneostokens_journal")
     await actorPack.getIndex()
     await journalPack.getIndex()
 

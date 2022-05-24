@@ -246,7 +246,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   // JOURNAL HUD
   if (tokenConfig && tokenConfig.config) {
     if (tokenConfig.config.compendium) {
-      let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal")
+      let beneosPack = game.packs.get("beneostokens.beneostokens_journal")
       if (beneosPack) {
         let beneosJournalEntry = null
         let beneosCompendiumEntry = beneosPack.index.getName(tokenConfig.config.compendium)
@@ -254,7 +254,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
           beneosJournalEntry = beneosPack.getDocument(beneosCompendiumEntry._id)
         }
         if (beneosJournalEntry) {
-          const beneosJournalDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosjournal.html',
+          const beneosJournalDisplay = await renderTemplate('modules/beneostokens/templates/beneosjournal.html',
             { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath() })
           html.find('div.left').append(beneosJournalDisplay);
           html.find('img.beneosJournalAction').click((event) => {
@@ -273,7 +273,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
         beneosVariantsHUD.push({ "name": key })
       })
 
-      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosvariants.html',
+      const beneosVariantsDisplay = await renderTemplate('modules/beneostokens/templates/beneosvariants.html',
         { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosVariantsHUD })
       if (!BeneosUtility.isBeneosModule()) {
         return
@@ -305,7 +305,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) {
     beneosTokensIdleHUD = beneosTokensIdleHUD.concat(BeneosUtility.getAnimatedTokens(token))
   }
-  const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneosidlehud.html',
+  const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens/templates/beneosidlehud.html',
     { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensIdleHUD })
   html.find('div.right').append(beneosTokensIdleDisplay).click((event) => {
     let beneosClickedButton = event.target.parentElement
@@ -337,7 +337,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
       "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm"
     })
   })
-  const beneosTokensDisplay = await renderTemplate('modules/beneostokens_beta/templates/beneoshud.html',
+  const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/beneoshud.html',
     { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
 
   html.find('div.right').append(beneosTokensDisplay).click((event) => {
@@ -365,7 +365,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 
   // Size management
   if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) {
-    const beneosTokensSize = await renderTemplate('modules/beneostokens_beta/templates/beneosreloadjson.html',
+    const beneosTokensSize = await renderTemplate('modules/beneostokens/templates/beneosreloadjson.html',
       { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), tokenData })
     let buttonSize = html.find('div.right').append(beneosTokensSize)
 

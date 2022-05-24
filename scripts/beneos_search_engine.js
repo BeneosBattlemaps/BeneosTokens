@@ -244,7 +244,7 @@ export class BeneosSearchResults extends Dialog {
       let tokenConfig = BeneosUtility.isLoaded(tokenKey)
       if (tokenConfig && tokenConfig.config) {
         if (tokenConfig.config.compendium) {
-          let beneosPack = game.packs.get("beneostokens_beta.beneostokens_journal")
+          let beneosPack = game.packs.get("beneostokens.beneostokens_journal")
           if (beneosPack) {
             let beneosJournalEntry = null
             let beneosCompendiumEntry = beneosPack.index.getName(tokenConfig.config.compendium)
@@ -299,7 +299,7 @@ export class BeneosSearchEngine extends Dialog {
     }
 
     console.log("SEARCH results", results)
-    let html = await renderTemplate('modules/beneostokens_beta/templates/beneossearchresults.html', { results: results })
+    let html = await renderTemplate('modules/beneostokens/templates/beneossearchresults.html', { results: results })
     if (!this.resultDialog) {
       this.resultDialog = new BeneosSearchResults(html, this, results)
     } else {
@@ -320,7 +320,7 @@ export class BeneosSearchEngine extends Dialog {
 
   /********************************************************************************** */
   async updateContent() {
-    let html = await renderTemplate('modules/beneostokens_beta/templates/beneossearchengine.html', this.dbData)
+    let html = await renderTemplate('modules/beneostokens/templates/beneossearchengine.html', this.dbData)
     this.data.content = html
     this.render(true)
   }
@@ -421,7 +421,7 @@ export class BeneosSearchEngineLauncher extends FormApplication {
     await BeneosDatabaseHolder.loadDatabaseFiles()
     let dbData = BeneosDatabaseHolder.getData()
 
-    let html = await renderTemplate('modules/beneostokens_beta/templates/beneossearchengine.html', dbData)
+    let html = await renderTemplate('modules/beneostokens/templates/beneossearchengine.html', dbData)
     let searchDialog = new BeneosSearchEngine(html, dbData)
     searchDialog.render(true)
     setTimeout(searchDialog.processSelectorSearch(), 500)
