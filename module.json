@@ -1,9 +1,9 @@
 {
-	"name": "beneostokenss",
+	"name": "beneostokens",
 	"title": "Beneos Tokens",
 	"description": "Compendium pack with high quality animated tokens and abilities",
 	"author": "Beneos | Ben#0159",
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"minimumCoreVersion": "9.238",
 	"compatibleCoreVersion":"9",
 	"dependencies": [
