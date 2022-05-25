@@ -67,6 +67,7 @@ class BeneosDatabaseHolder {
     this.adventureList = {}
 
     for (let key in this.tokenData.content) {
+      //console.log("Processing", key)
       let tokenData = this.tokenData.content[key]
       tokenData.kind = "token"
       tokenData.key = key
