@@ -3,8 +3,11 @@
 	"title": "Beneos Tokens",
 	"description": "Compendium pack with high quality animated tokens and abilities",
 	"author": "Beneos | Ben#0159",
-	"version": "0.6.3",
+	"version": "1.0.0",
 	"minimumCoreVersion": "9.238",
+	"url": "https://github.com/BeneosBattlemaps/BeneosTokens",
+	"manifest": "https://github.com/BeneosBattlemaps/BeneosTokens/releases/download/current_release/module.json",
+	"download": "https://github.com/BeneosBattlemaps/BeneosTokens/archive/refs/tags/current_release.zip",
 	"compatibleCoreVersion":"9",
 	"dependencies": [
 		{
