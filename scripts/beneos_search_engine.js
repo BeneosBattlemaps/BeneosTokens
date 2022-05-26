@@ -154,7 +154,7 @@ class BeneosDatabaseHolder {
         //console.log(item.properties[propertyName], typeof(item.properties[propertyName]))
         if (typeof (item.properties[propertyName]) == "string") {
           if (strict) {
-            if (item.properties[propertyName].toLowerCase().toString() == value.toString() ) {
+            if (item.properties[propertyName].toLowerCase().toString() == value.toString()) {
               newResults[key] = duplicate(item)
             }
           } else {
@@ -165,7 +165,7 @@ class BeneosDatabaseHolder {
         } else {
           if (Array.isArray(item.properties[propertyName])) {
             for (let valueArray of item.properties[propertyName]) {
-                if ((typeof (valueArray) == "string") && valueArray.toLowerCase().toString().includes(value)) {
+              if ((typeof (valueArray) == "string") && valueArray.toLowerCase().toString().includes(value)) {
                 newResults[key] = duplicate(item)
               }
             }
@@ -238,7 +238,7 @@ export class BeneosSearchResults extends Dialog {
       searchResults = BeneosDatabaseHolder.searchByProperty("token", "purpose", purpose.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
     })
-    
+
     $(".beneos-button-journal").click(event => {
       let element = $(event.currentTarget)?.parents(".token-root-div")
       let tokenKey = element.data("token-key")
@@ -311,7 +311,10 @@ export class BeneosSearchEngine extends Dialog {
 
   /********************************************************************************** */
   processTextSearch(event) {
-    console.log("Text change", event.currentTarget.value)
+    var code = event.keyCode ? event.keyCode : event.which
+    if (code == 13) {  // Enter keycode
+      return
+    }
     if (event.currentTarget.value && event.currentTarget.value.length >= 3) {
       let results = BeneosDatabaseHolder.textSearch(event.currentTarget.value)
 
@@ -385,8 +388,30 @@ export class BeneosSearchEngine extends Dialog {
   activateListeners() {
 
     let myObject = this
-    1
+
+    $('#beneos-search-text').bind("enterKey",function(event){
+      var key = event.keyCode ? event.keyCode : event.which
+      if (key == 13) {
+        console.log("HERE KEYDOWN 13 - 2!!!!")
+        event.preventDefault()
+        return
+      }
+   });
+    $('#beneos-search-form').keydown(function (event) {
+      var key = event.keyCode ? event.keyCode : event.which
+      if (key == 13) {
+        event.preventDefault()
+        console.log("HERE KEYDOWN 13 - 2!!!!")
+        return
+      }
+    });
     $("#beneos-search-text").keyup(event => {
+      var code = event.keyCode ? event.keyCode : event.which
+      if (code == 13) {  // Enter keycode
+        event.preventDefault()
+        console.log("HERE 13!!!!")
+        return
+      }
       clearTimeout(myObject.timeout)
       myObject.timeout = setTimeout(function () {
         myObject.processTextSearch(event)
