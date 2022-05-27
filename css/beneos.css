@@ -137,6 +137,15 @@
   max-width: 128px;
   flex-grow:1;
 }
+.beneos-search-icons-bmap-result {
+    border: 0;
+    width: 212px;
+    height: 120px;
+    margin-right: 4px;
+    min-width: 216px;
+    max-width: 216px;
+    flex-grow:1;
+}
 .beneos-search-middle {
   flex-grow:3;
 }
@@ -189,6 +198,8 @@
   flex-grow: 1;
   max-height: 18px;
 } 
+.beneos-search-grid-button, 
+.beneos-search-brightness-button, 
 .beneos-search-cr-button{  
   text-align: center;
   border-width: 1px;

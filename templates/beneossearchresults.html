@@ -6,46 +6,84 @@
     {{#each results as |result idx|}}
     <div data-result-index="{{idx}}" data-token-key="{{result.key}}" class="flexrow token-root-div {{#if result.isInstalled}} {{else}}beneos-not-installed{{/if}}">
 
-      <div class="beneos-search-icons-result">
-        <img class="beneos-search-icons-result" src="{{result.picture}}">
-      </div>
+      {{#if (eq result.kind "token")}}
+        <div class="beneos-search-icons-result">
+          <img class="beneos-search-icons-result" src="{{result.picture}}">
+        </div>
 
-      <div class="beneos-search-middle flexcol">
-        <label class="beneos-search-title-result">{{result.name}}</label>
-        <span class="beneos-search-text01">
-          <label>{{beneosUpperFirst result.properties.size}}</label>
-          {{#each result.properties.type as |type key|}}
-            <label>{{beneosUpperFirst type}}</label>
-          {{/each}}
-          <label class="beneos-search-stat">AC: <strong>{{result.properties.stat_ac}}</strong></label>
-          <label class="beneos-search-stat">HP: <strong>{{result.properties.stat_hp}}</strong></label>
-        </span>
-        <span class="beneos-search-text01">
-          {{#each result.properties.fightingstyle as |fight key|}}
-            <label class="beneos-search-button" data-prop-name="fightingstyle">
-              <a class="beneos-button-fight" data-fight-value="{{fight}}">{{beneosUpperFirst fight}}</a>
-            </label>
-          {{/each}}
-            <label class="beneos-search-button" data-prop-name="purpose">
-              <a class="beneos-button-purpose" data-purpose-value="{{result.properties.purpose}}">{{ beneosUpperFirst result.properties.purpose}}</a>
-            </label>
-        </span>
-        <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
-      </div>
+        <div class="beneos-search-middle flexcol">
+          <label class="beneos-search-title-result">{{result.name}}</label>
+          <span class="beneos-search-text01">
+            <label>{{beneosUpperFirst result.properties.size}}</label>
+            {{#each result.properties.type as |type key|}}
+              <label>{{beneosUpperFirst type}}</label>
+            {{/each}}
+            <label class="beneos-search-stat">AC: <strong>{{result.properties.stat_ac}}</strong></label>
+            <label class="beneos-search-stat">HP: <strong>{{result.properties.stat_hp}}</strong></label>
+          </span>
+          <span class="beneos-search-text01">
+            {{#each result.properties.fightingstyle as |fight key|}}
+              <label class="beneos-search-button" data-prop-name="fightingstyle">
+                <a class="beneos-button-fight" data-fight-value="{{fight}}">{{beneosUpperFirst fight}}</a>
+              </label>
+            {{/each}}
+              <label class="beneos-search-button" data-prop-name="purpose">
+                <a class="beneos-button-purpose" data-purpose-value="{{result.properties.purpose}}">{{ beneosUpperFirst result.properties.purpose}}</a>
+              </label>
+          </span>
+          <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
+        </div>
 
-      <div class="beneos-search-last flexcol">
-        {{#if result.isInstalled}}
-          <label class="beneos-search-installed">Installed</label>
-          <label class="beneos-search-journal-button"><a class="beneos-button-journal">Journal</a></label>
-          {{else}}
-          <label class="beneos-search-notinstalled">Not Installed</label>
-          <label class=""></label>
-        {{/if}}
-        </a>
-        <label class="beneos-search-cr-button"><a class="beneos-button-cr" data-cr-value="{{result.properties.cr}}">CR <strong>{{result.properties.cr}}</strong></a></label>
-        <label class="beneos-search-yt-button"><a class="beneos-button-yt" href="{{result.properties.videourl}}"><img class="beneos-search-yt-icons" src="modules/beneostokens/icons/yt_Logo.webp">&nbsp;</a></label>
-      </div>
+        <div class="beneos-search-last flexcol">
+          {{#if result.isInstalled}}
+            <label class="beneos-search-installed">Installed</label>
+            <label class="beneos-search-journal-button"><a class="beneos-button-journal">Journal</a></label>
+            {{else}}
+            <label class="beneos-search-notinstalled">Not Installed</label>
+            <label class=""></label>
+          {{/if}}
+          </a>
+          <label class="beneos-search-cr-button"><a class="beneos-button-cr" data-cr-value="{{result.properties.cr}}">CR <strong>{{result.properties.cr}}</strong></a></label>
+          <label class="beneos-search-yt-button"><a class="beneos-button-yt" href="{{result.properties.videourl}}"><img class="beneos-search-yt-icons" src="modules/beneostokens/icons/yt_Logo.webp">&nbsp;</a></label>
+        </div>
+      
+      {{else}}
 
+        <div class="beneos-search-icons-bmap-result">
+          <img class="beneos-search-icons-bmap-result" src="{{result.picture}}">
+        </div>
+
+        <div class="beneos-search-middle flexcol">
+          <label class="beneos-search-title-result">{{result.name}}</label>
+          <span class="beneos-search-text01">
+            {{#each result.properties.adventure as |adventure key|}}
+              <label>{{beneosUpperFirst adventure}}</label>
+            {{/each}}
+          </span>
+          <span class="beneos-search-text01">
+            {{#each result.properties.biom as |biom key|}}
+              <label class="beneos-search-button" data-prop-name="biom">
+                <a class="beneos-button-biom" data-biom-value="{{biom}}">{{beneosUpperFirst biom}}</a>
+              </label>
+            {{/each}}
+          </span>
+          <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
+        </div>
+
+        <div class="beneos-search-last flexcol">
+          <label class="beneos-search-installed">
+            {{#if (eq result.properties.type "battlemap")}}
+            Battlemap
+            {{else}}
+            Scenery
+            {{/if}}
+          </label>
+          <label class="beneos-search-grid-button"><a class="beneos-button-grid" data-grid-value="{{result.properties.brightness}}">{{result.properties.grid}}</a></label>
+          <label class="beneos-search-brightness-button"><a class="beneos-button-brightness" data-brightness-value="{{result.properties.brightness}}">{{result.properties.brightness}}</a></label>
+          <label class="beneos-search-yt-button"><a class="beneos-button-yt" href="{{result.properties.videourl}}"><img class="beneos-search-yt-icons" src="modules/beneostokens/icons/yt_Logo.webp">&nbsp;</a></label>
+        </div>
+
+      {{/if}}
     </div>
     <hr>
     {{/each}}

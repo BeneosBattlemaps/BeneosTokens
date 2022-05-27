@@ -82,8 +82,9 @@ class BeneosDatabaseHolder {
     }
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
-      bmapData.kind = bmapData.properties.type
+      bmapData.kind = "battlemap"
       bmapData.key = key
+      a.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key +".webp"
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
       mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
@@ -212,13 +213,33 @@ export class BeneosSearchResults extends Dialog {
 
     // Common conf
     let dialogConf = { content: html, title: "Beneos Search Results", buttons: myButtons };
-    let dialogOptions = { classes: ["beneostokens"], left: 620, width: 520, height: 580, 'z-index': 99999 }
+    let dialogOptions = { classes: ["beneostokens"], left: 620, width: 620, height: 580, 'z-index': 99999 }
     super(dialogConf, dialogOptions)
   }
   /********************************************************************************** */
   activateListeners() {
 
     let myObject = this
+
+    $(".beneos-button-biom").click(event => {
+      let searchResults = BeneosDatabaseHolder.getAll("bmap")
+      let biom = $(event.currentTarget).data("biom-value")
+      searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "biom", biom.toString(), searchResults)
+      game.beneosTokens.searchEngine.displayResults(searchResults)      
+    })
+    $(".beneos-button-grid").click(event => {
+      let searchResults = BeneosDatabaseHolder.getAll("bmap")
+      let grid = $(event.currentTarget).data("grid-value")
+      searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "grid", grid.toString(), searchResults)
+      game.beneosTokens.searchEngine.displayResults(searchResults)      
+    })
+    $(".beneos-button-brightness").click(event => {
+      let searchResults = BeneosDatabaseHolder.getAll("bmap")
+      let brightness = $(event.currentTarget).data("brightness-value")
+      searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "brightness", brightness.toString(), searchResults)
+      game.beneosTokens.searchEngine.displayResults(searchResults)      
+    })
+
 
     $(".beneos-button-cr").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("token")
