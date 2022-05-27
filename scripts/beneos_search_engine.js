@@ -84,7 +84,7 @@ class BeneosDatabaseHolder {
       let bmapData = this.bmapData.content[key]
       bmapData.kind = "battlemap"
       bmapData.key = key
-      a.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key +".webp"
+      bmapData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key +".webp"
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
       mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
