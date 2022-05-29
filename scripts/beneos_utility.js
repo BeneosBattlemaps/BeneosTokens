@@ -522,6 +522,11 @@ export class BeneosUtility {
 
     if (tokenKey) {
       let tokenConfig = this.beneosTokens[tokenKey]
+      if (!tokenConfig || !tokenConfig) {
+        ui.notifications.warn("Error in BeneosTokens : the tokenKey seems wrong " + tokenKey)
+        console.log("Working tokenKey - matchArray : ",tokenKey, matchArray)
+        return tokenList
+      }
       //console.log("Token", tokenKey, token, tokenConfig)
       for (let idleImg of tokenConfig.idleList) {
         let modeName = idleImg.match("(idle_[\\w_]*).web")
