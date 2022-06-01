@@ -7,10 +7,16 @@ Hooks.once('init', () => {
   // HAck to prevent errors when the animated textures are not fully loaded
   Token.prototype.oldRefresh = Token.prototype.refresh
   Token.prototype.refresh = function () {
-    if (this.icon === undefined) {
+    console.log("TJIS", this, this.icon)
+    try {
+      if ( this.icon == undefined || typeof(this.icon.scale) != 'object' ) {
+      return this
+      }
+      return Token.prototype.oldRefresh.call(this)
+    }
+    catch  {
       return this
     }
-    return Token.prototype.oldRefresh.call(this)
   }
 })
 

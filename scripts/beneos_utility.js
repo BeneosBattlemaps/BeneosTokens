@@ -631,7 +631,7 @@ export class BeneosUtility {
         this.addFx(token, tokenConfig.top.idle.fx, true)
       }
     }
-    await canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scalefactor: scaleFactor, rotation: 0 })])
+    canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scale: scaleFactor, scalefactor: scaleFactor, rotation: 0 })])
   }
 
   /********************************************************************************** */
