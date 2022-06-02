@@ -81,7 +81,9 @@ export class BeneosCompendiumManager {
               ui.notifications.warn("Warning ! Wrong token config for token " + key)
             }
           } else {
-            ui.notifications.warn("Warning ! Unable to fetch config for token " + key)
+            if ( !key.match("000_") ) { 
+              ui.notifications.warn("Warning ! Unable to fetch config for token " + key)
+            }
           }
         } catch(error) {
           console.log("Warning ! Error in parsing JSON " + error, JSONFilePath)
