@@ -7,15 +7,14 @@
     <div data-result-index="{{idx}}" data-token-key="{{result.key}}"  class="directory-item document actor flexrow token-root-div {{#if result.isInstalled}} {{else}}beneos-not-installed{{/if}}">
 
       {{#if (eq result.kind "token")}}
-        <div class="beneos-search-icons-result beneos-tooltip">
+        <div class="beneos-search-icons-result beneos-tooltip entity-link content-link">
           
-          <div class="beneos-tooltiptext beneos-token-description">
+          <div class="beneos-tooltiptext beneos-token-description" >
             <div class="flexrow beneos-tooltip-content">
               <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
               <span class="beneos-description-text">{{result.description}}</span>
             </div>
-          </div>
-          
+          </div>          
           <img class="beneos-search-icons-result" src="{{result.picture}}">
         </div>
         
