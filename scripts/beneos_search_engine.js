@@ -5,7 +5,7 @@ const tokenDBURL = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-da
 const battlemapDBURL = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/beneos_battlemaps_database.json"
 
 /********************************************************************************** */
-class BeneosDatabaseHolder {
+export class BeneosDatabaseHolder {
 
   /********************************************************************************** */
   static async loadDatabaseFiles() {
@@ -79,12 +79,14 @@ class BeneosDatabaseHolder {
       mergeObject(this.movementList, this.buildList(tokenData.properties.movement))
       mergeObject(this.purposeList, this.buildList(tokenData.properties.purpose))
       tokenData.isInstalled = BeneosUtility.isLoaded(key)
+      tokenData.actorId = BeneosUtility.getActorId(key)
+      tokenData.description = tokenData.description
     }
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
       bmapData.kind = "battlemap"
       bmapData.key = key
-      bmapData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key +".webp"
+      bmapData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key + ".webp"
       mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
       mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
@@ -109,6 +111,22 @@ class BeneosDatabaseHolder {
       }
     }
     return false
+  }
+
+  /********************************************************************************** */
+  static getTagDescriptions()  {
+    return duplicate(this.tokenData.tag_description)
+  }
+
+  /********************************************************************************** */
+  static getTagDescription(tagName) {
+    if ( this.tokenData.tag_description) {
+      let tag = this.tokenData.tag_description[tagName.toLowerCase()]
+      if (tag) {
+      return tag.description
+      }
+    }
+    return "No information"
   }
 
   /********************************************************************************** */
@@ -213,7 +231,7 @@ export class BeneosSearchResults extends Dialog {
 
     // Common conf
     let dialogConf = { content: html, title: "Beneos Search Results", buttons: myButtons };
-    let dialogOptions = { classes: ["beneostokens"], left: 620, width: 620, height: 580, 'z-index': 99999 }
+    let dialogOptions = { classes: ["beneostokens", "draggable"], left: 620, width: 620, height: 580, 'z-index': 99999 }
     super(dialogConf, dialogOptions)
   }
   /********************************************************************************** */
@@ -221,23 +239,28 @@ export class BeneosSearchResults extends Dialog {
 
     let myObject = this
 
+    $('.token-search-data').on('dragstart', function (e) {
+      let id = e.target.getAttribute("data-item-id");
+      let drag_data = {"type":"Actor","pack":"beneostokens.beneostokens_actors","id":id}
+      e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(drag_data));
+    })
     $(".beneos-button-biom").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
       let biom = $(event.currentTarget).data("biom-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "biom", biom.toString(), searchResults)
-      game.beneosTokens.searchEngine.displayResults(searchResults)      
+      game.beneosTokens.searchEngine.displayResults(searchResults)
     })
     $(".beneos-button-grid").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
       let grid = $(event.currentTarget).data("grid-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "grid", grid.toString(), searchResults)
-      game.beneosTokens.searchEngine.displayResults(searchResults)      
+      game.beneosTokens.searchEngine.displayResults(searchResults)
     })
     $(".beneos-button-brightness").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
       let brightness = $(event.currentTarget).data("brightness-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "brightness", brightness.toString(), searchResults)
-      game.beneosTokens.searchEngine.displayResults(searchResults)      
+      game.beneosTokens.searchEngine.displayResults(searchResults)
     })
 
 
@@ -410,14 +433,14 @@ export class BeneosSearchEngine extends Dialog {
 
     let myObject = this
 
-    $('#beneos-search-text').bind("enterKey",function(event){
+    $('#beneos-search-text').bind("enterKey", function (event) {
       var key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {
         console.log("HERE KEYDOWN 13 - 2!!!!")
         event.preventDefault()
         return
       }
-   });
+    });
     $('#beneos-search-form').keydown(function (event) {
       var key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {

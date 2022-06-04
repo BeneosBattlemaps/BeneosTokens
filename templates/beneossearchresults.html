@@ -4,14 +4,26 @@
   <section class="sheet-body">
 
     {{#each results as |result idx|}}
-    <div data-result-index="{{idx}}" data-token-key="{{result.key}}" class="flexrow token-root-div {{#if result.isInstalled}} {{else}}beneos-not-installed{{/if}}">
+    <div data-result-index="{{idx}}" data-token-key="{{result.key}}"  class="directory-item document actor flexrow token-root-div {{#if result.isInstalled}} {{else}}beneos-not-installed{{/if}}">
 
       {{#if (eq result.kind "token")}}
-        <div class="beneos-search-icons-result">
+        <div class="beneos-search-icons-result beneos-tooltip">
+          
+          <div class="beneos-tooltiptext beneos-token-description">
+            <div class="flexrow beneos-tooltip-content">
+              <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
+              <span class="">{{result.description}}</span>
+            </div>
+          </div>
+          
           <img class="beneos-search-icons-result" src="{{result.picture}}">
         </div>
-
+        
+        {{#if result.isInstalled}}
+        <div class="beneos-search-middle flexcol token-search-data entity-link content-link"  data-type="Actor" data-entity="Actor" data-item-id="{{result.actorId}}" draggable="true">
+        {{else}}
         <div class="beneos-search-middle flexcol">
+        {{/if}}
           <label class="beneos-search-title-result">{{result.name}}</label>
           <span class="beneos-search-text01">
             <label>{{beneosUpperFirst result.properties.size}}</label>
@@ -24,7 +36,12 @@
           <span class="beneos-search-text01">
             {{#each result.properties.fightingstyle as |fight key|}}
               <label class="beneos-search-button" data-prop-name="fightingstyle">
-                <a class="beneos-button-fight" data-fight-value="{{fight}}">{{beneosUpperFirst fight}}</a>
+                <div class="beneos-tooltip">
+                  <div class="beneos-tooltiptext beneos-tooltip-keyword">
+                    <span class="">{{getTagDescription fight}}</span>
+                  </div>
+                  <a class="beneos-button-fight" data-fight-value="{{fight}}">{{beneosUpperFirst fight}}</a>
+                </div>
               </label>
             {{/each}}
               <label class="beneos-search-button" data-prop-name="purpose">

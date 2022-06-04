@@ -66,6 +66,7 @@ export class BeneosCompendiumManager {
         // Token config
         let idleList = []
         let imgVideoList = []
+        let currentId = ""
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
         
@@ -117,8 +118,9 @@ export class BeneosCompendiumManager {
             records.token.img = this.replaceImgPath(dataFolder.target, records.token.img, true)
             this.replaceItemsPath(records)
             let actor = await Actor.create(records, { temporary: true })
-            //actor.setFlag("beneostokens", "tokenKey", key) // Use to identify the token as a beneostoken one
-            actorPack.importDocument(actor)
+            let imported = await actorPack.importDocument(actor)
+            //console.log("ACTOR IMPO", imported)
+            currentId = imported.id
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
@@ -133,6 +135,7 @@ export class BeneosCompendiumManager {
           //console.log("Final IDLE list : ", idleList)
           BeneosUtility.beneosTokens[key].idleList = duplicate(idleList)
           BeneosUtility.beneosTokens[key].imgVideoList = duplicate(imgVideoList)
+          BeneosUtility.beneosTokens[key].actorId = currentId
         }
       }
     }

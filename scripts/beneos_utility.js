@@ -1,6 +1,6 @@
 /********************************************************************************* */
 import { BeneosCompendiumManager, BeneosCompendiumReset } from "./beneos_compendium.js";
-import { BeneosSearchEngineLauncher } from "./beneos_search_engine.js";
+import { BeneosSearchEngineLauncher, BeneosDatabaseHolder } from "./beneos_search_engine.js";
 
 /********************************************************************************* */
 const BENEOS_MODULE_NAME = "Beneos Tokens"
@@ -77,10 +77,10 @@ export class BeneosUtility {
   static registerSettings() {
     if (game.user.isGM) {
 
-      game.beneosTokens = { 
+      game.beneosTokens = {
         moduleId: BENEOS_MODULE_ID
       }
-      
+
       game.settings.registerMenu(BeneosUtility.moduleID(), "beneos-clean-compendium", {
         name: "Empty compendium to re-import all tokens data",
         label: "Reset & Rebuild BeneosTokens Compendiums",
@@ -190,6 +190,10 @@ export class BeneosUtility {
       if (typeof text !== 'string') return text
       return text.charAt(0).toUpperCase() + text.slice(1)
     })
+    Handlebars.registerHelper('getTagDescription', function (text) {
+      return BeneosDatabaseHolder.getTagDescription(text)
+    })
+    
 
   }
 
@@ -198,7 +202,7 @@ export class BeneosUtility {
     if (typeof text !== 'string') return text
     return text.charAt(0).toUpperCase() + text.slice(1)
   }
-  
+
   /********************************************************************************** */
   static debugMessage(msg, data) {
     if (BeneosUtility.isDebug()) {
@@ -369,8 +373,8 @@ export class BeneosUtility {
     token.data.img = animation
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
     await token.document.update({ img: animation, scale: 1.0, rotation: tkangle, data: { img: animation } })
-    if ( tkscale != 1.0) {
-      token.document.update( { scale: tkscale } )
+    if (tkscale != 1.0) {
+      token.document.update({ scale: tkscale })
     }
     //token.refresh()
     this.addFx(token, bfx, true)
@@ -524,7 +528,7 @@ export class BeneosUtility {
       let tokenConfig = this.beneosTokens[tokenKey]
       if (!tokenConfig || !tokenConfig) {
         ui.notifications.warn("Error in BeneosTokens : the tokenKey seems wrong " + tokenKey)
-        console.log("Working tokenKey - matchArray : ",tokenKey, matchArray)
+        console.log("Working tokenKey - matchArray : ", tokenKey, matchArray)
         return tokenList
       }
       //console.log("Token", tokenKey, token, tokenConfig)
@@ -542,10 +546,19 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static isLoaded( tokenKey) {
+  static isLoaded(tokenKey) {
     return this.beneosTokens[tokenKey]
   }
-  
+
+  /********************************************************************************** */
+  static getActorId(tokenKey) {
+    let token = this.beneosTokens[tokenKey]
+    if (token) {
+      return token.actorId
+    }
+    return undefined
+  }
+
   /********************************************************************************** */
   static getAnimatedTokens(token) {
     let tokenData = this.getTokenImageInfo(token.data.img)
@@ -554,7 +567,7 @@ export class BeneosUtility {
     if (tokenData && tokenData.tokenKey) {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       for (let imgVideo of tokenConfig.imgVideoList) {
-        if ( imgVideo.includes("top") && imgVideo.includes(".webm")) {
+        if (imgVideo.includes("top") && imgVideo.includes(".webm")) {
           let modeName = imgVideo.match("-([\\w_]*).web")
           modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
           tokenList.push({
@@ -574,6 +587,7 @@ export class BeneosUtility {
 
     let tokenData = this.getTokenImageInfo(newImage)
     let myToken = this.beneosTokens[tokenData.tokenKey]
+    //console.log("Got token config !!!", myToken, this.beneosTokens, tokenData.tokenKey)
     let newScaleFactor = myToken.config.scalefactor
     if (newImage.includes("_top")) {
       if (myToken[tokenData.variant][tokenData.currentStatus]) {
@@ -737,7 +751,7 @@ export class BeneosUtility {
         break
 
       case "standing":
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id], Date.now() )
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id], Date.now())
         token.isMoving = false
         if (BeneosUtility.beneosHealth[token.id] > 0 || !game.dnd5e) {
           if (token.inCombat) {
@@ -851,18 +865,18 @@ export class BeneosUtility {
           status = "idle"
         }
         let variantName = tokenData.variant
-        if ( !tokenConfig[tokenData.variant] ) {
+        if (!tokenConfig[tokenData.variant]) {
           variantName = "top"
         }
-        if ( !tokenConfig[variantName ]) {
-          ui.notifications.warn("Unable to find token/variant data for " + variantName  )          
+        if (!tokenConfig[variantName]) {
+          ui.notifications.warn("Unable to find token/variant data for " + variantName)
           return
         }
         let currentData = tokenConfig[variantName][status]
-        if ( !currentData) {
+        if (!currentData) {
           for (let variantKey in tokenConfig.top) {
             let variantData = tokenConfig.top[variantKey]
-            if ( variantData.a == tokenData.currentStatus) {
+            if (variantData.a == tokenData.currentStatus) {
               currentData = variantData
             }
           }
@@ -875,7 +889,7 @@ export class BeneosUtility {
 
         console.log("Status detected ", status)
         // Save scalefactor
-        if ( status == "die" ) {
+        if (status == "die") {
           let currentDataDeath = tokenConfig[variantName]["dead"]
           if (currentDataDeath) {
             currentDataDeath.s = currentData.s
@@ -884,7 +898,7 @@ export class BeneosUtility {
         }
 
         // Save scalefactor
-        let scaleFactor = currentData.s * tokenConfig.config.scalefactor  
+        let scaleFactor = currentData.s * tokenConfig.config.scalefactor
         token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
         await token.document.update({ scale: scaleFactor })
       }
@@ -900,7 +914,7 @@ export class BeneosUtility {
         config: duplicate(tokenConfig.config),
         top: duplicate(tokenConfig.top)
       }
-      let json  = JSON.stringify(jsonData)
+      let json = JSON.stringify(jsonData)
       saveDataToFile(json, "text/json", tokenConfig.JSONFilePath)
     }
   }
