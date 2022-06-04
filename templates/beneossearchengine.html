@@ -45,7 +45,7 @@
       <select name="bioms" class="beneos-selector" id="bioms-selector" data-dtype="String">
         {{#select bmapBioms}}
         {{#each bmapBioms as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -57,7 +57,7 @@
         {{#select bmapBrightness}}
         <option value="any">Any</option>
         {{#each bmapBrightness as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -69,7 +69,7 @@
         {{#select adventureList}}
         <option value="any">Any</option>
         {{#each adventureList as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -81,7 +81,7 @@
         {{#select gridList}}
         <option value="any">Any</option>
         {{#each gridList as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -92,9 +92,10 @@
     <span class="flexrow">
       <label>Biom : </label>
       <select name="bioms" class="beneos-selector" id="bioms-selector" data-dtype="String">
-        {{#select tokenBioms}}
+        {{#select "any"}}
+        <option value="any">Any</option>
         {{#each tokenBioms as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -103,10 +104,10 @@
     <span class="flexrow">
       <label>Token type : </label>
       <select name="token-types" class="beneos-selector" id="token-types" data-dtype="String">
-        {{#select tokenTypes}}
+        {{#select "any"}}
         <option value="any">Any</option>
         {{#each tokenTypes as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -118,7 +119,7 @@
         {{#select fightingStyles}}
         <option value="any">Any</option>
         {{#each fightingStyles as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -130,7 +131,7 @@
         {{#select crList}}
         <option value="any">Any</option>
         {{#each crList as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -142,7 +143,7 @@
         {{#select movementList}}
         <option value="any">Any</option>
         {{#each movementList as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>
@@ -154,7 +155,7 @@
         {{#select purposeList}}
         <option value="any">Any</option>
         {{#each purposeList as |data key|}}
-        <option value={{key}}>{{beneosUpperFirst key}}</option>
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
         {{/select}}
       </select>

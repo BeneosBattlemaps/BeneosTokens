@@ -12,7 +12,7 @@
           <div class="beneos-tooltiptext beneos-token-description">
             <div class="flexrow beneos-tooltip-content">
               <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
-              <span class="">{{result.description}}</span>
+              <span class="beneos-description-text">{{result.description}}</span>
             </div>
           </div>
           
@@ -44,10 +44,17 @@
                 </div>
               </label>
             {{/each}}
+            {{#each result.properties.purpose as |purpose key|}}
               <label class="beneos-search-button" data-prop-name="purpose">
-                <a class="beneos-button-purpose" data-purpose-value="{{result.properties.purpose}}">{{ beneosUpperFirst result.properties.purpose}}</a>
-              </label>
-          </span>
+                <div class="beneos-tooltip">
+                  <div class="beneos-tooltiptext beneos-tooltip-purpose">
+                    <span class="">{{getTagDescription purpose}}</span>
+                  </div>
+                <a class="beneos-button-purpose" data-purpose-value="{{purpose}}">{{beneosUpperFirst purpose}}</a>
+              </div>
+            </label>
+            {{/each}}
+            </span>
           <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
         </div>
 

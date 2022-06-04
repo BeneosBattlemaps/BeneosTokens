@@ -120,23 +120,28 @@
 }
 
 .beneos-tooltip .beneos-tooltip-content{
-  width: 480px;
+  width: 490px;
   
-  margin: 4px;
-  padding: 4px;
+  margin: 8px;
+  padding: 8px;
   background: rgba(233, 226, 218, 0.9);
   border-radius: 12px;
-
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 .beneos-tooltip .beneos-tooltip-keyword {
-  width: 240px;
-  
+  width: 240px;  
   margin: 4px;
   padding: 4px;
   background: rgba(233, 226, 218, 0.9);
   border-radius: 12px;
-
+  font-size: 0.9rem;
+}
+.beneos-tooltip .beneos-tooltip-purpose {
+  width: 240px;  
+  margin: 4px;
+  padding: 4px;
+  background: rgba(233, 226, 218, 0.9);
+  border-radius: 12px;
   font-size: 0.8rem;
 }
 .beneos-search-icons-result {
@@ -280,4 +285,7 @@
 }
 .beneos-not-installed { 
   background-color: #ff00000E;
+}
+.beneos-description-text {
+  font-size: 0.8rem;
 }

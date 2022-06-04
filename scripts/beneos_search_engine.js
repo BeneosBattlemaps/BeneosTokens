@@ -16,9 +16,12 @@ export class BeneosDatabaseHolder {
     this.buildSearchData()
   }
 
+
   /********************************************************************************** */
   static buildList(list) {
     let valueList = {}
+
+    const sortObject = obj => Object.keys(obj).sort().reduce((res, key) => (res[key] = obj[key], res), {})
 
     if (list) {
       if (typeof (list) == "string" || typeof (list) == "number") {
@@ -28,7 +31,7 @@ export class BeneosDatabaseHolder {
         } else {
           valueList[list]++
         }
-        return valueList
+        return sortObject(valueList)
       }
       if (Array.isArray(list)) {
         for (let key of list) {
@@ -50,7 +53,7 @@ export class BeneosDatabaseHolder {
         }
       }
     }
-    return valueList
+    return sortObject(valueList)
   }
 
   /********************************************************************************** */
@@ -92,6 +95,7 @@ export class BeneosDatabaseHolder {
       mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
       mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
     }
+    //console.log(">>>>>>>>>>>>>>>>>>>", this.purposeList)
   }
 
   /********************************************************************************** */
@@ -202,20 +206,29 @@ export class BeneosDatabaseHolder {
   }
 
   /********************************************************************************** */
+  static toTable(object, sort = true) {
+    let tab = []
+    for(let key in object) {
+      tab.push(key)
+    }  
+    return (sort) ? tab.sort() : tab
+  }
+
+  /********************************************************************************** */
   static getData() {
     return {
       searchToken: true,
       searchBmap: false,
-      tokenBioms: this.tokenBioms,
-      bmapBioms: this.bmapBioms,
-      tokenTypes: this.tokenTypes,
-      fightingStyles: this.fightingStyles,
-      bmapBrightness: this.bmapBrightness,
-      movementList: this.movementList,
-      crList: this.crList,
-      purposeList: this.purposeList,
-      adventureList: this.adventureList,
-      gridList: this.gridList
+      tokenBioms: this.toTable(this.tokenBioms),
+      bmapBioms: this.toTable(this.bmapBioms),
+      tokenTypes: this.toTable(this.tokenTypes),
+      fightingStyles: this.toTable(this.fightingStyles),
+      bmapBrightness: this.toTable(this.bmapBrightness),
+      movementList: this.toTable(this.movementList),
+      crList: this.toTable(this.crList, false),
+      purposeList: this.toTable(this.purposeList),
+      adventureList: this.toTable(this.adventureList),
+      gridList: this.toTable(this.gridList)
     }
   }
 }
@@ -487,7 +500,6 @@ export class BeneosSearchEngineLauncher extends FormApplication {
 
   /********************************************************************************** */
   async render() {
-
     await BeneosDatabaseHolder.loadDatabaseFiles()
     let dbData = BeneosDatabaseHolder.getData()
 
