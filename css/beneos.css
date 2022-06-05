@@ -127,6 +127,8 @@
   background: rgba(233, 226, 218, 0.9);
   border-radius: 12px;
   font-size: 0.9rem;
+  top: 0.8rem;
+  left: 2rem;
 }
 .beneos-tooltip .beneos-tooltip-keyword {
   width: 240px;  
@@ -135,6 +137,8 @@
   background: rgba(233, 226, 218, 0.9);
   border-radius: 12px;
   font-size: 0.9rem;
+  top: 0.8rem;
+  left: 2rem;
 }
 .beneos-tooltip .beneos-tooltip-purpose {
   width: 240px;  
@@ -143,6 +147,8 @@
   background: rgba(233, 226, 218, 0.9);
   border-radius: 12px;
   font-size: 0.8rem;
+  top: 0.8rem;
+  left: 2rem;
 }
 .beneos-search-icons-result {
   border: 0;
