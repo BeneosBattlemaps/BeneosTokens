@@ -268,6 +268,7 @@ export class BeneosUtility {
       BeneosUtility.preloadToken(token)
       let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
       token.data.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
+      token.data.document.setFlag("core", "randomizeVideo", false)
       let scaleFactor = this.getScaleFactor(token, token.data.img)
       canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, scale: scaleFactor })])
       setTimeout(function () {
