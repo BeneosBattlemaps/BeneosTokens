@@ -142,7 +142,11 @@ export class BeneosDatabaseHolder {
     for (let key in objectList) {
       let item = duplicate(objectList[key])
       item.kind = (kind == "token") ? "token" : item.properties.type
-      item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
+      if ( item.kind == "token") {
+        item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
+      } else {
+        item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.key + ".webp"
+      }
       if (this.fieldTextSearch(item, text)) {
         results.push(item)
       } else if (this.fieldTextSearch(item.properties, text)) {
