@@ -193,8 +193,12 @@ export class BeneosUtility {
     Handlebars.registerHelper('getTagDescription', function (text) {
       return BeneosDatabaseHolder.getTagDescription(text)
     })
-    
+  
+  }
 
+  /********************************************************************************** */
+  static resetTokenData() {
+    this.beneosTokens = {}
   }
 
   /********************************************************************************** */

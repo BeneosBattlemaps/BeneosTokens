@@ -45,7 +45,7 @@ export class BeneosCompendiumManager {
   static async buildDynamicCompendiums() {
     ui.notifications.info("BeneosTokens : Compendium building .... Please wait !")
 
-    // TODO - Get data token folder
+    BeneosUtility.resetTokenData()
     let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
 
     // get the packs to update/check
