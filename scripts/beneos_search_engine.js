@@ -70,30 +70,34 @@ export class BeneosDatabaseHolder {
     this.adventureList = {}
 
     for (let key in this.tokenData.content) {
-      //console.log("Processing", key)
+      console.log("Processing", key)
       let tokenData = this.tokenData.content[key]
-      tokenData.kind = "token"
-      tokenData.key = key
-      tokenData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + key + "-idle_face_still.webp"
-      mergeObject(this.tokenBioms, this.buildList(tokenData.properties.biom))
-      mergeObject(this.tokenTypes, this.buildList(tokenData.properties.type))
-      mergeObject(this.fightingStyles, this.buildList(tokenData.properties.fightingstyle))
-      mergeObject(this.crList, this.buildList(tokenData.properties.cr))
-      mergeObject(this.movementList, this.buildList(tokenData.properties.movement))
-      mergeObject(this.purposeList, this.buildList(tokenData.properties.purpose))
-      tokenData.isInstalled = BeneosUtility.isLoaded(key)
-      tokenData.actorId = BeneosUtility.getActorId(key)
-      tokenData.description = tokenData.description
+      if (tokenData && typeof (tokenData) == "object") {
+        tokenData.kind = "token"
+        tokenData.key = key
+        tokenData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + key + "-idle_face_still.webp"
+        mergeObject(this.tokenBioms, this.buildList(tokenData.properties.biom))
+        mergeObject(this.tokenTypes, this.buildList(tokenData.properties.type))
+        mergeObject(this.fightingStyles, this.buildList(tokenData.properties.fightingstyle))
+        mergeObject(this.crList, this.buildList(tokenData.properties.cr))
+        mergeObject(this.movementList, this.buildList(tokenData.properties.movement))
+        mergeObject(this.purposeList, this.buildList(tokenData.properties.purpose))
+        tokenData.isInstalled = BeneosUtility.isLoaded(key)
+        tokenData.actorId = BeneosUtility.getActorId(key)
+        tokenData.description = tokenData.description
+      }
     }
     for (let key in this.bmapData.content) {
       let bmapData = this.bmapData.content[key]
-      bmapData.kind = "battlemap"
-      bmapData.key = key
-      bmapData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key + ".webp"
-      mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
-      mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
-      mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
-      mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
+      if (bmapData && typeof (bmapData) == "object") {
+        bmapData.kind = "battlemap"
+        bmapData.key = key
+        bmapData.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + key + ".webp"
+        mergeObject(this.bmapBrightness, this.buildList(bmapData.properties.brightness))
+        mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
+        mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
+        mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
+      }
     }
     //console.log(">>>>>>>>>>>>>>>>>>>", this.purposeList)
   }
@@ -118,16 +122,16 @@ export class BeneosDatabaseHolder {
   }
 
   /********************************************************************************** */
-  static getTagDescriptions()  {
+  static getTagDescriptions() {
     return duplicate(this.tokenData.tag_description)
   }
 
   /********************************************************************************** */
   static getTagDescription(tagName) {
-    if ( this.tokenData.tag_description) {
+    if (this.tokenData.tag_description) {
       let tag = this.tokenData.tag_description[tagName.toLowerCase()]
       if (tag) {
-      return tag.description
+        return tag.description
       }
     }
     return "No information"
@@ -142,7 +146,7 @@ export class BeneosDatabaseHolder {
     for (let key in objectList) {
       let item = duplicate(objectList[key])
       item.kind = (kind == "token") ? "token" : item.properties.type
-      if ( item.kind == "token") {
+      if (item.kind == "token") {
         item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
       } else {
         item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.key + ".webp"
@@ -212,9 +216,9 @@ export class BeneosDatabaseHolder {
   /********************************************************************************** */
   static toTable(object, sort = true) {
     let tab = []
-    for(let key in object) {
+    for (let key in object) {
       tab.push(key)
-    }  
+    }
     return (sort) ? tab.sort() : tab
   }
 
@@ -248,7 +252,7 @@ export class BeneosSearchResults extends Dialog {
 
     // Common conf
     let dialogConf = { content: html, title: "Beneos Search Results", buttons: myButtons };
-    let dialogOptions = { classes: ["beneostokens", "draggable"], left: 620, width: 620, height: 580, 'z-index': 99999 }
+    let dialogOptions = { classes: ["beneostokens", "draggable"], left: 620, width: 720, height: 580, 'z-index': 99999 }
     super(dialogConf, dialogOptions)
   }
   /********************************************************************************** */
@@ -258,7 +262,7 @@ export class BeneosSearchResults extends Dialog {
 
     $('.token-search-data').on('dragstart', function (e) {
       let id = e.target.getAttribute("data-item-id");
-      let drag_data = {"type":"Actor","pack":"beneostokens.beneostokens_actors","id":id}
+      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "id": id }
       e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(drag_data));
     })
     $(".beneos-button-biom").click(event => {
@@ -280,6 +284,15 @@ export class BeneosSearchResults extends Dialog {
       game.beneosTokens.searchEngine.displayResults(searchResults)
     })
 
+    $(".moulinette-search").click(event => {
+      event.preventDefault()
+      let element = $(event.currentTarget)?.parents(".token-root-div")
+      let tokenKey = element.data("token-key")
+      let searchResults = BeneosDatabaseHolder.getAll("bmap")
+      let bmap = searchResults[tokenKey]      
+      //console.log("Search in moulinette !!!!", bmap)
+      //game.moulinette.applications.MoulinetteSearch.search(bmap.name, "scenes", tokenKey)
+    })
 
     $(".beneos-button-cr").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("token")
@@ -361,7 +374,12 @@ export class BeneosSearchEngine extends Dialog {
     }
 
     console.log("SEARCH results", results)
-    let html = await renderTemplate('modules/beneostokens/templates/beneossearchresults.html', { results: results })
+    let html = await renderTemplate('modules/beneostokens/templates/beneossearchresults.html', {
+      results: results,
+      //isMoulinette: (game.moulinette) ? true : false
+      isMoulinette: false // Up to now
+    }
+    )
     if (!this.resultDialog) {
       this.resultDialog = new BeneosSearchResults(html, this, results)
     } else {

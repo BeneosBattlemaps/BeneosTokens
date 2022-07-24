@@ -90,7 +90,15 @@
               </label>
             {{/each}}
           </span>
-          <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
+          <span> 
+            <label><a href="{{result.properties.releaseurl}}">{{#if result.isInstalled}} {{else}}GET IT HERE{{/if}} Release URL</a></label>
+            {{#if @root.isMoulinette}}
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <label class="beneos-search-button">
+              <a class="moulinette-search">Search in Moulinette</a>
+            </label>
+            {{/if}}
+          </span>
         </div>
 
         <div class="beneos-search-last flexcol">
