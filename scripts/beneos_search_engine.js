@@ -373,7 +373,7 @@ export class BeneosSearchEngine extends Dialog {
       results.push({ name: "No results" })
     }
 
-    console.log("SEARCH results", results)
+    //console.log("SEARCH results", results)
     let html = await renderTemplate('modules/beneostokens/templates/beneossearchresults.html', {
       results: results,
       //isMoulinette: (game.moulinette) ? true : false

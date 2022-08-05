@@ -866,8 +866,11 @@ export class BeneosUtility {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       if (tokenConfig) {
         let status = tokenData.currentStatus
-        if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
-          status = "idle"
+        //console.log("Updting size : ", status, tokenConfig)
+
+        //if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
+        if (tokenData.currentStatus.includes("idle") ) {
+            status = "idle"
         }
         let variantName = tokenData.variant
         if (!tokenConfig[tokenData.variant]) {
