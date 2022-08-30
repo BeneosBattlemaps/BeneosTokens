@@ -29,18 +29,18 @@ export class BeneosActorTokenMigration extends FormApplication {
         await actor.update({ 'img': newImgPath })
         console.log("actor update...", actor.name, actor.img)
       }
-      if (actor.data.token && actor.data.token.img.includes("beneostokens") && !actor.data.token.img.includes(BeneosUtility.tokenDataPath)) {
-        let oldTokenImgData = BeneosUtility.getTokenImageInfo(actor.data.token.img)
+      if (actor.token && actor.token.img.includes("beneostokens") && !actor.token.img.includes(BeneosUtility.tokenDataPath)) {
+        let oldTokenImgData = BeneosUtility.getTokenImageInfo(actor.texture.src)
         let newTokenImgPath = BeneosUtility.getFullPathWithSlash() + oldTokenImgData.tokenKey + "/" + oldTokenImgData.pathVariant + "/" + oldTokenImgData.filename
         await actor.update({ 'token.img': newTokenImgPath })
-        console.log("actor token update...", actor.name, actor.data.token.img)
+        console.log("actor token update...", actor.name, actor.token.texture.src)
       }
     }
     // Migrate tokens on scenes
     for (let scene of game.scenes) {
       for (let token of scene.tokens) {
-        if (token.data && token.data.img.includes("beneostokens") && !token.data.img.includes(BeneosUtility.tokenDataPath)) {
-          let oldTokenImgData = BeneosUtility.getTokenImageInfo(token.data.img)
+        if (token.texture && token.texture.src.includes("beneostokens") && !token.texture.src.includes(BeneosUtility.tokenDataPath)) {
+          let oldTokenImgData = BeneosUtility.getTokenImageInfo(token.texture.src)
           let newTokenImgPath = BeneosUtility.getFullPathWithSlash() + oldTokenImgData.tokenKey + "/" + oldTokenImgData.pathVariant + "/" + oldTokenImgData.filename
           console.log("scene token update : ", scene.name, token.name)
           await token.update({ 'img': newTokenImgPath })
@@ -378,7 +378,7 @@ export class BeneosUtility {
 
     this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation)
 
-    token.data.img = animation
+    token.texture.src = animation
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
     await token.document.update({ img: animation, scale: 1.0, rotation: tkangle, data: { img: animation } })
     if (tkscale != 1.0) {
@@ -409,7 +409,7 @@ export class BeneosUtility {
 
       let flag = token.document.getFlag(BeneosUtility.moduleID(), 'variant')
       if (flag != undefined && flag != "Default") {
-        let tokenData = this.getTokenImageInfo(token.data.img)
+        let tokenData = this.getTokenImageInfo(token.texture.src)
         bfx = bfx.concat(beneosTokens[tokenData.tokenKey]["config"]["variants"][flag])
       }
 
@@ -452,18 +452,18 @@ export class BeneosUtility {
     let checkActionType = true
 
     if (typeof BetterRolls !== 'undefined') {
-      if (message.data.flags == undefined || message.data.flags.betterrolls5e == undefined || message.data.flags.betterrolls5e.entries == undefined) {
+      if (message.flags == undefined || message.flags.betterrolls5e == undefined || message.flags.betterrolls5e.entries == undefined) {
         return action
       }
-      action = message.data.flags.betterrolls5e.entries[0].title
+      action = message.flags.betterrolls5e.entries[0].title
       checkActionType = false
     } else {
-      let tmpaction = message.data.flavor.split(" - ")
+      let tmpaction = message.flavor.split(" - ")
       action = tmpaction[0].trim()
-      if (message.data.flags.dnd5e != undefined && message.data.flags.dnd5e.roll != undefined) {
-        actionType = message.data.flags.dnd5e.roll.type
+      if (message.flags.dnd5e != undefined && message.flags.dnd5e.roll != undefined) {
+        actionType = message.flags.dnd5e.roll.type
       } else {
-        let flags = message.data.flags
+        let flags = message.flags
         if (typeof (MidiQOL) !== 'undefined' && flags["midi-qol"] != undefined && flags["midi-qol"].type != undefined) {
           console.log("MIDI QOL !!!!", message, flags, flags["midi-qol"])
           switch (flags["midi-qol"].type) {
@@ -484,7 +484,7 @@ export class BeneosUtility {
               break;
           }
         } else {
-          switch (message.data.type) {
+          switch (message.type) {
             case 1:
               actionType = "ooc";
               break
@@ -569,7 +569,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getAnimatedTokens(token) {
-    let tokenData = this.getTokenImageInfo(token.data.img)
+    let tokenData = this.getTokenImageInfo(token.texture.src)
     let tokenList = []
 
     if (tokenData && tokenData.tokenKey) {
@@ -848,7 +848,7 @@ export class BeneosUtility {
   static processCanvasReady() {
     for (let [key, token] of canvas.scene.tokens.entries()) {
       if (BeneosUtility.checkIsBeneosToken(token)) {
-        let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+        let tokenData = BeneosUtility.getTokenImageInfo(token.texture.src)
         let tokenConfig = this.beneosTokens[tokenData.tokenKey]
         if (typeof tokenConfig === 'object' && tokenConfig) {
           BeneosUtility.updateToken(token.id, "standing", {})

@@ -76,7 +76,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
-      BeneosUtility.updateToken(message.data.speaker.token, "action", { "action": message })
+      BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
     })
 
 
@@ -173,7 +173,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat Start Token")
-      BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
+      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
     })
 
 
@@ -183,7 +183,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat End Token")
-      BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
+      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
     })
 
     /********************************************************************************** */
@@ -212,12 +212,12 @@ Hooks.once('ready', () => {
   /********************************************************************************** */
   Hooks.on('controlToken', (token) => {
     if (BeneosUtility.checkIsBeneosToken(token) && typeof (tokenHUDWildcard) == "object") {
-      const actor = game.actors.get(token.data.actorId)
+      const actor = game.actors.get(token.actorId)
       actor.getTokenImages = async function () {
 
         let source = "data";
-        let index = token.data.img.lastIndexOf("/") + 1
-        let pattern = token.data.img.substr(0, index) + "*"
+        let index = token.texture.src.lastIndexOf("/") + 1
+        let pattern = token.texture.src.substr(0, index) + "*"
         const browseOptions = { wildcard: true }
         if (/\.s3\./.test(pattern)) {
           source = "s3"
