@@ -127,6 +127,7 @@ export class BeneosUtility {
         hint: "",
         scope: 'world',
         config: false,
+        default: false,
         type: Boolean,
         restricted: true
       })
@@ -137,6 +138,7 @@ export class BeneosUtility {
         default: {},
         type: String,
         scope: 'world',
+        default :"",
         config: false
       })
 
@@ -146,6 +148,7 @@ export class BeneosUtility {
           default: true,
           type: Boolean,
           scope: 'world',
+          default :true,
           config: true,
           hint: 'Whether to animate automatically Beneos Tokens.'
         });
@@ -270,10 +273,10 @@ export class BeneosUtility {
   static createToken(token) {
     if (BeneosUtility.checkIsBeneosToken(token)) {
       BeneosUtility.preloadToken(token)
-      let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
-      token.data.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
-      token.data.document.setFlag("core", "randomizeVideo", false)
-      let scaleFactor = this.getScaleFactor(token, token.data.img)
+      let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
+      token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
+      token.document.setFlag("core", "randomizeVideo", false)
+      let scaleFactor = this.getScaleFactor(token, token.document.texture.src)
       canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, scale: scaleFactor })])
       setTimeout(function () {
         BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
@@ -296,8 +299,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   // Checks if the token image is inside the beneos tokens module
   static checkIsBeneosToken(token) {
-
-    if (token.data && token.data.img && token.data.img.includes(this.tokenDataPath)) {
+    if (token.document && token.document.texture && token.document.texture.src.includes(this.tokenDataPath)) {
       return true
     }
     return false
@@ -332,7 +334,8 @@ export class BeneosUtility {
   /********************************************************************************** */
   //Function that preloads token animations. We need to do it to prevent the "scale not found" error in Foundry
   static preloadToken(token) {
-    let tokenData = this.getTokenImageInfo(token.data.img)
+    console.log(">>>>>>> token", token)
+    let tokenData = this.getTokenImageInfo(token.document.texture.src)
     let myToken = this.beneosTokens[tokenData.tokenKey]
 
     if (!myToken) {
@@ -525,7 +528,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getIdleTokens(token) {
-    let matchArray = token.data.img.match("(\\d\\d\\d[_\\d\\w]+)")
+    let matchArray = token.document.texture.src.match("(\\d\\d\\d[_\\d\\w]+)")
     let tokenKey = matchArray[0]
     let tokenList = []
 
@@ -588,7 +591,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getScaleFactor(token, newImage) {
-    let scaleFactor = token.data.document.getFlag(BeneosUtility.moduleID(), "scalefactor") || 0
+    let scaleFactor = token.document.getFlag(BeneosUtility.moduleID(), "scalefactor") || 0
 
     let tokenData = this.getTokenImageInfo(newImage)
     let myToken = this.beneosTokens[tokenData.tokenKey]
@@ -601,7 +604,7 @@ export class BeneosUtility {
       }
     }
     if (newScaleFactor != scaleFactor) {
-      token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
+      token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
     }
     return newScaleFactor
   }
@@ -614,14 +617,14 @@ export class BeneosUtility {
     }
     let tokenData = BeneosUtility.getTokenImageInfo(newImage)
     if (newImage.includes("idle_")) { // Save the lates selected IDLE animation
-      token.data.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
+      token.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
     }
-    token.data.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
+    token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     let scaleFactor = this.getScaleFactor(token, newImage)
     await token.document.update({ img: newImage, scale: scaleFactor, rotation: 1.0 })
     //canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: finalimage, scale: 1.0, rotation: 0 })])
     let actor = token.actor
-    if (actor && actor.data.type == "character") {
+    if (actor && actor.type == "character") {
       let actorImage = tokenData.path + "/" + tokenData.tokenKey + "-idle_face" + ".webm"
       actor.update({ 'token.img': actorImage })
     }
@@ -636,8 +639,8 @@ export class BeneosUtility {
     }
     let tokenData = BeneosUtility.getTokenImageInfo(newImage)
     let scaleFactor = this.getScaleFactor(token, newImage)
-    token.data.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
-    token.data.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
+    token.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
+    token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     //console.log("New IDLE image", scaleFactor)
     await token.document.update({ img: newImage, scale: 1.0, rotation: 1.0 })
 
@@ -658,17 +661,17 @@ export class BeneosUtility {
   static updateToken(tokenid, BeneosUpdateAction, BeneosExtraData) {
 
     let token = BeneosUtility.getToken(tokenid)
-    if (!token || !BeneosUtility.checkIsBeneosToken(token) || !token.data.img) {
+    if (!token || !BeneosUtility.checkIsBeneosToken(token) || !token.document.texture.src) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos/No image")
       return
     }
 
-    let actorData = token.actor?.data
+    let actorData = token.actor
     if (!actorData) {
       return
     }
 
-    let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+    let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
     if (tokenData.variant != "top") {
       return // Not in "top" mode, so exit
     }
@@ -684,7 +687,7 @@ export class BeneosUtility {
       return
     }
 
-    let attributes = actorData.data.attributes
+    let attributes = actorData.attributes
     if (!attributes) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] No attributes")
       return
@@ -699,12 +702,12 @@ export class BeneosUtility {
     }
 
     BeneosUtility.beneosHealth[token.id] = hp
-    if (token.data.rotation) { benRotation = token.data.rotation }
-    if (token.data.alpha) { benAlpha = token.data.alpha }
-    let scaleFactor = token.data.document.getFlag(BeneosUtility.moduleID(), "scalefactor")
+    if (token.rotation) { benRotation = token.rotation }
+    if (token.alpha) { benAlpha = token.alpha }
+    let scaleFactor = token.document.getFlag(BeneosUtility.moduleID(), "scalefactor")
     if (!scaleFactor || scaleFactor != myToken.config["scalefactor"]) {
       scaleFactor = myToken.config["scalefactor"]
-      token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+      token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
     }
 
     let variantData
@@ -764,7 +767,7 @@ export class BeneosUtility {
             variantData = benVariant["combat_idle"]
             if (variantData) {
               if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
-                let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
+                let finalImage = token.document.getFlag(BeneosUtility.moduleID(), "idleimg")
                 if (!finalImage || finalImage == "") {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
@@ -776,7 +779,7 @@ export class BeneosUtility {
             variantData = benVariant["idle"]
             if (variantData) {
               if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
-                let finalImage = token.data.document.getFlag(BeneosUtility.moduleID(), "idleimg")
+                let finalImage = token.document.getFlag(BeneosUtility.moduleID(), "idleimg")
                 if (!finalImage || finalImage == "") {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
@@ -907,7 +910,7 @@ export class BeneosUtility {
 
         // Save scalefactor
         let scaleFactor = currentData.s * tokenConfig.config.scalefactor
-        token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+        token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
         await token.document.update({ scale: scaleFactor })
       }
     }

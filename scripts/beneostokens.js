@@ -9,7 +9,7 @@ Hooks.once('init', () => {
   Token.prototype.refresh = function () {
     //console.log("TJIS", this, this.icon)
     try {
-      if ( this.icon == undefined || typeof(this.icon.scale) != 'object' ) {
+      if ( this.mesh == undefined || typeof(this.mesh.scale) != 'object' ) {
       return this
       }
       return Token.prototype.oldRefresh.call(this)
@@ -82,7 +82,7 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('preUpdateToken', (token, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.img != undefined) {
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture.src != undefined) {
         return
       }
 
@@ -93,12 +93,12 @@ Hooks.once('ready', () => {
 
       if (BeneosUtility.checkIsBeneosToken(token)) {
         if (changeData.scale != undefined) {
-          let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+          let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
           for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
             if (value["a"] == tokenData.currentStatus) {
               let scaleFactor = (changeData.scale / value["s"])
               BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token scale....")
-              token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+              token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
               break
             }
           }
@@ -108,7 +108,8 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
-      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData["img"] != undefined) {
+      //console.log("CHNGEDT", changeData)
+      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
         return
       }
 
@@ -117,12 +118,12 @@ Hooks.once('ready', () => {
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
 
-      if (changeData.actorData != undefined && changeData.actorData.data != undefined && changeData.actorData.data.attributes != undefined && changeData.actorData.data.attributes.hp != undefined && changeData.actorData.data.attributes.hp.value != 0) {
-        if (changeData.actorData.data.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+      if (changeData.actorData != undefined &&  changeData.actorData.attributes != undefined && changeData.actorData.attributes.hp != undefined && changeData.actorData.attributes.hp.value != 0) {
+        if (changeData.actorData.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "hit", changeData)
           return
         }
-        if (changeData.actorData.data.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+        if (changeData.actorData.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "heal", changeData)
           return
         }
@@ -154,11 +155,11 @@ Hooks.once('ready', () => {
           return
         }
         let action = "standing";
-        if (changeData.data != undefined && changeData.data.attributes != undefined && changeData.data.attributes.hp != undefined && changeData.data.attributes.hp.value != 0) {
-          if (changeData.data.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+        if ( changeData.attributes != undefined && changeData.attributes.hp != undefined && changeData.attributes.hp.value != 0) {
+          if (changeData.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
             action = "hit";
           }
-          if (changeData.data.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+          if (changeData.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
             action = "heal";
           }
         }
@@ -247,7 +248,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   if (!game.user.isGM || !BeneosUtility.checkIsBeneosToken(token)) {
     return
   }
-  let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+  let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
   let tokenConfig = BeneosUtility.beneosTokens[tokenData.tokenKey]
   // JOURNAL HUD
   if (tokenConfig && tokenConfig.config) {
