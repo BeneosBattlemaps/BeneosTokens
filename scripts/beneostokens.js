@@ -82,7 +82,8 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('preUpdateToken', (token, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture.src != undefined) {
+      console.log("CHANGEDATA", token)
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
         return
       }
 
@@ -93,7 +94,7 @@ Hooks.once('ready', () => {
 
       if (BeneosUtility.checkIsBeneosToken(token)) {
         if (changeData.scale != undefined) {
-          let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
+          let tokenData = BeneosUtility.getTokenImageInfo(token.texture.src)
           for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
             if (value["a"] == tokenData.currentStatus) {
               let scaleFactor = (changeData.scale / value["s"])

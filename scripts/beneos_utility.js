@@ -569,7 +569,8 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getAnimatedTokens(token) {
-    let tokenData = this.getTokenImageInfo(token.texture.src)
+    console.log("TOKEN: ", token)
+    let tokenData = this.getTokenImageInfo(token.document.texture.src)
     let tokenList = []
 
     if (tokenData && tokenData.tokenKey) {
