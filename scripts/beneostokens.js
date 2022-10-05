@@ -148,6 +148,14 @@ Hooks.once('ready', () => {
         return
       }
 
+      if (token && token.beneosDestination) {
+        if ( Math.abs( token.x -token.beneosDestination.x) <= 32 && Math.abs( token.y-token.beneosDestination.y) <= 32) {
+          token.beneosDestination = undefined // Cleanup
+          token.isMoving = false
+          BeneosUtility.updateToken(token.id, "standing", { forceupdate: true } )
+        }
+      }
+
       BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
 
     });
