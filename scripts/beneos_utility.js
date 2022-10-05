@@ -689,6 +689,9 @@ export class BeneosUtility {
         token.beneosDestination = undefined // Cleanup
         token.isMoving = false
         BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+      } else {
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ...")
+        console.log(">>>>>>>>>>>><", token )
       }
     }
   }
