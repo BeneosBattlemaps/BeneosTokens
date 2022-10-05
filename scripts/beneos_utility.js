@@ -682,15 +682,15 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static detectMoveEnd(token) {
+  static detectMoveEnd(token, origin) {
     if (token && token.beneosDestination) {
       if (Math.abs(token.x - token.beneosDestination.x) == 0 && Math.abs(token.y - token.beneosDestination.y) == 0) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !....")
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !...." + origin)
         token.beneosDestination = undefined // Cleanup
         token.isMoving = false
         BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
       } else {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ...")
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ..." + origin)
         console.log(">>>>>>>>>>>><", token )
       }
     }
@@ -708,7 +708,7 @@ export class BeneosUtility {
     }
     
     // Check
-    BeneosUtility.detectMoveEnd( token )
+    BeneosUtility.detectMoveEnd( token, "updateToken" )
 
     let actorData = token.actor
     if (!actorData) {

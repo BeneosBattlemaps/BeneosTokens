@@ -111,7 +111,7 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('refreshToken', (token, changeData) => {
-      BeneosUtility.detectMoveEnd( token )
+      BeneosUtility.detectMoveEnd( token, "refreshToken")
     })
 
     /********************************************************************************** */
