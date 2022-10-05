@@ -36,12 +36,14 @@ Hooks.once('ready', () => {
     TokenMagic._singleLoadFilters = async function (placeable, bulkLoading = false) {
       if (BeneosUtility.checkIsBeneosToken(placeable)) return;
       OrigSingleLoadFilters(placeable, bulkLoading);
-    };
+    }
+  } else {
+    console.log("No Token Magic found !!!")
   }
 
   //Replacement of the token movement across the maps
   libWrapper.register(BeneosUtility.moduleID(), 'CanvasAnimation.animateLinear', (function () {
-
+    
     return async function (wrapped, ...args) {
       let options = args[1];
       let name = options.name;
@@ -108,6 +110,17 @@ Hooks.once('ready', () => {
     })
 
     /********************************************************************************** */
+    Hooks.on('refreshToken', (token, changeData) => {
+      if (token && token.beneosDestination) {
+        if (token.x == token.beneosDestination.x && token.y == token.beneosDestination.y) {
+          token.beneosDestination = undefined // Cleanup
+          token.isMoving = false
+          BeneosUtility.updateToken(token.id, "standing", { forceupdate: true } )
+        }
+      }
+    })
+
+    /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
       //console.log("CHNGEDT", changeData)
       if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
@@ -130,7 +143,6 @@ Hooks.once('ready', () => {
         }
       }
       if ( !token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-        token.isMoving = true
         console.log(">>>>>>>>>>>>>>> Start moving!!!!!")
         setTimeout( BeneosUtility.updateToken(token.id, "move", changeData), 50)
         return
@@ -140,7 +152,15 @@ Hooks.once('ready', () => {
 
     });
 
-
+    /********************************************************************************** */
+    Hooks.on("preUpdateToken", (tokenDocument, updates, options, userId) => {
+      const prevPos = { x: tokenDocument.x, y: tokenDocument.y };
+      const newPos = { x: updates.x ?? tokenDocument.x, y: updates.y ?? tokenDocument.y };
+      let dx = newPos.x - prevPos.x;
+      let dy = newPos.y - prevPos.y;
+      console.log(dx, dy);
+    })
+  
     /********************************************************************************** */
     Hooks.on('updateActor', (actor, changeData) => {
       if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {

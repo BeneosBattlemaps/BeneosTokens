@@ -138,7 +138,7 @@ export class BeneosUtility {
         default: {},
         type: String,
         scope: 'world',
-        default :"",
+        default: "",
         config: false
       })
 
@@ -148,7 +148,7 @@ export class BeneosUtility {
           default: true,
           type: Boolean,
           scope: 'world',
-          default :true,
+          default: true,
           config: true,
           hint: 'Whether to animate automatically Beneos Tokens.'
         });
@@ -196,7 +196,7 @@ export class BeneosUtility {
     Handlebars.registerHelper('getTagDescription', function (text) {
       return BeneosDatabaseHolder.getTagDescription(text)
     })
-  
+
   }
 
   /********************************************************************************** */
@@ -380,22 +380,13 @@ export class BeneosUtility {
 
     token.texture.src = animation
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
-    await token.document.update({ img: animation, scale: 1.0, rotation: tkangle, data: { img: animation } })
+    await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
     if (tkscale != 1.0) {
-      token.document.update({ scale: tkscale })
+      //token.document.update({ scale: tkscale })
     }
     //token.refresh()
     this.addFx(token, bfx, true)
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
-
-    /*if (tkanimtime < 50) {
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
-    } else {
-      setTimeout(function () {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
-        token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
-      }, tkanimtime - 10)
-    }*/
   }
 
   /********************************************************************************** */
@@ -439,9 +430,11 @@ export class BeneosUtility {
         }
 
       });
+      console.log("Adding effects", bpresets, replace)
       token.TMFXaddFilters(bpresets, replace)
     }
   }
+ 
 
   /********************************************************************************** */
   // Function made for be able to read the action fired and make it compatible with EasyRolls and MIDI-QOL
@@ -656,6 +649,31 @@ export class BeneosUtility {
     }
     canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scale: scaleFactor, scalefactor: scaleFactor, rotation: 0 })])
   }
+  
+  /********************************************************************************** */
+  static processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy) {
+
+    if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
+      let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
+      //let ray = token._movement
+
+      token.beneosOrigin = {x: token.x, y: token.y} // Store for refresh
+      token.beneosDestination = {x: BeneosExtraData.x, y: BeneosExtraData.y} // Store for refresh
+
+      let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
+      let ray = new Ray( {x: token.x, y: token.y}, {x: BeneosExtraData.x, y: BeneosExtraData.y})
+      //let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
+      let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
+      let mvangle = (Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90
+
+      if (instantTeleport) {
+        canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
+        return
+      }
+      token.isMoving = true
+      BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
+    }
+  }
 
   /********************************************************************************** */
   // Main function that allows to control the automatic animations and decide which animations has to be shown.
@@ -688,12 +706,11 @@ export class BeneosUtility {
       return
     }
 
-    let attributes = actorData.attributes
+    let attributes = actorData.system.attributes
     if (!attributes) {
-      BeneosUtility.debugMessage("[BENEOS TOKENS] No attributes")
+      BeneosUtility.debugMessage("[BENEOS TOKENS] No attributes", actorData)
       return
     }
-
     let hp = attributes.hp.value
     let benRotation = 0
     let benAlpha = 1
@@ -726,28 +743,18 @@ export class BeneosUtility {
           }
         }
         break;
+
       case "move":
         BeneosUtility.debugMessage("[BENEOS TOKENS] Move")
         variantData = benVariant["move"]
-        if (variantData && !token.isMoving) {
-          if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
-            let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-            let ray = token._movement
-            let instantTeleport = Math.max(Math.abs(ray.dx), Math.abs(ray.dy)) <= canvas.grid.size
-            let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
-            let mvangle = (Math.atan2(token._velocity.dy, token._velocity.dx, token._velocity.dx) / (Math.PI / 180)) - 90
-
-            if (instantTeleport) {
-              canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
-              return
-            }
-            token.isMoving = true
-            //console.log("Move time : ", mvtime, Date.now() )
-            BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
-            setTimeout(function () {
-              BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
-            }, mvtime + 100)
-          }
+        const prevPos = { x: token.x, y: token.y }
+        const newPos = { x: BeneosExtraData.x ?? token.x, y: BeneosExtraData.y ?? token.y }
+        let dx = newPos.x - prevPos.x
+        let dy = newPos.y - prevPos.y
+        //console.log("DX/DY", dx, dy)
+        if (variantData && !token.isMoving && (dx != 0 || dy !=0)) {
+          token.isMoving = true
+          this.processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy)
         }
         break;
 
@@ -873,8 +880,8 @@ export class BeneosUtility {
         //console.log("Updting size : ", status, tokenConfig)
 
         //if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
-        if (tokenData.currentStatus.includes("idle") ) {
-            status = "idle"
+        if (tokenData.currentStatus.includes("idle")) {
+          status = "idle"
         }
         let variantName = tokenData.variant
         if (!tokenConfig[tokenData.variant]) {
