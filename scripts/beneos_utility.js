@@ -272,7 +272,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   static createToken(token) {
     if (BeneosUtility.checkIsBeneosToken(token)) {
-      console.log(">>>>>>>>>> CXRATE TOKEN BENEOS")
+      //console.log(">>>>>>>>>> CXRATE TOKEN BENEOS")
       BeneosUtility.preloadToken(token)
       let object = (token.document ) ? token.document : token
       let tokenData = BeneosUtility.getTokenImageInfo(object.texture.src)
@@ -375,12 +375,15 @@ export class BeneosUtility {
   //Function to change the token animations
   static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart) {
 
-    this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation)
+    this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation, token)
 
     token.texture.src = animation
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale)
+    tkangle = tkangle || token.rotation ||  token.document?.rotation || 0
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale, tkangle)
     if (forceStart) {
       await token.document.setFlag("core", "randomizeVideo", false)
+    } else {
+      await token.document.setFlag("core", "randomizeVideo", true)
     }
     await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
     if (tkscale != 1.0) {
