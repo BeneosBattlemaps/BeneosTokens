@@ -664,7 +664,7 @@ export class BeneosUtility {
       //let ray = token._movement
 
       token.beneosOrigin = { x: token.x, y: token.y } // Store for refresh
-      token.beneosDestination = { x: BeneosExtraData.x, y: BeneosExtraData.y } // Store for refresh
+      token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y} // Store for refresh
       token.isMoving = true
 
       let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
@@ -690,8 +690,8 @@ export class BeneosUtility {
         token.isMoving = false
         BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
       } else {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ..." + origin)
-        console.log(">>>>>>>>>>>><", token )
+        //BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ..." )
+        //console.log(">>>>>>>>>>>><", token.x , token.beneosDestination.x, token.y, token.beneosDestination.y )
       }
     }
   }
