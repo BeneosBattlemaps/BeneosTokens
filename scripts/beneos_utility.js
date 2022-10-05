@@ -372,6 +372,11 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static finishAnimation( arg1, arg2) {
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ANIM END", arg1, arg2)
+  }
+
+  /********************************************************************************** */
   //Function to change the token animations
   static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart) {
 
@@ -385,11 +390,7 @@ export class BeneosUtility {
     } else {
       await token.document.setFlag("core", "randomizeVideo", true)
     }
-    await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
-    if (tkscale != 1.0) {
-      //token.document.update({ scale: tkscale })
-    }
-    //token.refresh()
+    await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } } )
     this.addFx(token, bfx, true)
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
   }
@@ -657,7 +658,7 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy) {
+  static async processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy) {
 
     if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
       let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
@@ -667,9 +668,10 @@ export class BeneosUtility {
       token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y} // Store for refresh
       token.isMoving = true
 
+      let beneosSpeed = game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')
       let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
       let ray = new Ray({ x: token.x, y: token.y }, { x: BeneosExtraData.x, y: BeneosExtraData.y })
-      let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
+      let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * beneosSpeed)
       //let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
       let mvangle = (Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90
 
@@ -678,6 +680,7 @@ export class BeneosUtility {
         return
       }
       BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
+      setTimeout( function() { BeneosUtility.forceMoveEnd(token) }, 10000)
     }
   }
 
@@ -696,6 +699,15 @@ export class BeneosUtility {
     }
   }
 
+  /********************************************************************************** */
+  static async forceMoveEnd(token) {
+    if (token && token.isMoving && token.beneosDestination) {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop forced !....")
+      token.beneosDestination = undefined // Cleanup
+      token.isMoving = false
+      BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+    }
+  }
 
   /********************************************************************************** */
   // Main function that allows to control the automatic animations and decide which animations has to be shown.
@@ -707,9 +719,6 @@ export class BeneosUtility {
       return
     }
     
-    // Check
-    BeneosUtility.detectMoveEnd( token, "updateToken" )
-
     let actorData = token.actor
     if (!actorData) {
       return

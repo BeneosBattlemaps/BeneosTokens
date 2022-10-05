@@ -9,12 +9,12 @@ Hooks.once('init', () => {
   Token.prototype.refresh = function () {
     //console.log("TJIS", this, this.icon)
     try {
-      if ( this.mesh == undefined || typeof(this.mesh.scale) != 'object' ) {
-      return this
+      if (this.mesh == undefined || typeof (this.mesh.scale) != 'object') {
+        return this
       }
       return Token.prototype.oldRefresh.call(this)
     }
-    catch  {
+    catch {
       return this
     }
   }
@@ -43,8 +43,9 @@ Hooks.once('ready', () => {
 
   //Replacement of the token movement across the maps
   libWrapper.register(BeneosUtility.moduleID(), 'CanvasAnimation.animateLinear', (function () {
-    
+
     return async function (wrapped, ...args) {
+      console.log(">>>>> ANIMATE !!!!", args)
       let options = args[1];
       let name = options.name;
       if (options.duration === 0 || !name || !name.startsWith('Token.') || !name.endsWith('.animateMovement'))
@@ -89,7 +90,7 @@ Hooks.once('ready', () => {
         return
       }
 
-      if (token == undefined) {
+      if ( !token ) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
         return
       }
@@ -111,12 +112,11 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('refreshToken', (token, changeData) => {
-      BeneosUtility.detectMoveEnd( token, "refreshToken")
+      BeneosUtility.detectMoveEnd(token, "refreshToken")
     })
 
     /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
-      //console.log("CHNGEDT", changeData)
       if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
         return
       }
@@ -125,8 +125,9 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
+      BeneosUtility.detectMoveEnd(token, "updateToken")
 
-      if (changeData.actorData != undefined &&  changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
+      if (changeData.actorData != undefined && changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
         if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "hit", changeData)
           return
@@ -136,24 +137,16 @@ Hooks.once('ready', () => {
           return
         }
       }
-      if ( !token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
+      if (!token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
         console.log(">>>>>>>>>>>>>>> Start moving!!!!!")
-        setTimeout( BeneosUtility.updateToken(token.id, "move", changeData), 50)
+        setTimeout(BeneosUtility.updateToken(token.id, "move", changeData), 50)
         return
-      }
-
-      if (token && token.beneosDestination) {
-        if ( Math.abs( token.x -token.beneosDestination.x) <= 32 && Math.abs( token.y-token.beneosDestination.y) <= 32) {
-          token.beneosDestination = undefined // Cleanup
-          token.isMoving = false
-          BeneosUtility.updateToken(token.id, "standing", { forceupdate: true } )
-        }
       }
 
       BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
 
     });
-  
+
     /********************************************************************************** */
     Hooks.on('updateActor', (actor, changeData) => {
       if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
@@ -169,7 +162,7 @@ Hooks.once('ready', () => {
           return
         }
         let action = "standing";
-        if ( changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
+        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
           if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
             action = "hit";
           }
