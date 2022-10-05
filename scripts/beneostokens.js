@@ -111,13 +111,7 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('refreshToken', (token, changeData) => {
-      if (token && token.beneosDestination) {
-        if ( Math.abs( token.x -token.beneosDestination.x) <= 32 && Math.abs( token.y-token.beneosDestination.y) <= 32) {
-          token.beneosDestination = undefined // Cleanup
-          token.isMoving = false
-          BeneosUtility.updateToken(token.id, "standing", { forceupdate: true } )
-        }
-      }
+      BeneosUtility.detectMoveEnd( token )
     })
 
     /********************************************************************************** */
@@ -159,15 +153,6 @@ Hooks.once('ready', () => {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
 
     });
-
-    /********************************************************************************** */
-    Hooks.on("preUpdateToken", (tokenDocument, updates, options, userId) => {
-      const prevPos = { x: tokenDocument.x, y: tokenDocument.y };
-      const newPos = { x: updates.x ?? tokenDocument.x, y: updates.y ?? tokenDocument.y };
-      let dx = newPos.x - prevPos.x;
-      let dy = newPos.y - prevPos.y;
-      console.log(dx, dy);
-    })
   
     /********************************************************************************** */
     Hooks.on('updateActor', (actor, changeData) => {

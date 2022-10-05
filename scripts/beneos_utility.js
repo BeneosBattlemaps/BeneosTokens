@@ -274,7 +274,7 @@ export class BeneosUtility {
     if (BeneosUtility.checkIsBeneosToken(token)) {
       //console.log(">>>>>>>>>> CXRATE TOKEN BENEOS")
       BeneosUtility.preloadToken(token)
-      let object = (token.document ) ? token.document : token
+      let object = (token.document) ? token.document : token
       let tokenData = BeneosUtility.getTokenImageInfo(object.texture.src)
       object.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
       object.setFlag("core", "randomizeVideo", false)
@@ -289,7 +289,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   //Foundry default get token give errors from time to time. It's better to get them directly from de canvas.
   static getToken(tokenid) {
-    return canvas.tokens.placeables.find( t => t.id == tokenid )
+    return canvas.tokens.placeables.find(t => t.id == tokenid)
   }
 
   /********************************************************************************** */
@@ -378,7 +378,7 @@ export class BeneosUtility {
     this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation, token)
 
     token.texture.src = animation
-    tkangle = tkangle || token.rotation ||  token.document?.rotation || 0
+    tkangle = tkangle || token.rotation || token.document?.rotation || 0
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale, tkangle)
     if (forceStart) {
       await token.document.setFlag("core", "randomizeVideo", false)
@@ -435,11 +435,11 @@ export class BeneosUtility {
         }
 
       });
-      console.log("Adding effects", bpresets, replace)
+      //console.log("Adding effects", bpresets, replace)
       token.TMFXaddFilters(bpresets, replace)
     }
   }
- 
+
 
   /********************************************************************************** */
   // Function made for be able to read the action fired and make it compatible with EasyRolls and MIDI-QOL
@@ -655,7 +655,7 @@ export class BeneosUtility {
     }
     canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scale: scaleFactor, scalefactor: scaleFactor, rotation: 0 })])
   }
-  
+
   /********************************************************************************** */
   static processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy) {
 
@@ -663,23 +663,36 @@ export class BeneosUtility {
       let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
       //let ray = token._movement
 
-      token.beneosOrigin = {x: token.x, y: token.y} // Store for refresh
-      token.beneosDestination = {x: BeneosExtraData.x, y: BeneosExtraData.y} // Store for refresh
+      token.beneosOrigin = { x: token.x, y: token.y } // Store for refresh
+      token.beneosDestination = { x: BeneosExtraData.x, y: BeneosExtraData.y } // Store for refresh
+      token.isMoving = true
 
       let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
-      let ray = new Ray( {x: token.x, y: token.y}, {x: BeneosExtraData.x, y: BeneosExtraData.y})
-      //let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
-      let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
+      let ray = new Ray({ x: token.x, y: token.y }, { x: BeneosExtraData.x, y: BeneosExtraData.y })
+      let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed'))
+      //let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
       let mvangle = (Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90
 
       if (instantTeleport) {
         canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
         return
       }
-      token.isMoving = true
       BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
     }
   }
+
+  /********************************************************************************** */
+  static detectMoveEnd(token) {
+    if (token && token.beneosDestination) {
+      if (Math.abs(token.x - token.beneosDestination.x) == 0 && Math.abs(token.y - token.beneosDestination.y) == 0) {
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !....")
+        token.beneosDestination = undefined // Cleanup
+        token.isMoving = false
+        BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+      }
+    }
+  }
+
 
   /********************************************************************************** */
   // Main function that allows to control the automatic animations and decide which animations has to be shown.
@@ -690,6 +703,9 @@ export class BeneosUtility {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos/No image")
       return
     }
+    
+    // Check
+    BeneosUtility.detectMoveEnd( token )
 
     let actorData = token.actor
     if (!actorData) {
@@ -758,7 +774,7 @@ export class BeneosUtility {
         let dx = newPos.x - prevPos.x
         let dy = newPos.y - prevPos.y
         //console.log("DX/DY", dx, dy)
-        if (variantData && !token.isMoving && (dx != 0 || dy !=0)) {
+        if (variantData && !token.isMoving && (dx != 0 || dy != 0)) {
           token.isMoving = true
           this.processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy)
         }
@@ -809,11 +825,11 @@ export class BeneosUtility {
             if ((tokenData.currentStatus != variantData.a && tokenData.currentStatus != variantDataDead.a) || ("forceupdate" in BeneosExtraData)) {
               if (tokenData.extension != "webp") {
                 let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true,  true)
+                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
                 setTimeout(function () {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
                   console.log("Updating DEAD", finalImage, variantData.t)
-                  BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false,  true)
+                  BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
                 }, variantData.t)
               } else {
                 if ("forceupdate" in BeneosExtraData) {
@@ -834,7 +850,7 @@ export class BeneosUtility {
           if (variantData) {
             if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
               let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-              BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true,  true)
+              BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
               setTimeout(function () {
                 BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
               }, variantData.t + (beneosFadingTime * 2))
