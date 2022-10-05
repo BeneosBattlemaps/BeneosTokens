@@ -84,7 +84,7 @@ Hooks.once('ready', () => {
 
     /********************************************************************************** */
     Hooks.on('preUpdateToken', (token, changeData) => {
-      console.log("CHANGEDATA", token)
+      //console.log("CHANGEDATA", token)
       if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
         return
       }
@@ -112,7 +112,7 @@ Hooks.once('ready', () => {
     /********************************************************************************** */
     Hooks.on('refreshToken', (token, changeData) => {
       if (token && token.beneosDestination) {
-        if (token.x == token.beneosDestination.x && token.y == token.beneosDestination.y) {
+        if ( Math.abs( token.x -token.beneosDestination.x) <= 32 && Math.abs( token.y-token.beneosDestination.y) <= 32) {
           token.beneosDestination = undefined // Cleanup
           token.isMoving = false
           BeneosUtility.updateToken(token.id, "standing", { forceupdate: true } )
@@ -132,12 +132,12 @@ Hooks.once('ready', () => {
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
 
-      if (changeData.actorData != undefined &&  changeData.actorData.attributes != undefined && changeData.actorData.attributes.hp != undefined && changeData.actorData.attributes.hp.value != 0) {
-        if (changeData.actorData.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+      if (changeData.actorData != undefined &&  changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
+        if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "hit", changeData)
           return
         }
-        if (changeData.actorData.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+        if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "heal", changeData)
           return
         }
@@ -166,7 +166,7 @@ Hooks.once('ready', () => {
       if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor")
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
 
       let activeTokens = actor.getActiveTokens()
       if (!activeTokens) return
@@ -176,11 +176,11 @@ Hooks.once('ready', () => {
           return
         }
         let action = "standing";
-        if ( changeData.attributes != undefined && changeData.attributes.hp != undefined && changeData.attributes.hp.value != 0) {
-          if (changeData.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+        if ( changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
+          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
             action = "hit";
           }
-          if (changeData.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
             action = "heal";
           }
         }
