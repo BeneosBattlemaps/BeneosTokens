@@ -949,7 +949,15 @@ export class BeneosUtility {
             ui.notifications.info("Token Die detected, same size applied to death token")
           }
         }
-
+        if (status == "idle") {
+          for(let key in tokenConfig.top) {
+            if (key.includes("idle")) {
+              let conf = tokenConfig.top[key]
+              conf.s = currentData.s
+              ui.notifications.info("Token idle detected, same size applied to token " + key)
+            }              
+          }
+        }
         // Save scalefactor
         let scaleFactor = currentData.s * tokenConfig.config.scalefactor
         token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
