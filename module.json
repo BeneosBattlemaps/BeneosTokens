@@ -1,43 +1,64 @@
 {
-	"name": "beneostokens",
-	"title": "Beneos Tokens",
-	"description": "Compendium pack with high quality animated tokens, abilities and animation switching",
-	"author": "Beneos | Ben#0159",
-	"version": "1.0.14",
-	"minimumCoreVersion": "9.238",
-	"url": "https://github.com/BeneosBattlemaps/BeneosTokens",
-	"manifest": "https://github.com/BeneosBattlemaps/BeneosTokens/releases/download/current_release/module.json",
-	"download": "https://github.com/BeneosBattlemaps/BeneosTokens/archive/refs/tags/current_release.zip",
-	"compatibleCoreVersion":"9",
-	"dependencies": [
-		{
-			"name": "tokenmagic",
-			"manifest": "https://raw.githubusercontent.com/Feu-Secret/Tokenmagic/master/tokenmagic/module.json",
-			"type": "module"
-		},
-		{
-			"name": "lib-wrapper",
-			"manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
-			"type": "module"
-		}
-	],
-	"scripts": ["./scripts/beneosfx.js" ],
-	"styles": ["css/beneos.css"],
-	"esmodules": ["./scripts/beneostokens.js"],
-	"packs": [
-		{
-		"name": "beneostokens_actors",
-		"label": "Beneos Tokens",
-		"path": "packs/beneostokens_actors.db",
-		"entity": "Actor",
-		"module": "beneostokens"
-		},
-		{
-		"name": "beneostokens_journal",
-		"label": "Beneos Tokens Journals",
-		"path": "packs/beneostokens_journal.db",
-		"entity": "JournalEntry",
-		"module": "beneostokens"
-		}
-	]
+  "title": "Beneos Tokens",
+  "description": "Compendium pack with high quality animated tokens, abilities and animation switching",
+  "version": "10.0.7",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "10.286",
+    "maximum": "10"
+  },
+  "url": "https://github.com/BeneosBattlemaps/BeneosTokens",
+  "manifest": "https://raw.githubusercontent.com/BeneosBattlemaps/BeneosTokens/v10/module.json",
+  "download": "https://github.com/BeneosBattlemaps/BeneosTokens/archive/refs/tags/current_release.zip",
+  "scripts": [
+    "scripts/beneosfx.js"
+  ],
+  "styles": [
+    "css/beneos.css"
+  ],
+  "esmodules": [
+    "scripts/beneostokens.js"
+  ],
+  "packs": [
+    {
+      "name": "beneostokens_actors",
+      "label": "Beneos Tokens",
+      "path": "packs/beneostokens_actors.db",
+      "system": "dnd5e",
+      "type": "Actor",
+      "private": false,
+      "flags": {}
+    },
+    {
+      "name": "beneostokens_journal",
+      "label": "Beneos Tokens Journals",
+      "path": "packs/beneostokens_journal.db",
+      "type": "JournalEntry",
+      "private": false,
+      "flags": {}
+    }
+  ],
+  "id": "beneostokens",
+  "authors": [
+    {
+      "name": "Beneos | Ben#0159",
+      "flags": {}
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "tokenmagic",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/Feu-Secret/Tokenmagic/master/tokenmagic/module.json",
+        "compatibility": {}
+      },
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "manifest": "https://github.com/ruipin/fvtt-lib-wrapper/releases/latest/download/module.json",
+        "compatibility": {}
+      }
+    ]
   }
+}

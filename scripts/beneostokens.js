@@ -9,12 +9,12 @@ Hooks.once('init', () => {
   Token.prototype.refresh = function () {
     //console.log("TJIS", this, this.icon)
     try {
-      if ( this.icon == undefined || typeof(this.icon.scale) != 'object' ) {
-      return this
+      if (this.mesh == undefined || typeof (this.mesh.scale) != 'object') {
+        return this
       }
       return Token.prototype.oldRefresh.call(this)
     }
-    catch  {
+    catch {
       return this
     }
   }
@@ -36,13 +36,16 @@ Hooks.once('ready', () => {
     TokenMagic._singleLoadFilters = async function (placeable, bulkLoading = false) {
       if (BeneosUtility.checkIsBeneosToken(placeable)) return;
       OrigSingleLoadFilters(placeable, bulkLoading);
-    };
+    }
+  } else {
+    console.log("No Token Magic found !!!")
   }
 
   //Replacement of the token movement across the maps
   libWrapper.register(BeneosUtility.moduleID(), 'CanvasAnimation.animateLinear', (function () {
 
     return async function (wrapped, ...args) {
+      console.log(">>>>> ANIMATE !!!!", args)
       let options = args[1];
       let name = options.name;
       if (options.duration === 0 || !name || !name.startsWith('Token.') || !name.endsWith('.animateMovement'))
@@ -76,29 +79,30 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
-      BeneosUtility.updateToken(message.data.speaker.token, "action", { "action": message })
+      BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
     })
 
 
     /********************************************************************************** */
     Hooks.on('preUpdateToken', (token, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.img != undefined) {
+      //console.log("CHANGEDATA", token)
+      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
         return
       }
 
-      if (token == undefined) {
+      if ( !token ) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
         return
       }
 
       if (BeneosUtility.checkIsBeneosToken(token)) {
         if (changeData.scale != undefined) {
-          let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+          let tokenData = BeneosUtility.getTokenImageInfo(token.texture.src)
           for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
             if (value["a"] == tokenData.currentStatus) {
               let scaleFactor = (changeData.scale / value["s"])
               BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token scale....")
-              token.data.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+              token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
               break
             }
           }
@@ -107,8 +111,13 @@ Hooks.once('ready', () => {
     })
 
     /********************************************************************************** */
+    Hooks.on('refreshToken', (token, changeData) => {
+      BeneosUtility.detectMoveEnd(token, "refreshToken")
+    })
+
+    /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
-      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData["img"] != undefined) {
+      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
         return
       }
 
@@ -116,21 +125,21 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
+      BeneosUtility.detectMoveEnd(token, "updateToken")
 
-      if (changeData.actorData != undefined && changeData.actorData.data != undefined && changeData.actorData.data.attributes != undefined && changeData.actorData.data.attributes.hp != undefined && changeData.actorData.data.attributes.hp.value != 0) {
-        if (changeData.actorData.data.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+      if (changeData.actorData != undefined && changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
+        if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "hit", changeData)
           return
         }
-        if (changeData.actorData.data.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+        if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "heal", changeData)
           return
         }
       }
-      if ( !token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-        token.isMoving = true
+      if (!token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
         console.log(">>>>>>>>>>>>>>> Start moving!!!!!")
-        setTimeout( BeneosUtility.updateToken(token.id, "move", changeData), 50)
+        setTimeout(BeneosUtility.updateToken(token.id, "move", changeData), 50)
         return
       }
 
@@ -138,13 +147,12 @@ Hooks.once('ready', () => {
 
     });
 
-
     /********************************************************************************** */
     Hooks.on('updateActor', (actor, changeData) => {
       if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
         return
       }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor")
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
 
       let activeTokens = actor.getActiveTokens()
       if (!activeTokens) return
@@ -154,11 +162,11 @@ Hooks.once('ready', () => {
           return
         }
         let action = "standing";
-        if (changeData.data != undefined && changeData.data.attributes != undefined && changeData.data.attributes.hp != undefined && changeData.data.attributes.hp.value != 0) {
-          if (changeData.data.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
+          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
             action = "hit";
           }
-          if (changeData.data.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
             action = "heal";
           }
         }
@@ -172,7 +180,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat Start Token")
-      BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
+      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
     })
 
 
@@ -182,7 +190,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat End Token")
-      BeneosUtility.updateToken(combatant.data.tokenId, "standing", {})
+      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
     })
 
     /********************************************************************************** */
@@ -211,12 +219,12 @@ Hooks.once('ready', () => {
   /********************************************************************************** */
   Hooks.on('controlToken', (token) => {
     if (BeneosUtility.checkIsBeneosToken(token) && typeof (tokenHUDWildcard) == "object") {
-      const actor = game.actors.get(token.data.actorId)
+      const actor = game.actors.get(token.actorId)
       actor.getTokenImages = async function () {
 
         let source = "data";
-        let index = token.data.img.lastIndexOf("/") + 1
-        let pattern = token.data.img.substr(0, index) + "*"
+        let index = token.texture.src.lastIndexOf("/") + 1
+        let pattern = token.texture.src.substr(0, index) + "*"
         const browseOptions = { wildcard: true }
         if (/\.s3\./.test(pattern)) {
           source = "s3"
@@ -247,7 +255,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   if (!game.user.isGM || !BeneosUtility.checkIsBeneosToken(token)) {
     return
   }
-  let tokenData = BeneosUtility.getTokenImageInfo(token.data.img)
+  let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
   let tokenConfig = BeneosUtility.beneosTokens[tokenData.tokenKey]
   // JOURNAL HUD
   if (tokenConfig && tokenConfig.config) {
