@@ -114,12 +114,18 @@ export class BeneosCompendiumManager {
           if (filename.toLowerCase().includes("actor_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
             let records = await r.json()
+            // Replace common v9/v10 stuff
             records.img = this.replaceImgPath(dataFolder.target, records.img, false)
-            records.token.img = this.replaceImgPath(dataFolder.target, records.token.img, true)
             this.replaceItemsPath(records)
+            //console.log(">>>>>>>>>>>>>> REC", records, actor)
+            if ( records.prototypeToken ) {
+              records.prototypeToken.texture.src = this.replaceImgPath(dataFolder.target, records.prototypeToken.texture.src, true)
+            } else {
+              records.token.img = this.replaceImgPath(dataFolder.target, records.token.img, true)
+            }
             let actor = await Actor.create(records, { temporary: true })
             let imported = await actorPack.importDocument(actor)
-            //console.log("ACTOR IMPO", imported)
+            console.log("ACTOR IMPO", imported)
             currentId = imported.id
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {

@@ -16,7 +16,6 @@ export class BeneosDatabaseHolder {
     this.buildSearchData()
   }
 
-
   /********************************************************************************** */
   static buildList(list) {
     let valueList = {}

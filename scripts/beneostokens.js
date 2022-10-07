@@ -1,5 +1,6 @@
 import { libWrapper } from "./shim.js";
 import { BeneosUtility } from "./beneos_utility.js";
+import { BeneosSearchEngineLauncher, BeneosDatabaseHolder } from "./beneos_search_engine.js";
 
 /********************************************************************************** */
 Hooks.once('init', () => {
@@ -66,6 +67,7 @@ Hooks.once('ready', () => {
   })());
 
   BeneosUtility.init()
+
   if (!game.user.isGM) {
     return
   }
@@ -90,7 +92,7 @@ Hooks.once('ready', () => {
         return
       }
 
-      if ( !token ) {
+      if (!token) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
         return
       }
@@ -114,6 +116,7 @@ Hooks.once('ready', () => {
     Hooks.on('refreshToken', (token, changeData) => {
       BeneosUtility.detectMoveEnd(token, "refreshToken")
     })
+
 
     /********************************************************************************** */
     Hooks.on('updateToken', (token, changeData) => {
@@ -408,4 +411,16 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
 
 })
 
+/********************************************************************************** */
+Hooks.on("renderActorDirectory", (app, html, data) => {
+  if (game.user.can('ACTOR_CREATE')) {
+    const button = document.createElement('button');
+    button.style.width = '95%';
+    button.innerHTML = 'Search Beneos Database'
+    button.addEventListener('click', () => {
+      new BeneosSearchEngineLauncher().render()
+    })
+    html.find('.header-actions').after(button)
+  }
+})
 
