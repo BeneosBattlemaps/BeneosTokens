@@ -131,8 +131,11 @@ export class BeneosCompendiumManager {
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
             let records = await r.json()
-            records.img = this.replaceImgPath(dataFolder.target, records.img, false)
-            records.content = this.replaceImgPathHTMLContent(dataFolder.target, records.content)
+            //console.log("JOURNAL DATA", records)
+            if ( !game.release.generation || game.release.generation < 10) {
+              records.img = this.replaceImgPath(dataFolder.target, records.img, false)
+              records.content = this.replaceImgPathHTMLContent(dataFolder.target, records.content)  
+            }
             let journal = await JournalEntry.create(records, { temporary: true })
             journalPack.importDocument(journal)
           }
