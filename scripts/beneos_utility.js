@@ -298,7 +298,7 @@ export class BeneosUtility {
     if (token.document && token.document.texture && token.document.texture.src.includes(this.tokenDataPath)) {
       return true
     }
-    if (token.texture && token.texture.src.includes(this.tokenDataPath)) {
+    if (token.texture && token.texture.src && token.texture.src.includes(this.tokenDataPath)) {
       return true
     }
     return false
