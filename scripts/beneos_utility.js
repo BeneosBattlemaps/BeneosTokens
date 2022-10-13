@@ -270,19 +270,26 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static newTokenSetup( token) {
+    let object = (token.document) ? token.document : token
+    let tokenData = BeneosUtility.getTokenImageInfo(object.texture.src)
+    object.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
+    object.setFlag("core", "randomizeVideo", false)
+    let scaleFactor = this.getScaleFactor(token, object.texture.src)
+    canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, scale: scaleFactor })])
+    setTimeout(function () {
+      BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+    }, 500)
+  }
+
+  /********************************************************************************** */
   static createToken(token) {
     if (BeneosUtility.checkIsBeneosToken(token)) {
-      //console.log(">>>>>>>>>> CXRATE TOKEN BENEOS")
+      //console.log(">>>>>>>>>> CREATE TOKEN BENEOS")
       BeneosUtility.preloadToken(token)
-      let object = (token.document) ? token.document : token
-      let tokenData = BeneosUtility.getTokenImageInfo(object.texture.src)
-      object.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
-      object.setFlag("core", "randomizeVideo", false)
-      let scaleFactor = this.getScaleFactor(token, object.texture.src)
-      canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, scale: scaleFactor })])
       setTimeout(function () {
-        BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
-      }, 1000)
+        BeneosUtility.newTokenSetup(token)
+      }, 500)
     }
   }
 
@@ -622,6 +629,7 @@ export class BeneosUtility {
     }
     token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     let scaleFactor = this.getScaleFactor(token, newImage)
+    //console.log(">>>>>>>>>>> UPDATE TOKEN CHANGE")
     await token.document.update({ img: newImage, scale: scaleFactor, rotation: 1.0 })
     //canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: finalimage, scale: 1.0, rotation: 0 })])
     let actor = token.actor
@@ -642,7 +650,7 @@ export class BeneosUtility {
     let scaleFactor = this.getScaleFactor(token, newImage)
     token.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
     token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
-    //console.log("New IDLE image", scaleFactor)
+    console.log("New IDLE image", scaleFactor)
     await token.document.update({ img: newImage, scale: 1.0, rotation: 1.0 })
 
     if (scaleFactor != 1.0) {
@@ -686,7 +694,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static detectMoveEnd(token, origin) {
-    if (token && token.beneosDestination) {
+    if (token && token.x && token.y && token.beneosDestination) {
       if (Math.abs(token.x - token.beneosDestination.x) == 0 && Math.abs(token.y - token.beneosDestination.y) == 0) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !...." + origin)
         token.beneosDestination = undefined // Cleanup
@@ -712,7 +720,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   // Main function that allows to control the automatic animations and decide which animations has to be shown.
   static updateToken(tokenid, BeneosUpdateAction, BeneosExtraData) {
-
+    
     let token = BeneosUtility.getToken(tokenid)
     if (!token || !BeneosUtility.checkIsBeneosToken(token) || !token.document.texture.src) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos/No image")
@@ -961,6 +969,7 @@ export class BeneosUtility {
         // Save scalefactor
         let scaleFactor = currentData.s * tokenConfig.config.scalefactor
         token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+        console.log(">>>>>>>>>>> UPDATE TOKEN CHANGE SCALE")
         await token.document.update({ scale: scaleFactor })
       }
     }

@@ -254,6 +254,7 @@ Hooks.once('ready', () => {
 
 /********************************************************************************** */
 Hooks.on('renderTokenHUD', async (hud, html, token) => {
+
   token = BeneosUtility.getToken(token._id)
   if (!game.user.isGM || !BeneosUtility.checkIsBeneosToken(token)) {
     return
@@ -408,7 +409,6 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
       }
     })
   }
-
 })
 
 /********************************************************************************** */
