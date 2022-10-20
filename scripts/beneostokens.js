@@ -128,7 +128,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
-      BeneosUtility.detectMoveEnd(token, "updateToken")
+      //BeneosUtility.detectMoveEnd(token, "updateToken")
 
       if (changeData.actorData != undefined && changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
         if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
@@ -141,8 +141,7 @@ Hooks.once('ready', () => {
         }
       }
       if (!token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-        console.log(">>>>>>>>>>>>>>> Start moving!!!!!")
-        setTimeout(BeneosUtility.updateToken(token.id, "move", changeData), 50)
+        setTimeout(function() { BeneosUtility.updateToken(token.id, "move", changeData)}, 50)
         return
       }
 

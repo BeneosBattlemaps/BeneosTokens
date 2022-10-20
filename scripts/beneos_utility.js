@@ -78,7 +78,8 @@ export class BeneosUtility {
     if (game.user.isGM) {
 
       game.beneosTokens = {
-        moduleId: BENEOS_MODULE_ID
+        moduleId: BENEOS_MODULE_ID,
+        BeneosUtility
       }
 
       game.settings.registerMenu(BeneosUtility.moduleID(), "beneos-clean-compendium", {
@@ -270,7 +271,7 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static newTokenSetup( token) {
+  static newTokenSetup(token) {
     let object = (token.document) ? token.document : token
     let tokenData = BeneosUtility.getTokenImageInfo(object.texture.src)
     object.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
@@ -379,13 +380,8 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static finishAnimation( arg1, arg2) {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ANIM END", arg1, arg2)
-  }
-
-  /********************************************************************************** */
   //Function to change the token animations
-  static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart) {
+  static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart, isMove = false) {
 
     this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation, token)
 
@@ -397,14 +393,32 @@ export class BeneosUtility {
     } else {
       await token.document.setFlag("core", "randomizeVideo", true)
     }
-    await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } } )
-    this.addFx(token, bfx, true)
+    if (isMove) {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Move effect applied")
+      let bfxList = await this.addFx(token, bfx, true, false)
+      bfxList.push( {
+        filterType: "sprite",
+        filterId: "walkFX",
+        imagePath: animation,
+        gridPadding: 2,
+        scaleX: tkscale,
+        scaleY: tkscale,
+        colorize: false,
+        inverse: false,
+        top: true,
+        alpha: 1.0
+      } )
+      token.TMFXaddFilters( bfxList, true)          
+    } else {
+      await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
+      this.addFx(token, bfx, true, true)
+    }
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
   }
 
   /********************************************************************************** */
   // Function to add FX from the Token Magic module or from the ones defined in the configuration files.
-  static async addFx(token, bfx, replace = true) {
+  static async addFx(token, bfx, replace = true, apply = true) {
     if (!game.dnd5e) {
       return
     }
@@ -424,7 +438,7 @@ export class BeneosUtility {
           BeneosUtility.debugMessage("[BENEOS TOKENS] Setting Library FX: " + bfxid)
           $.each(effect, function (presetindex, pressetvalue) {
             bpresets.push(pressetvalue)
-          });
+          })
         } else {
           if (beneosFX[bfxid] !== undefined) {
             BeneosUtility.debugMessage("[BENEOS TOKENS] Setting Beneos FX: " + bfxid)
@@ -438,16 +452,26 @@ export class BeneosUtility {
                 };
               });
               bpresets.push(pressetvalue)
-            });
+            })
           }
         }
-
-      });
-      //console.log("Adding effects", bpresets, replace)
-      token.TMFXaddFilters(bpresets, replace)
+      })
+      if (apply) {
+        //console.log("Adding effects", bpresets, replace)
+        token.TMFXaddFilters(bpresets, replace)
+      } else {
+        return bpresets
+      }
     }
   }
 
+
+  /********************************************************************************** */
+  static cleanMove(token) {
+    console.log("REMOVE WALK !!!!!", token)
+    token.TMFXdeleteFilters("walkFX")
+    token.document.update({ 'alpha': 1 }, { animate: false })
+  }
 
   /********************************************************************************** */
   // Function made for be able to read the action fired and make it compatible with EasyRolls and MIDI-QOL
@@ -673,33 +697,41 @@ export class BeneosUtility {
       //let ray = token._movement
 
       token.beneosOrigin = { x: token.x, y: token.y } // Store for refresh
-      token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y} // Store for refresh
-      token.isMoving = true
+      token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y } // Store for refresh
 
+      token.isMoving = true
       let beneosSpeed = game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')
       let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
       let ray = new Ray({ x: token.x, y: token.y }, { x: BeneosExtraData.x, y: BeneosExtraData.y })
       let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * beneosSpeed)
       //let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
-      let mvangle = (Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90
+      let mvangle = Math.floor((Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90)
 
-      if (instantTeleport) {
-        canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, rotation: mvangle })])
-        return
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Move has started !")
+      token.detectEnd = false
+      await token.document.update({ rotation: mvangle, alpha: (instantTeleport) ? 1 : 0.001 }, {animate: false}) // Update rotation
+      if (!instantTeleport) {        
+        BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
+        //setTimeout(function () { BeneosUtility.forceMoveEnd(token) }, 10000)
       }
-      BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false)
-      setTimeout( function() { BeneosUtility.forceMoveEnd(token) }, 10000)
+      setTimeout(function () { BeneosUtility.delayDetectEnd(token) }, 500)
     }
   }
 
   /********************************************************************************** */
+  static delayDetectEnd(token ) {
+    token.detectEnd = true
+  }
+
+  /********************************************************************************** */
   static detectMoveEnd(token, origin) {
-    if (token && token.x && token.y && token.beneosDestination) {
+    if (token && token.detectEnd && token.x && token.y && token.beneosDestination) {
       if (Math.abs(token.x - token.beneosDestination.x) == 0 && Math.abs(token.y - token.beneosDestination.y) == 0) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !...." + origin)
         token.beneosDestination = undefined // Cleanup
         token.isMoving = false
-        BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+        this.cleanMove(token)
+        //BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
       } else {
         //BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ..." )
         //console.log(">>>>>>>>>>>><", token.x , token.beneosDestination.x, token.y, token.beneosDestination.y )
@@ -709,24 +741,25 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static async forceMoveEnd(token) {
-    if (token && token.isMoving && token.beneosDestination) {
+    if (token && token.detectEnd && token.isMoving && token.beneosDestination) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop forced !....")
       token.beneosDestination = undefined // Cleanup
       token.isMoving = false
-      BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
+      BeneosUtility.cleanMove(token)
+      //BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
     }
   }
 
   /********************************************************************************** */
   // Main function that allows to control the automatic animations and decide which animations has to be shown.
   static updateToken(tokenid, BeneosUpdateAction, BeneosExtraData) {
-    
+
     let token = BeneosUtility.getToken(tokenid)
     if (!token || !BeneosUtility.checkIsBeneosToken(token) || !token.document.texture.src) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Not Beneos/No image")
       return
     }
-    
+
     let actorData = token.actor
     if (!actorData) {
       return
@@ -958,12 +991,12 @@ export class BeneosUtility {
           }
         }
         if (status == "idle") {
-          for(let key in tokenConfig.top) {
+          for (let key in tokenConfig.top) {
             if (key.includes("idle")) {
               let conf = tokenConfig.top[key]
               conf.s = currentData.s
               ui.notifications.info("Token idle detected, same size applied to token " + key)
-            }              
+            }
           }
         }
         // Save scalefactor
