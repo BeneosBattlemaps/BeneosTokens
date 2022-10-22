@@ -735,7 +735,6 @@ export class BeneosUtility {
       await token.document.update({ rotation: mvangle, alpha: (instantTeleport) ? 1 : 0.001 }, {animate: false}) // Update rotation
       if (!instantTeleport) {        
         BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
-        //setTimeout(function () { BeneosUtility.forceMoveEnd(token) }, 10000)
       }
       setTimeout(function () { BeneosUtility.delayDetectEnd(token) }, 500)
     } else {
@@ -766,16 +765,6 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static async forceMoveEnd(token) {
-    if (token && token.detectEnd && token.state == "move" && token.beneosDestination) {
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop forced !....")
-      token.beneosDestination = undefined // Cleanup
-      BeneosUtility.cleanMove(token)
-      //BeneosUtility.updateToken(token.id, "standing", { forceupdate: true })
-    }
-  }
-
-  /********************************************************************************** */
   static processEndEffect(tokenId, animeInfo) {
     BeneosUtility.debugMessage("[BENEOS TOKENS] Effect END ! ", animeInfo[0].tmFilterId)
     let token = canvas.tokens.placeables.find(t => t.id == tokenId)
@@ -783,7 +772,7 @@ export class BeneosUtility {
       token.TMFXdeleteFilters(a.tmFilterId)
     }
     // Manage state change
-    if (token.state == "heal" || token.state == "hit") {
+    if (token.state == "heal" || token.state == "hit" || token.state == "action") {
       setTimeout(function () {
         BeneosUtility.updateToken(tokenId, "standing", { forceupdate: true });
       }, 20)
