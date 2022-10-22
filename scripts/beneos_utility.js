@@ -388,13 +388,13 @@ export class BeneosUtility {
     token.texture.src = animation
     tkangle = tkangle || token.rotation || token.document?.rotation || 0
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale, tkangle)
-    if (token.state == "move" || token.state == "hit" || token.state == "action") {
+    if (token.state == "move" || token.state == "hit" || token.state == "action" || token.state == "dying") {
       let loop = true
       if ( token.state != "move") { // Special case, alpha already been set
         await token.document.update({ rotation: tkangle, alpha: 0.001 }, {animate: false}) // Update rotation        
         loop = false
       }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Move/Hit/Action effect applied", bfx)      
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Move/Hit/Action/Dying effect applied", bfx)      
       let vid = document.createElement('video')
       vid.src = animation
       vid.ondurationchange = async function() {
@@ -429,7 +429,7 @@ export class BeneosUtility {
       }   else {
         await token.document.setFlag("core", "randomizeVideo", true)
       } 
-      await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, data: { img: animation } })
+      await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, alpha: 1.0, data: { img: animation } }, {animate: false})
       this.addFx(token, bfx, true, true)
     }
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
@@ -488,8 +488,12 @@ export class BeneosUtility {
   /********************************************************************************** */
   static cleanMove(token) {
     token.TMFXdeleteFilters("walkFX")
-    token.document.update({ 'alpha': 1 }, { animate: false })
-    token.state = "standing"
+    if (token.state == "dying") {
+      BeneosUtility.updateToken(token.id, "dead", { forceupdate: true })
+    } else {
+      token.document.update({ 'alpha': 1 }, { animate: false })
+      token.state = "standing"
+    }
   }
 
   /********************************************************************************** */
@@ -912,13 +916,9 @@ export class BeneosUtility {
           if (variantData) {
             if ((tokenData.currentStatus != variantData.a && tokenData.currentStatus != variantDataDead.a) || ("forceupdate" in BeneosExtraData)) {
               if (tokenData.extension != "webp") {
+                token.state = "dying"
                 let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
-                setTimeout(function () {
-                  finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
-                  console.log("Updating DEAD", finalImage, variantData.t)
-                  BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
-                }, variantData.t)
               } else {
                 if ("forceupdate" in BeneosExtraData) {
                   BeneosUtility.addFx(token, variantDataDead.fx)
@@ -928,6 +928,14 @@ export class BeneosUtility {
           }
         }
         break
+      
+        case "dead": 
+          let variantDataDead = benVariant["dead"]
+          let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
+          token.state = "dead"
+          BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
+          break;
+
       case "action":
         let action = BeneosUtility.getAction(BeneosExtraData["action"], tokenData);
         if (!action) return;
