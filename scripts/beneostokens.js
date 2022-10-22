@@ -125,6 +125,9 @@ Hooks.once('ready', () => {
       }
 
       if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
+        if ( changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
+          BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
+        }
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)

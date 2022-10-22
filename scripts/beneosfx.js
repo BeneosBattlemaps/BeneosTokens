@@ -111,7 +111,7 @@ let	beneosFX = {
         quality: 0.5,
         padding: 1,
         animated: {
-            color: {active: true, loopDuration: 1500, animType: "colorOscillation", val1: 0x5099DD, val2: 0x90EEFF}
+            color: {active: true, loopDuration: 1500, loops: 3, animType: "colorOscillation", val1: 0x5099DD, val2: 0x90EEFF}
         }
     }],
     "BFXRedGlow": [{
