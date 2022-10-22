@@ -143,7 +143,7 @@ Hooks.once('ready', () => {
           return
         }
       }
-      if (!token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
+      if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
         setTimeout(function() { BeneosUtility.updateToken(token.id, "move", changeData)}, 50)
         return
       }

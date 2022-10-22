@@ -4,7 +4,7 @@
   "version": "10.0.10",
   "compatibility": {
     "minimum": "10",
-    "verified": "10.286",
+    "verified": "10",
     "maximum": "10"
   },
   "url": "https://github.com/BeneosBattlemaps/BeneosTokens",

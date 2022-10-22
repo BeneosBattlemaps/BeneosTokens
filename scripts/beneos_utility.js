@@ -720,8 +720,8 @@ export class BeneosUtility {
       token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y } // Store for refresh
 
       let beneosSpeed = game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')
-      let instantTeleport = Math.max(Math.abs(dx), Math.abs(dy)) <= canvas.grid.size
       let ray = new Ray({ x: token.x, y: token.y }, { x: BeneosExtraData.x, y: BeneosExtraData.y })
+      let instantTeleport = ray.distance <= canvas.grid.size*2.3
       let mvtime = (ray.distance * 1000) / (canvas.dimensions.size * beneosSpeed)
       //let mvtime = ((ray.distance / canvas.dimensions.size) * game.settings.get(BeneosUtility.moduleID(), 'beneos-speed')) * 1000
       let mvangle = Math.floor((Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90)
