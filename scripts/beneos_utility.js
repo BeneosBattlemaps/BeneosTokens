@@ -124,7 +124,6 @@ export class BeneosUtility {
 
       game.settings.register(BeneosUtility.moduleID(), "beneos-god-mode", {
         name: "Enable God Mode",
-        label: "Enable token editors tools",
         hint: "",
         scope: 'world',
         config: false,
@@ -133,6 +132,23 @@ export class BeneosUtility {
         restricted: true
       })
 
+      game.settings.register(BeneosUtility.moduleID(), "beneos-disable-walk", {
+        name: "Disable walk animations",
+        hint: "If ticked, walk animations during moves will be disabled",
+        scope: 'world',
+        config: true,
+        default: false,
+        type: Boolean
+      })
+
+      game.settings.register(BeneosUtility.moduleID(), "beneos-animated-portrait-only", {
+        name: "Display only animated portrait",
+        hint: "If ticked, only portraits will be available ",
+        scope: 'world',
+        config: true,
+        default: false,
+        type: Boolean
+      })
 
       game.settings.register(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', {
         name: 'Global JSON config for tokens',
@@ -594,6 +610,11 @@ export class BeneosUtility {
       }
       //console.log("Token", tokenKey, token, tokenConfig)
       for (let idleImg of tokenConfig.idleList) {
+        if ( game.settings.get(BeneosUtility.moduleID(), "beneos-animated-portrait-only" ) ) {
+          if ( !idleImg.toLowerCase().match("face")) {
+            continue
+          }
+        }
         let modeName = idleImg.match("(idle_[\\w_]*).web")
         modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
         tokenList.push({
@@ -731,9 +752,10 @@ export class BeneosUtility {
       let mvangle = Math.floor((Math.atan2(dy, dx, dx) / (Math.PI / 180)) - 90)
 
       BeneosUtility.debugMessage("[BENEOS TOKENS] Move has started !")
+      let animateEnabled = (instantTeleport==false) && (game.settings.get(BeneosUtility.moduleID(), 'beneos-disable-walk')==false)
       token.detectEnd = false
-      await token.document.update({ rotation: mvangle, alpha: (instantTeleport) ? 1 : 0.001 }, {animate: false}) // Update rotation
-      if (!instantTeleport) {        
+      await token.document.update({ rotation: mvangle, alpha: (animateEnabled) ? 0.0001 : 1 }, {animate: false}) // Update rotation
+      if ( animateEnabled ) {
         BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
       }
       setTimeout(function () { BeneosUtility.delayDetectEnd(token) }, 500)
@@ -748,18 +770,19 @@ export class BeneosUtility {
   /********************************************************************************** */
   static delayDetectEnd(token ) {
     token.detectEnd = true
+    setTimeout(function () { BeneosUtility.detectMoveEnd(token) }, 800)
   }
 
   /********************************************************************************** */
-  static detectMoveEnd(token, origin) {
+  static detectMoveEnd(token) {
     if (token && token.detectEnd && token.x && token.y && token.beneosDestination) {
       if (Math.abs(token.x - token.beneosDestination.x) == 0 && Math.abs(token.y - token.beneosDestination.y) == 0) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !...." + origin)
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Animation stop detected !....")
         token.beneosDestination = undefined // Cleanup
         this.cleanMove(token)
+        return
       } else {
-        //BeneosUtility.debugMessage("[BENEOS TOKENS] Animation ongoing ..." )
-        //console.log(">>>>>>>>>>>><", token.x , token.beneosDestination.x, token.y, token.beneosDestination.y )
+        setTimeout(function () { BeneosUtility.detectMoveEnd(token) }, 500)
       }
     }
   }
@@ -796,19 +819,29 @@ export class BeneosUtility {
 
     let tokenData = BeneosUtility.getTokenImageInfo(token.document.texture.src)
     if (tokenData.variant != "top") {
+      // Only portraits
       return // Not in "top" mode, so exit
     }
-
     let myToken = BeneosUtility.beneosTokens[tokenData.tokenKey]
     if (!myToken) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Config not found " + tokenData)
       return
-    }
+    }    
     let benVariant = myToken[tokenData.variant]
     if (!myToken[tokenData.variant]) {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Variant not found")
       return
     }
+
+    // Portrait only management
+    if (game.settings.get(BeneosUtility.moduleID(), 'beneos-animated-portrait-only') ) {
+      let idleFile = myToken.idleList.find( c => c.includes("idle_face.webm"))
+      if (!idleFile ) {
+        idleFile = myToken.idleList.find( c => c.includes("idle_face_still.webp"))
+      }
+      token.document.update({ img: idleFile, data: { img: idleFile } }, {animate: false})
+      return 
+    }      
 
     let attributes = actorData.system.attributes
     if (!attributes) {
@@ -870,7 +903,7 @@ export class BeneosUtility {
         break
 
       case "standing":
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id], Date.now())
+        BeneosUtility.debugMessage("[BENEOS TOKENS] Standing with hp " + BeneosUtility.beneosHealth[token.id])
         token.state = "standing"
         if (BeneosUtility.beneosHealth[token.id] > 0 || !game.dnd5e) {
           if (token.inCombat) {

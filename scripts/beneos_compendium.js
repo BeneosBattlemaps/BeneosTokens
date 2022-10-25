@@ -61,14 +61,14 @@ export class BeneosCompendiumManager {
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)
     for (let subFolder of rootFolder.dirs) {
       let res = subFolder.match("/(\\d*)_")
-      if (res && res[1]) {
+      if (res && res[1] && res[1] != "000") {
 
         // Token config
         let idleList = []
         let imgVideoList = []
         let currentId = ""
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
-        //console.log("KEY", tokenKey, subFolder + "/tokenconfig_" + key + ".json")
+        //console.log("KEY", res[1])
         
         let JSONFilePath = subFolder + "/tokenconfig_" + key + ".json"
         try {
