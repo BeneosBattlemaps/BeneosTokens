@@ -125,6 +125,9 @@ Hooks.once('ready', () => {
       }
 
       if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
+        if ( changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
+          BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
+        }
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
@@ -140,7 +143,7 @@ Hooks.once('ready', () => {
           return
         }
       }
-      if (!token.isMoving && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
+      if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
         setTimeout(function() { BeneosUtility.updateToken(token.id, "move", changeData)}, 50)
         return
       }
