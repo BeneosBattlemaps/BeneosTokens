@@ -159,6 +159,15 @@ export class BeneosUtility {
         config: false
       })
 
+      game.settings.register(BeneosUtility.moduleID(), 'beneos-user-data-store', {
+        name: 'Internal data store for user-defined parameters',
+        default: {},
+        type: Array,
+        scope: 'world',
+        default: [],
+        config: false
+      })
+
       if (game.dnd5e) {
         game.settings.register(BeneosUtility.moduleID(), 'beneos-animations', {
           name: 'Enable Automatic Animations',
@@ -397,11 +406,12 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   //Function to change the token animations
-  static async changeAnimation(token, animation, tkscale, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart) {
+  static async changeAnimation(token, animation, tkangle, tkalpha, tkanimtime, bfx, fading, forceStart) {
 
     this.debugMessage("[BENEOS TOKENS] Changing to image:" + animation, token)
 
-    token.texture.src = animation
+    let tkscale = this.getScaleFactor(token, animation) // Refresh proper token scale
+    token.texture.src = animation 
     tkangle = tkangle || token.rotation || token.document?.rotation || 0
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale, tkangle)
     if (token.state == "move" || token.state == "hit" || token.state == "action" || token.state == "dying") {
@@ -674,11 +684,19 @@ export class BeneosUtility {
     //console.log("Got token config !!!", myToken, this.beneosTokens, tokenData.tokenKey)
     let newScaleFactor = myToken.config.scalefactor
     if (newImage.includes("_top")) {
-      if (myToken[tokenData.variant][tokenData.currentStatus]) {
-        let s = myToken[tokenData.variant][tokenData.currentStatus].s || 1.0
-        newScaleFactor *= s
+      let sData = myToken[tokenData.variant][tokenData.currentStatus]
+      if (!sData) {
+        Object.keys( myToken[tokenData.variant]).forEach( k => {
+          //console.log("Testing...", k, myToken[tokenData.variant][k])
+          if ( myToken[tokenData.variant][k].a == tokenData.currentStatus) {
+            sData = myToken[tokenData.variant][k]
+          }
+        }) 
       }
+      let s = (sData && sData.s) ? sData.s : 1.0
+      newScaleFactor *= s
     }
+    //console.log("Scale factor : ", tokenData, newScaleFactor, newImage, tokenData.variant, tokenData.currentStatus)
     if (newScaleFactor != scaleFactor) {
       object.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
     }
@@ -719,18 +737,18 @@ export class BeneosUtility {
     token.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
     token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     console.log("New IDLE image", scaleFactor)
-    await token.document.update({ img: newImage, scale: 1.0, rotation: 1.0 })
+    await token.document.update({ img: newImage, scale: scaleFactor, rotation: 1.0 })
 
-    if (scaleFactor != 1.0) {
-      await token.document.update({ scale: scaleFactor })
-    }
+    //if (scaleFactor != 1.0) {
+      //await token.document.update({ scale: scaleFactor })
+    //}
     if (tokenData.variant == "top") {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       if (tokenConfig && tokenConfig.top && tokenConfig.top.idle && tokenConfig.top.idle.fx) {
         this.addFx(token, tokenConfig.top.idle.fx, true)
       }
     }
-    canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scale: scaleFactor, scalefactor: scaleFactor, rotation: 0 })])
+    //canvas.scene.updateEmbeddedDocuments("Token", [({ _id: token.id, img: newImage, scale: scaleFactor, scalefactor: scaleFactor, rotation: 0 })])
   }
 
   /********************************************************************************** */
@@ -756,7 +774,7 @@ export class BeneosUtility {
       token.detectEnd = false
       await token.document.update({ rotation: mvangle, alpha: (animateEnabled) ? 0.0001 : 1 }, {animate: false}) // Update rotation
       if ( animateEnabled ) {
-        BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
+        BeneosUtility.changeAnimation(token, finalImage, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
       }
       setTimeout(function () { BeneosUtility.delayDetectEnd(token) }, 500)
     } else {
@@ -859,11 +877,6 @@ export class BeneosUtility {
     BeneosUtility.beneosHealth[token.id] = hp
     if (token.rotation) { benRotation = token.rotation }
     if (token.alpha) { benAlpha = token.alpha }
-    let scaleFactor = token.document.getFlag(BeneosUtility.moduleID(), "scalefactor")
-    if (!scaleFactor || scaleFactor != myToken.config["scalefactor"]) {
-      scaleFactor = myToken.config["scalefactor"]
-      token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
-    }
 
     let variantData
     switch (BeneosUpdateAction) {
@@ -874,7 +887,7 @@ export class BeneosUtility {
           if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
             token.state = "hit"
             let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-            BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
+            BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
             //setTimeout(function () {
               //BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
             //}, variantData.t + (beneosFadingTime * 2))
@@ -915,7 +928,7 @@ export class BeneosUtility {
                 if (!finalImage || finalImage == "") {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
-                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
+                BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantData.t, variantData.fx, true)
               }
             }
           } else {
@@ -927,7 +940,7 @@ export class BeneosUtility {
                 if (!finalImage || finalImage == "") {
                   finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
                 }
-                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true)
+                BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantData.t, variantData.fx, true)
               }
             }
           }
@@ -940,7 +953,7 @@ export class BeneosUtility {
               if (tokenData.extension != "webp") {
                 token.state = "dying"
                 let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-                BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
+                BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
               } else {
                 if ("forceupdate" in BeneosExtraData) {
                   BeneosUtility.addFx(token, variantDataDead.fx)
@@ -955,7 +968,7 @@ export class BeneosUtility {
           let variantDataDead = benVariant["dead"]
           let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
           token.state = "dead"
-          BeneosUtility.changeAnimation(token, finalImage, variantDataDead.s * scaleFactor, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
+          BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
           break;
 
       case "action":
@@ -969,7 +982,7 @@ export class BeneosUtility {
             if (tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
               token.state = "action"
               let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-              BeneosUtility.changeAnimation(token, finalImage, variantData.s * scaleFactor, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
+              BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantData.t, variantData.fx, true, true)
               //setTimeout(function () {
                 //BeneosUtility.updateToken(tokenid, "standing", { forceupdate: true })
               //}, variantData.t + (beneosFadingTime * 2))
