@@ -752,13 +752,13 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static async processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy) {
+  static async processMove(tokenid, token, variantData, tokenData, BeneosExtraData,  benAlpha, dx, dy) {
     BeneosUtility.debugMessage("[BENEOS TOKENS] processMove entering !")
 
     if (variantData && tokenData.currentStatus != variantData.a || ("forceupdate" in BeneosExtraData)) {
       let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantData.a + "_" + tokenData.variant + ".webm"
-      //let ray = token._movement
 
+      let scaleFactor = this.getScaleFactor(token,finalImage )
       token.beneosOrigin = { x: token.x, y: token.y } // Store for refresh
       token.beneosDestination = { x: BeneosExtraData.x || token.x, y: BeneosExtraData.y || token.y } // Store for refresh
 
@@ -772,7 +772,7 @@ export class BeneosUtility {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Move has started !")
       let animateEnabled = (instantTeleport==false) && (game.settings.get(BeneosUtility.moduleID(), 'beneos-disable-walk')==false)
       token.detectEnd = false
-      await token.document.update({ rotation: mvangle, alpha: (animateEnabled) ? 0.0001 : 1 }, {animate: false}) // Update rotation
+      await token.document.update({ rotation: mvangle, scale: scaleFactor, alpha: (animateEnabled) ? 0.0001 : 1 }, {animate: false}) // Update rotation
       if ( animateEnabled ) {
         BeneosUtility.changeAnimation(token, finalImage, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
       }
@@ -905,7 +905,7 @@ export class BeneosUtility {
         //console.log("DX/DY", token.state, dx, dy)
         if (token.state != "move" && (dx != 0 || dy != 0)) {
           token.state = "move"
-          this.processMove(tokenid, token, variantData, tokenData, BeneosExtraData, scaleFactor, benAlpha, dx, dy)
+          this.processMove(tokenid, token, variantData, tokenData, BeneosExtraData, benAlpha, dx, dy)
         }
         break;
 
