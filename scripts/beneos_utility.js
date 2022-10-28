@@ -455,6 +455,9 @@ export class BeneosUtility {
       }   else {
         await token.document.setFlag("core", "randomizeVideo", true)
       } 
+      if ( token.state == "dead") {
+
+      }
       await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, alpha: 1.0, data: { img: animation } }, {animate: false})
       this.addFx(token, bfx, true, true)
     }
@@ -516,6 +519,7 @@ export class BeneosUtility {
     token.TMFXdeleteFilters("walkFX")
     if (token.state == "dying") {
       BeneosUtility.updateToken(token.id, "dead", { forceupdate: true })
+      token.TMFXdeleteFilters("BFXShadow")
     } else {
       token.document.update({ 'alpha': 1 }, { animate: false })
       token.state = "standing"
@@ -969,6 +973,7 @@ export class BeneosUtility {
           let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
           token.state = "dead"
           BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
+          token.TMFXdeleteFilters("BFXShadow")
           break;
 
       case "action":
