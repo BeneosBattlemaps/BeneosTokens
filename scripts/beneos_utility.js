@@ -417,7 +417,7 @@ export class BeneosUtility {
     if (token.state == "move" || token.state == "hit" || token.state == "action" || token.state == "dying") {
       let loop = true
       if (token.state != "move") { // Special case, alpha already been set
-        await token.document.update({ rotation: tkangle, alpha: 0.001 }, { animate: false }) // Update rotation        
+        await token.document.update({ rotation: tkangle, alpha: 0.001, scale: tkscale }, { animate: false }) // Update rotation        
         loop = false
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Move/Hit/Action/Dying effect applied", bfx)
@@ -429,9 +429,10 @@ export class BeneosUtility {
           filterType: "sprite",
           filterId: "walkFX",
           imagePath: animation,
-          gridPadding: 2,
-          scaleX: tkscale,
-          scaleY: tkscale,
+          //gridPadding: 2,
+          //scale: tkscale,
+          //scaleX: tkscale,
+          //scaleY: tkscale,
           colorize: false,
           inverse: false,
           top: true,
@@ -703,7 +704,7 @@ export class BeneosUtility {
     }
     let s = (sData && sData.s) ? sData.s : 1.0
     newScaleFactor *= s
-    //console.log("Scale factor : ", newScaleFactor, newImage, sData)
+    console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.currentStatus)
     if (newScaleFactor != scaleFactor) {
       object.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
     }
