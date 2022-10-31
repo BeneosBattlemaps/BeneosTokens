@@ -519,8 +519,8 @@ export class BeneosUtility {
   static cleanMove(token) {
     token.TMFXdeleteFilters("walkFX")
     if (token.state == "dying") {
+      //token.TMFXdeleteFilters("BFXShadow")
       BeneosUtility.updateToken(token.id, "dead", { forceupdate: true })
-      token.TMFXdeleteFilters("BFXShadow")
     } else {
       //console.log("TET", token)
       let tkscale = this.getScaleFactor(token, token.document.texture.src) // Refresh proper token scale
@@ -977,7 +977,7 @@ export class BeneosUtility {
         let finalImage = tokenData.tokenPath + tokenData.tokenKey + "-" + variantDataDead.a + "_" + tokenData.variant + ".webp"
         token.state = "dead"
         BeneosUtility.changeAnimation(token, finalImage, benRotation, benAlpha, variantDataDead.t, variantDataDead.fx, false, true)
-        token.TMFXdeleteFilters("BFXShadow")
+        //token.TMFXdeleteFilters("BFXShadow")
         break;
 
       case "action":
