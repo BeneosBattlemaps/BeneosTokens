@@ -30,6 +30,15 @@
       "flags": {}
     },
     {
+      "name": "beneostokens_magic_itemss",
+      "label": "Beneos Tokens Magic Items",
+      "path": "packs/beneostokens_magic_items.db",
+      "system": "dnd5e",
+      "type": "Item",
+      "private": false,
+      "flags": {}
+    },
+    {
       "name": "beneostokens_journal",
       "label": "Beneos Tokens Journals",
       "path": "packs/beneostokens_journal.db",
