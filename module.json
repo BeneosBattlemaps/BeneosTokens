@@ -1,7 +1,7 @@
 {
   "title": "Beneos Tokens",
   "description": "Compendium pack with high quality animated tokens, abilities and animation switching",
-  "version": "10.0.14",
+  "version": "10.0.15",
   "compatibility": {
     "minimum": "10",
     "verified": "10",
@@ -26,6 +26,15 @@
       "path": "packs/beneostokens_actors.db",
       "system": "dnd5e",
       "type": "Actor",
+      "private": false,
+      "flags": {}
+    },
+    {
+      "name": "beneostokens_magic_itemss",
+      "label": "Beneos Tokens Magic Items",
+      "path": "packs/beneostokens_magic_items.db",
+      "system": "dnd5e",
+      "type": "Item",
       "private": false,
       "flags": {}
     },
