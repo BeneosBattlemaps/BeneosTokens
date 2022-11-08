@@ -167,12 +167,14 @@ Hooks.once('ready', () => {
           return
         }
         let action = "standing";
-        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
-          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-            action = "hit";
-          }
-          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-            action = "heal";
+        if ( changeData.system && changeData.system.attributes) { 
+          if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
+            if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+              action = "hit";
+            }
+            if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+              action = "heal";
+            }
           }
         }
         BeneosUtility.updateToken(token.id, action, changeData)
