@@ -688,13 +688,13 @@ export class BeneosUtility {
 
     let tokenData = this.getTokenImageInfo(newImage)
     let myToken = this.beneosTokens[tokenData.tokenKey]
-    //console.log("Got token config !!!", myToken, this.beneosTokens, tokenData.tokenKey)
+    //console.log("Got token config !!!", tokenData, myToken, this.beneosTokens, tokenData.tokenKey)
     let newScaleFactor = myToken.config.scalefactor
     let sData
     if (newImage && newImage.includes("_top")) {
       sData = myToken[tokenData.variant][tokenData.currentStatus]
     }
-    if (!sData) {
+    if (!sData && myToken[tokenData.variant]) {
       Object.keys(myToken[tokenData.variant]).forEach(k => {
         //console.log("Testing...", k, myToken[tokenData.variant][k])
         if (myToken[tokenData.variant][k].a == tokenData.currentStatus) {
