@@ -703,7 +703,12 @@ export class BeneosUtility {
       })
     }
     let s = (sData && sData.s) ? sData.s : 1.0
-    newScaleFactor *= s
+    // When face tokens, scale is always 1.0
+    if (newImage &&  newImage.includes("__face")) {
+      newScaleFactor = 1.0
+    } else {
+      newScaleFactor *= s
+    }
     console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.currentStatus)
     if (newScaleFactor != scaleFactor) {
       object.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
