@@ -702,7 +702,7 @@ export class BeneosUtility {
         }
       })
     }
-    let userSize = this.userSizes[tokenData.tokenKey]?.sizeFactor || 1.0
+    let userSize = this.userSizes[token.id]?.sizeFactor || 1.0
     let s = (sData && sData.s) ? sData.s : 1.0
     // When face tokens, scale is always 1.0
     if (newImage &&  newImage.includes("__face")) {
@@ -1041,9 +1041,9 @@ export class BeneosUtility {
     if ( !token || !tokenConfig) {
       return
     }
-    let tokenUserSize = this.userSizes[tokenKey] || { tokenKey: tokenKey, sizeFactor: 1.0}
+    let tokenUserSize = this.userSizes[tokenId] || { tokenId: tokenId, tokenKey: tokenKey, sizeFactor: 1.0}
     tokenUserSize.sizeFactor += incDec
-    this.userSizes[tokenKey] = tokenUserSize
+    this.userSizes[tokenId] = tokenUserSize
     game.settings.set( BeneosUtility.moduleID(), 'beneos-user-config', this.userSizes)
     //console.log("USZER SIZES", this.userSizes)
     // Update with new s
