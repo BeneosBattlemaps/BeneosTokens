@@ -159,12 +159,11 @@ export class BeneosUtility {
         config: false
       })
 
-      game.settings.register(BeneosUtility.moduleID(), 'beneos-user-data-store', {
+      game.settings.register(BeneosUtility.moduleID(), 'beneos-user-config', {
         name: 'Internal data store for user-defined parameters',
         default: {},
-        type: Array,
+        type: Object,
         scope: 'world',
-        default: [],
         config: false
       })
 
@@ -194,7 +193,8 @@ export class BeneosUtility {
   /********************************************************************************** */
   static init() {
     this.file_cache = {}
-    //this.tokenview = game.settings.get(BeneosUtility.moduleID(), 'beneos-tokenview')
+
+    this.userSizes = duplicate( game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config') )
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
     //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
@@ -702,14 +702,15 @@ export class BeneosUtility {
         }
       })
     }
+    let userSize = this.userSizes[tokenData.tokenKey]?.sizeFactor || 1.0
     let s = (sData && sData.s) ? sData.s : 1.0
     // When face tokens, scale is always 1.0
     if (newImage &&  newImage.includes("__face")) {
       newScaleFactor = 1.0
     } else {
-      newScaleFactor *= s
+      newScaleFactor *= s * userSize
     }
-    console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.currentStatus)
+    console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.currentStatus, userSize)
     if (newScaleFactor != scaleFactor) {
       object.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
     }
@@ -1031,6 +1032,23 @@ export class BeneosUtility {
         }
       }
     }
+  }
+
+  /********************************************************************************** */
+  static async userIncDecSize(tokenId, tokenKey, incDec) {
+    let token = BeneosUtility.getToken(tokenId)
+    let tokenConfig = this.beneosTokens[tokenKey]
+    if ( !token || !tokenConfig) {
+      return
+    }
+    let tokenUserSize = this.userSizes[tokenKey] || { tokenKey: tokenKey, sizeFactor: 1.0}
+    tokenUserSize.sizeFactor += incDec
+    this.userSizes[tokenKey] = tokenUserSize
+    game.settings.set( BeneosUtility.moduleID(), 'beneos-user-config', this.userSizes)
+    //console.log("USZER SIZES", this.userSizes)
+    // Update with new s
+    let s = this.getScaleFactor(token, token.document.texture.src) 
+    await token.document.update({ scale: s })
   }
 
   /********************************************************************************** */

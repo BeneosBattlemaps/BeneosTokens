@@ -283,6 +283,14 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
             event.preventDefault()
             beneosJournalEntry.then(function (result) { result.sheet.render(true) })
           })
+          html.find('img.beneosTokenSizePlus').click((event) => {
+            event.preventDefault()
+            BeneosUtility.userIncDecSize(token.id, tokenData.tokenKey, 0.1)
+          })
+          html.find('img.beneosTokenSizeMinus').click((event) => {
+            event.preventDefault()
+            BeneosUtility.userIncDecSize(token.id, tokenData.tokenKey, -0.1)
+          })
         }
       }
     }
