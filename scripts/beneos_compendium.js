@@ -61,8 +61,7 @@ export class BeneosCompendiumManager {
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)
     for (let subFolder of rootFolder.dirs) {
       let res = subFolder.match("/(\\d*)_")
-      if (res && res[1] && res[1] != "000") {
-
+      if (res && !subFolder.includes("module_assets") ) {
         // Token config
         let idleList = []
         let imgVideoList = []
