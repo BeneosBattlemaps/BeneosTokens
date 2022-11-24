@@ -260,8 +260,9 @@ export class BeneosSearchResults extends Dialog {
     let myObject = this
 
     $('.token-search-data').on('dragstart', function (e) {
-      let id = e.target.getAttribute("data-item-id");
-      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "id": id }
+      let id = e.target.getAttribute("data-document-id");
+      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "uuid": "Compendium.beneostokens.beneostokens_actors."+id }
+      //console.log("DRAGDARA", drag_data)
       e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(drag_data));
     })
     $(".beneos-button-biom").click(event => {
