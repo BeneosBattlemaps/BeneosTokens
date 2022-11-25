@@ -259,7 +259,7 @@ export class BeneosSearchResults extends Dialog {
 
     let myObject = this
 
-    $('.token-search-data').on('dragstart', function (e) {
+    $(".token-search-data").on('dragstart', function (e) {
       let id = e.target.getAttribute("data-document-id");
       let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "uuid": "Compendium.beneostokens.beneostokens_actors."+id }
       //console.log("DRAGDARA", drag_data)
@@ -471,7 +471,7 @@ export class BeneosSearchEngine extends Dialog {
     $('#beneos-search-text').bind("enterKey", function (event) {
       var key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {
-        console.log("HERE KEYDOWN 13 - 2!!!!")
+        //console.log("HERE KEYDOWN 13 - 2!!!!")
         event.preventDefault()
         return
       }
@@ -480,7 +480,7 @@ export class BeneosSearchEngine extends Dialog {
       var key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {
         event.preventDefault()
-        console.log("HERE KEYDOWN 13 - 2!!!!")
+        //console.log("HERE KEYDOWN 13 - 2!!!!")
         return
       }
     });
@@ -488,7 +488,7 @@ export class BeneosSearchEngine extends Dialog {
       var code = event.keyCode ? event.keyCode : event.which
       if (code == 13) {  // Enter keycode
         event.preventDefault()
-        console.log("HERE 13!!!!")
+        //console.log("HERE 13!!!!")
         return
       }
       clearTimeout(myObject.timeout)

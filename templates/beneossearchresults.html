@@ -9,17 +9,28 @@
       {{#if (eq result.kind "token")}}
         <div class="beneos-search-icons-result beneos-tooltip entity-link content-link">
           
-          <div class="beneos-tooltiptext beneos-token-description" >
-            <div class="flexrow beneos-tooltip-content">
-              <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
+        {{#if result.isInstalled}}
+          <div class="beneos-tooltiptext beneos-token-description token-search-data" data-document-id="{{result.actorId}}"  draggable="true">
+            <div class="flexrow beneos-tooltip-content token-search-data" data-document-id="{{result.actorId}}"  draggable="true">
+              <img class="beneos-search-icons-result-tooltip token-search-data" data-document-id="{{result.actorId}}" draggable="true" src="{{result.picture}}">
               <span class="beneos-description-text">{{result.description}}</span>
             </div>
           </div>          
-          <img class="beneos-search-icons-result" src="{{result.picture}}">
+          <img class="beneos-search-icons-result token-search-data" data-document-id="{{result.actorId}}"  draggable="true" src="{{result.picture}}">
         </div>
+        {{else}}
+          <div class="beneos-tooltiptext beneos-token-description" >
+            <div class="flexrow beneos-tooltip-content" >
+              <img class="beneos-search-icons-result-tooltip "  src="{{result.picture}}">
+              <span class="beneos-description-text">{{result.description}}</span>
+            </div>
+          </div>          
+          <img class="beneos-search-icons-result"  src="{{result.picture}}" />
+        </div>
+        {{/if}}
         
         {{#if result.isInstalled}}
-        <div class="beneos-search-middle flexcol directory-item document actor token-search-data"  data-type="Actor" data-entity="Actor" data-id="{{result.actorId}}" data-document-id="{{result.actorId}}" data-uuid="{{result.actorId}}" draggable="true">
+        <div class="beneos-search-middle flexcol token-search-data"  data-type="Actor" data-document-id="{{result.actorId}}"  draggable="true">
         {{else}}
         <div class="beneos-search-middle flexcol">
         {{/if}}
