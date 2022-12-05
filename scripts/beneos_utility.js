@@ -1066,16 +1066,20 @@ export class BeneosUtility {
         //console.log("Updting size : ", status, tokenConfig)
 
         //if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
-        if (tokenData.currentStatus.includes("idle")) {
+        /*if (tokenData.currentStatus.includes("idle")) {
           status = "idle"
-        }
+        }*/
         let variantName = tokenData.variant
         if (!tokenConfig[tokenData.variant]) {
           variantName = "top"
         }
         if (!tokenConfig[variantName]) {
-          ui.notifications.warn("Unable to find token/variant data for " + variantName)
-          return
+          if ( variantName != "idle" && variantName.includes("idle")  ) { // Dynamic stuff for idle_X
+            tokenConfig[variantName] = duplicate(tokenConfig["idle"])
+          } else { 
+            ui.notifications.warn("Unable to find token/variant data for " + variantName)
+            return
+          }
         }
         let currentData = tokenConfig[variantName][status]
         if (!currentData) {

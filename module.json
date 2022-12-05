@@ -5,7 +5,7 @@
   "compatibility": {
     "minimum": "10",
     "verified": "10",
-    "maximum": "10.290"
+    "maximum": "10"
   },
   "url": "https://github.com/BeneosBattlemaps/BeneosTokens",
   "manifest": "https://raw.githubusercontent.com/BeneosBattlemaps/BeneosTokens/v10/module.json",
