@@ -569,6 +569,9 @@ export class BeneosUtility {
               actionType = "item";
               break;
           }
+          if ( flags["midi-qol"].damageTotal )  {
+            actionType = "damage";
+          }
         } else {
           switch (message.type) {
             case 1:

@@ -81,6 +81,7 @@ Hooks.once('ready', () => {
         return
       }
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
+      console.log("Message rendering !!!", message)
       BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
     })
 
