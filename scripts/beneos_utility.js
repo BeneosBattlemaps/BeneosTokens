@@ -546,6 +546,7 @@ export class BeneosUtility {
     } else {
       let tmpaction = message.flavor.split(" - ")
       action = tmpaction[0].trim()
+      //console.log("***********", tmpaction, action)
       if (message.flags.dnd5e != undefined && message.flags.dnd5e.roll != undefined) {
         actionType = message.flags.dnd5e.roll.type
       } else {
@@ -598,11 +599,12 @@ export class BeneosUtility {
     if (!myToken.hasOwnProperty(action)) {
       return null
     }
-    if (checkActionType &&
+    /*if (checkActionType &&
       myToken[action]["actionType"] &&
       myToken[action]["actionType"] != actionType) {
+      console.log("Null stuff !")
       return null
-    }
+    }*/
 
     return action
   }
