@@ -546,11 +546,12 @@ export class BeneosUtility {
     } else {
       let tmpaction = message.flavor.split(" - ")
       action = tmpaction[0].trim()
-      //console.log("***********", tmpaction, action)
-      if (message.flags.dnd5e != undefined && message.flags.dnd5e.roll != undefined) {
+      console.log("***********", tmpaction, action)
+      let flags = message.flags
+      if (message.flags.dnd5e != undefined && message.flags.dnd5e.roll != undefined && !flags['rsr5e']) {
         actionType = message.flags.dnd5e.roll.type
       } else {
-        let flags = message.flags
+        console.log("***********", tmpaction, action, flags)
         if (typeof (MidiQOL) !== 'undefined' && flags["midi-qol"] != undefined && flags["midi-qol"].type != undefined) {
           console.log("MIDI QOL !!!!", message, flags, flags["midi-qol"])
           switch (flags["midi-qol"].type) {
@@ -572,6 +573,14 @@ export class BeneosUtility {
           }
           if ( flags["midi-qol"].damageTotal )  {
             actionType = "damage";
+          }
+        } else if ( flags['rsr5e'] ) {
+          console.log(">>>>>>>>>>>>>>>RS5E")
+          for(let field of flags.rsr5e.fields) {
+            if ( field[0] && field[0] == "header" && field[1] && field[1].title ) {
+              action = field[1].title
+              actionType = "damage";
+            }
           }
         } else {
           switch (message.type) {
