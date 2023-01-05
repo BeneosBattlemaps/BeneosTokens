@@ -98,14 +98,11 @@
           <label class="beneos-search-title-result">{{result.name}}</label>
           <span class="beneos-search-text01">
             {{#each result.properties.adventure as |adventure key|}}
-              <label>{{beneosUpperFirst adventure}}</label>
+              {{#if (ne (beneosLowerCase adventure) "none")}}
+                <label>{{beneosUpperFirst adventure}}</label>
+              {{/if}}
             {{/each}}
           </span>
-          {{#if result.properties.sibling}}
-            <span class="beneos-search-text01">
-              <label>{{result.properties.sibling}}</label>
-            </span>
-          {{/if}}
           <span class="beneos-search-text01">
             {{#each result.properties.biom as |biom key|}}
               <label class="beneos-search-button" data-prop-name="biom">
@@ -126,7 +123,7 @@
 
         <div class="beneos-search-last flexcol">
           <label class="beneos-search-installed">
-            {{#if (eq (beneosLowercase result.kind) "battlemap")}}
+            {{#if (eq (beneosLowerCase result.kind) "battlemap")}}
             Battlemap
             {{else}}
             Scenery
