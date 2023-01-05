@@ -222,6 +222,10 @@ export class BeneosUtility {
     Handlebars.registerHelper('getTagDescription', function (text) {
       return BeneosDatabaseHolder.getTagDescription(text)
     })
+    Handlebars.registerHelper('beneosLowercase', function (text) {
+      if (typeof text !== 'string') return text
+      return text.toLowerCase()
+    })
 
   }
 

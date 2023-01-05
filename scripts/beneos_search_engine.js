@@ -96,9 +96,10 @@ export class BeneosDatabaseHolder {
         mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
         mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
         mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
+        this.bmapBioms["Any"] = 1 // Force Any, as not present (why ??)
       }
     }
-    //console.log(">>>>>>>>>>>>>>>>>>>", this.purposeList)
+    console.log(">>>>>>>>>>>>>>>>>>>", this.bmapBioms)
   }
 
   /********************************************************************************** */
@@ -174,17 +175,28 @@ export class BeneosDatabaseHolder {
   static searchByProperty(type, propertyName, value, searchResults, strict = false) {
     let newResults = {}
     value = value.toLowerCase()
-
+    
+    console.log(">>>>>", type, propertyName, value)
+    
     for (let key in searchResults) {
       let item = searchResults[key]
       item.kind = (type == "token") ? "token" : item.properties.type
-      item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
+      if (item.kind == "token") {
+        item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
+      } else {
+        item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.key + ".webp"
+      }
       //console.log("PROP", type, propertyName, value, searchResults, item.properties[propertyName])
+      if (item[propertyName]) {
+        if ( item[propertyName].toLowerCase() == value) {
+          newResults[key] = duplicate(item)
+        }
+      }
       if (item.properties && item.properties[propertyName]) {
         //console.log(item.properties[propertyName], typeof(item.properties[propertyName]))
         if (typeof (item.properties[propertyName]) == "string") {
           if (strict) {
-            if (item.properties[propertyName].toLowerCase().toString() == value.toString()) {
+            if (item.properties[propertyName].toLowerCase().toString() == value.toString() ) {
               newResults[key] = duplicate(item)
             }
           } else {
@@ -417,6 +429,14 @@ export class BeneosSearchEngine extends Dialog {
     if (biomValue && biomValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "biom", biomValue, searchResults)
     }
+    biomValue = $("#bioms-selector-2").val()
+    if (biomValue && biomValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "biom", biomValue, searchResults)
+    }
+    let kindValue = $("#kind-selector").val()
+    if (kindValue && kindValue.toLowerCase() != "any") {
+      searchResults = BeneosDatabaseHolder.searchByProperty(type, "kind", kindValue, searchResults)
+    }        
     let brightnessValue = $("#bmap-brightness").val()
     if (brightnessValue && brightnessValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "brightness", brightnessValue, searchResults)
@@ -449,7 +469,7 @@ export class BeneosSearchEngine extends Dialog {
     if (adventureValue && adventureValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "adventure", adventureValue, searchResults)
     }
-
+    console.log("Search res", searchResults)
     this.displayResults(searchResults)
   }
 

@@ -41,12 +41,34 @@
     {{#if searchBmap}}
 
     <span class="flexrow">
-      <label>Biom : </label>
+      <label>Biom Filter 1: </label>
       <select name="bioms" class="beneos-selector" id="bioms-selector" data-dtype="String">
         {{#select bmapBioms}}
         {{#each bmapBioms as |data key|}}
         <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
+        {{/select}}
+      </select>
+    </span>
+
+    <span class="flexrow">
+      <label>Biom Filter 2: </label>
+      <select name="bioms" class="beneos-selector" id="bioms-selector-2" data-dtype="String">
+        {{#select bmapBioms}}
+        {{#each bmapBioms as |data key|}}
+        <option value={{data}}>{{beneosUpperFirst data}}</option>
+        {{/each}}
+        {{/select}}
+      </select>
+    </span>
+
+    <span class="flexrow">
+      <label>Kind: </label>
+      <select name="bmap-kind" class="beneos-selector" id="kind-selector" data-dtype="String">
+        {{#select kind}}
+        <option value="any">Any</option>
+        <option value="scenery">Sceneries</option>
+        <option value="battlemap">Battlemaps</option>
         {{/select}}
       </select>
     </span>

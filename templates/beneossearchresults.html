@@ -21,7 +21,7 @@
         {{else}}
           <div class="beneos-tooltiptext beneos-token-description" >
             <div class="flexrow beneos-tooltip-content" >
-              <img class="beneos-search-icons-result-tooltip "  src="{{result.picture}}">
+              <img class="beneos-search-icons-result-tooltip " src="{{result.picture}}">
               <span class="beneos-description-text">{{result.description}}</span>
             </div>
           </div>          
@@ -83,7 +83,14 @@
       
       {{else}}
 
-        <div class="beneos-search-icons-bmap-result">
+        <div class="beneos-search-icons-bmap-result beneos-tooltip ">
+
+          <div class="beneos-tooltiptext beneos-token-description" >
+            <div class="flexrow beneos-tooltip-content" >
+              <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
+            </div>
+          </div>
+
           <img class="beneos-search-icons-bmap-result" src="{{result.picture}}">
         </div>
 
@@ -94,6 +101,11 @@
               <label>{{beneosUpperFirst adventure}}</label>
             {{/each}}
           </span>
+          {{#if result.properties.sibling}}
+            <span class="beneos-search-text01">
+              <label>{{result.properties.sibling}}</label>
+            </span>
+          {{/if}}
           <span class="beneos-search-text01">
             {{#each result.properties.biom as |biom key|}}
               <label class="beneos-search-button" data-prop-name="biom">
@@ -114,7 +126,7 @@
 
         <div class="beneos-search-last flexcol">
           <label class="beneos-search-installed">
-            {{#if (eq result.properties.type "battlemap")}}
+            {{#if (eq (beneosLowercase result.kind) "battlemap")}}
             Battlemap
             {{else}}
             Scenery
