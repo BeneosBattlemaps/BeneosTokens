@@ -187,6 +187,18 @@
 .beneos-search-stat {
   margin-left: 12px;
 }
+.beneos-fitting-button {
+  border-width: 1px;
+  max-width: 7.2rem;
+  border-style: ridge;
+  border-color: black;
+  padding-left: 4px;
+  padding-right: 4px;
+  margin-top: 12px;
+  margin-right: 12px;
+  background-color: #cecdc8;
+  max-height: 18px;
+}
 .beneos-search-button {
   border-width: 1px;
   border-style: ridge;

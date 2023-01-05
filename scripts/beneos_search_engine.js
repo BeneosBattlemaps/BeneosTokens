@@ -185,6 +185,9 @@ export class BeneosDatabaseHolder {
         item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/tokens/thumbnails/" + item.key + "-idle_face_still.webp"
       } else {
         item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.key + ".webp"
+        if (item.properties.sibling) {
+          item.siblingPicture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.properties.sibling + ".webp"
+        }
       }
       //console.log("PROP", type, propertyName, value, searchResults, item.properties[propertyName])
       if (item[propertyName]) {

@@ -90,12 +90,27 @@
               <img class="beneos-search-icons-result-tooltip" src="{{result.picture}}">
             </div>
           </div>
-
           <img class="beneos-search-icons-bmap-result" src="{{result.picture}}">
         </div>
 
         <div class="beneos-search-middle flexcol">
           <label class="beneos-search-title-result">{{result.name}}</label>
+
+          {{#if result.siblingPicture}}
+          <label class="beneos-fitting-button beneos-tooltip" data-prop-name="biom">
+            {{#if (eq (beneosLowerCase result.kind) "battlemap")}}
+            Fitting Scenery
+            {{else}}
+            Fitting Battlemap
+            {{/if}}            
+            <div class="beneos-tooltiptext beneos-token-description" >
+              <div class="flexrow beneos-tooltip-content" >
+                <img class="beneos-search-icons-result-tooltip" src="{{result.siblingPicture}}">
+              </div>
+            </div>    
+          </label>
+          {{/if}}
+
           <span class="beneos-search-text01">
             {{#each result.properties.adventure as |adventure key|}}
               {{#if (ne (beneosLowerCase adventure) "none")}}
