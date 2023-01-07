@@ -215,6 +215,10 @@ export class BeneosUtility {
     this.m_z = 987654321
     this.seed(Date.now())
 
+    Handlebars.registerHelper('beneosLength', function (text) {
+      if (typeof text !== 'string') return 0
+      return text.length
+    })
     Handlebars.registerHelper('beneosUpperFirst', function (text) {
       if (typeof text !== 'string') return text
       return text.charAt(0).toUpperCase() + text.slice(1)

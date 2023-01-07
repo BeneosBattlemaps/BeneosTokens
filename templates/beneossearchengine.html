@@ -41,9 +41,10 @@
     {{#if searchBmap}}
 
     <span class="flexrow">
-      <label>Biom Filter 1: </label>
+      <label>Biome Filter 1: </label>
       <select name="bioms" class="beneos-selector" id="bioms-selector" data-dtype="String">
         {{#select bmapBioms}}
+        <option value="any">Any</option>
         {{#each bmapBioms as |data key|}}
         <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}
@@ -52,9 +53,10 @@
     </span>
 
     <span class="flexrow">
-      <label>Biom Filter 2: </label>
+      <label>Biome Filter 2: </label>
       <select name="bioms" class="beneos-selector" id="bioms-selector-2" data-dtype="String">
         {{#select bmapBioms}}
+        <option value="any">Any</option>
         {{#each bmapBioms as |data key|}}
         <option value={{data}}>{{beneosUpperFirst data}}</option>
         {{/each}}

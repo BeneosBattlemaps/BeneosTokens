@@ -188,14 +188,16 @@
   margin-left: 12px;
 }
 .beneos-fitting-button {
+  text-align: center;
   border-width: 1px;
   max-width: 7.2rem;
   border-style: ridge;
   border-color: black;
   padding-left: 4px;
   padding-right: 4px;
-  margin-top: 12px;
+  margin-top: 6px;
   margin-right: 12px;
+  margin-bottom: 4px;
   background-color: #cecdc8;
   max-height: 18px;
 }
@@ -207,6 +209,7 @@
   padding-right: 4px;
   margin-top: 12px;
   margin-right: 12px;
+  margin-bottom: 4px;
   background-color: #cecdc8;
   max-height: 18px;
 }
@@ -238,8 +241,14 @@
   flex-grow: 1;
   max-height: 18px;
 } 
+.biom-content {
+  text-align: center;
+  width: fit-content;
+  flex-grow: 0;
+}
 .beneos-search-grid-button, 
 .beneos-search-brightness-button, 
+.beneos-release-url-button,
 .beneos-search-cr-button{  
   text-align: center;
   border-width: 1px;

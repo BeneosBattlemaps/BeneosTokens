@@ -96,7 +96,8 @@ export class BeneosDatabaseHolder {
         mergeObject(this.bmapBioms, this.buildList(bmapData.properties.biom))
         mergeObject(this.adventureList, this.buildList(bmapData.properties.adventure))
         mergeObject(this.gridList, this.buildList(bmapData.properties.grid))
-        this.bmapBioms["Any"] = 1 // Force Any, as not present (why ??)
+        bmapData.isInstalled = true
+        //this.bmapBioms["Any"] = 1 // Force Any, as not present (why ??)
       }
     }
     console.log(">>>>>>>>>>>>>>>>>>>", this.bmapBioms)
@@ -298,7 +299,17 @@ export class BeneosSearchResults extends Dialog {
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "brightness", brightness.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
     })
-
+    $(".beneos-jump-linked").click(event => {
+      let jumpKey = $(event.currentTarget).data("jump-data")
+      let searchResults = BeneosDatabaseHolder.textSearch(jumpKey)
+      game.beneosTokens.searchEngine.displayResults(searchResults)
+    })
+    $(".beneos-button-adventure").click(event => {
+      let searchResults = BeneosDatabaseHolder.getAll("bmap")
+      let adventure = $(event.currentTarget).data("adventure-name")
+      searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "adventure", adventure.toString(), searchResults)
+      game.beneosTokens.searchEngine.displayResults(searchResults)
+    })
     $(".moulinette-search").click(event => {
       event.preventDefault()
       let element = $(event.currentTarget)?.parents(".token-root-div")
