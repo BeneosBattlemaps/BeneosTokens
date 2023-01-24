@@ -1085,7 +1085,7 @@ export class BeneosUtility {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       if (tokenConfig) {
         let status = tokenData.currentStatus
-        //console.log("Updting size : ", status, tokenConfig)
+        console.log("Updting size : ", tokenData, tokenConfig)
 
         //if (tokenData.currentStatus.includes("idle") || tokenData.currentStatus.includes("special")) {
         /*if (tokenData.currentStatus.includes("idle")) {
@@ -1107,10 +1107,15 @@ export class BeneosUtility {
         if (!currentData) {
           for (let variantKey in tokenConfig.top) {
             let variantData = tokenConfig.top[variantKey]
-            if (variantData.a == tokenData.currentStatus) {
+            if (variantData.a == status) {
               currentData = variantData
             }
           }
+        }
+        if (!currentData) {
+          tokenConfig[variantName][status] = duplicate(tokenConfig.top.idle)
+          currentData = tokenConfig[variantName][status]
+          currentData.a = status
         }
         if (!currentData) {
           ui.notifications.warn("Unable to find token/variant data for " + tokenData.variant + " - " + tokenData.currentStatus)
