@@ -137,6 +137,15 @@ export class BeneosUtility {
         hint: "If ticked, walk animations during moves will be disabled",
         scope: 'world',
         config: true,
+        default: true,
+        type: Boolean
+      })
+
+      game.settings.register(BeneosUtility.moduleID(), "beneos-disable-walk-updated", {
+        name: "Disable walk animations - To force as default",
+        hint: "If ticked, walk animations during moves will be disabled - To force as default",
+        scope: 'world',
+        config: false,
         default: false,
         type: Boolean
       })
@@ -188,6 +197,15 @@ export class BeneosUtility {
       default: 10,
       type: Number
     })
+  }
+
+  /********************************************************************************** */
+  static processUpdate() {
+    let isUpdated = game.settings.get(BeneosUtility.moduleID(), 'beneos-disable-walk-updated')
+    if ( !isUpdated) {
+      game.settings.set(BeneosUtility.moduleID(), 'beneos-disable-walk', true)
+      game.settings.set(BeneosUtility.moduleID(), 'beneos-disable-walk-updated', true)
+    }
   }
 
   /********************************************************************************** */

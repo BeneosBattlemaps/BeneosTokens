@@ -30,6 +30,7 @@ Hooks.once('ready', () => {
 
   BeneosUtility.forgeInit()
   BeneosUtility.registerSettings()
+  BeneosUtility.processUpdate()
 
   //Token Magic Hack  Replacement to prevent double filters when changing animations
   if (typeof TokenMagic !== 'undefined') {
