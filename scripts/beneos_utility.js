@@ -826,9 +826,11 @@ export class BeneosUtility {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Move has started !")
       let animateEnabled = (instantTeleport == false) && (game.settings.get(BeneosUtility.moduleID(), 'beneos-disable-walk') == false)
       token.detectEnd = false
-      await token.document.update({ rotation: mvangle, scale: scaleFactor, alpha: (animateEnabled) ? 0.0001 : 1 }, { animate: false }) // Update rotation
       if (animateEnabled) {
+        await token.document.update({ rotation: mvangle, scale: scaleFactor, alpha: 0.0001 }, { animate: false }) // Update rotation
         BeneosUtility.changeAnimation(token, finalImage, mvangle, benAlpha, mvtime, variantData.fx, false, false, true)
+      } else {
+        await token.document.update({ rotation: mvangle, alpha: 1 }, { animate: false }) // Update rotation
       }
       setTimeout(function () { BeneosUtility.delayDetectEnd(token) }, 500)
     } else {
