@@ -213,7 +213,9 @@ export class BeneosUtility {
     this.file_cache = {}
 
     this.userSizes = duplicate( game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config') )
-    this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
+    if (game.dnd5e) {
+      this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
+    }
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
     //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
 

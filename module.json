@@ -30,6 +30,15 @@
       "flags": {}
     },
     {
+      "name": "beneostokens_actors_pf2",
+      "label": "PF2 - Beneos Tokens",
+      "path": "packs/beneostokens_actors_pf2.db",
+      "system": "pf2e",
+      "type": "Actor",
+      "private": false,
+      "flags": {}
+    },
+    {
       "name": "beneostokens_magic_itemss",
       "label": "Beneos Tokens Magic Items",
       "path": "packs/beneostokens_magic_items.db",
