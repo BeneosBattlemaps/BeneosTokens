@@ -21,13 +21,14 @@ export class BeneosCompendiumReset extends FormApplication {
   async performReset() {
     ui.notifications.info("BeneosTokens : Cleanup of compendiums has started....")
 
+    await this.deleteCompendiumContent("beneostokens.beneostokens_journal")
+
     if (game.system.id == "pf2e") {
       await this.deleteCompendiumContent("beneostokens.beneostokens_actors_pf2")
       ui.notifications.info("BeneosTokens : PF2 - Cleanup of compendiums finished.")
       BeneosCompendiumManager.buildDynamicCompendiumsPF2()
     } else {
       await this.deleteCompendiumContent("beneostokens.beneostokens_actors")
-      await this.deleteCompendiumContent("beneostokens.beneostokens_journal")
       ui.notifications.info("BeneosTokens : Cleanup of compendiums finished.")
       BeneosCompendiumManager.buildDynamicCompendiums()
     }
@@ -54,9 +55,12 @@ export class BeneosCompendiumManager {
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens.beneostokens_actors_pf2")
+    let journalPack = game.packs.get("beneostokens.beneostokens_journal")
     await actorPack.getIndex()
+    await journalPack.getIndex()
 
     await actorPack.configure({ locked: false })
+    await journalPack.configure({ locked: false })
 
     // Parse subfolder
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)
@@ -120,6 +124,25 @@ export class BeneosCompendiumManager {
             console.log("ACTOR IMPO", imported)
             currentId = imported.id
           }
+          if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
+            let r = await fetch(filename)
+            let records = await r.json()
+            //console.log("JOURNAL DATA", records)
+            if (!game.release.generation || game.release.generation < 10) {
+              records.img = this.replaceImgPath(dataFolder.target, records.img, false)
+              records.content = this.replaceImgPathHTMLContent(dataFolder.target, records.content)
+            }
+            // Remove the DD5 token link
+            let newPages = []
+            for (let page of records.pages ) {
+              if (!page.name.includes("Token PDF ")) {
+                newPages.push(page)
+              }
+            }
+            records.pages = newPages
+            let journal = await JournalEntry.create(records, { temporary: true })
+            journalPack.importDocument(journal)
+          }
         }
         if (key && BeneosUtility.beneosTokens[key]) {
           //console.log("Final IDLE list : ", idleList)
@@ -136,6 +159,7 @@ export class BeneosCompendiumManager {
     game.settings.set(BeneosUtility.moduleID(), 'beneos-json-tokenconfig', toSave) // Save the token config !
 
     await actorPack.configure({ locked: true })
+    await journalPack.configure({ locked: true })
   }
 
   /********************************************************************************** */
