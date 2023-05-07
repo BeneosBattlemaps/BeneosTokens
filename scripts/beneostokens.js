@@ -73,8 +73,9 @@ Hooks.once('ready', () => {
     return
   }
 
-  if (game.dnd5e) {
-    BeneosUtility.updateSceneTokens()
+  //if (game.dnd5e) {
+  if (true) {
+      BeneosUtility.updateSceneTokens()
 
     /********************************************************************************** */
     Hooks.on("renderChatMessage", (message, data, html) => {

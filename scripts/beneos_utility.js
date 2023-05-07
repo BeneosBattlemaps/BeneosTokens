@@ -176,17 +176,15 @@ export class BeneosUtility {
         config: false
       })
 
-      if (game.dnd5e) {
-        game.settings.register(BeneosUtility.moduleID(), 'beneos-animations', {
-          name: 'Enable Automatic Animations',
-          default: true,
-          type: Boolean,
-          scope: 'world',
-          default: true,
-          config: true,
-          hint: 'Whether to animate automatically Beneos Tokens.'
-        });
-      }
+      game.settings.register(BeneosUtility.moduleID(), 'beneos-animations', {
+        name: 'Enable Automatic Animations',
+        default: true,
+        type: Boolean,
+        scope: 'world',
+        default: true,
+        config: true,
+        hint: 'Whether to animate automatically Beneos Tokens.'
+      })
     }
 
     game.settings.register(BeneosUtility.moduleID(), "beneos-speed", {
@@ -213,9 +211,7 @@ export class BeneosUtility {
     this.file_cache = {}
 
     this.userSizes = duplicate( game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config') )
-    if (game.dnd5e) {
-      this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
-    }
+    this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
     //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
 
@@ -496,9 +492,9 @@ export class BeneosUtility {
   /********************************************************************************** */
   // Function to add FX from the Token Magic module or from the ones defined in the configuration files.
   static async addFx(token, bfx, replace = true, apply = true) {
-    if (!game.dnd5e) {
-      return
-    }
+    //if (!game.dnd5e) {
+      //return
+    //}
     if (typeof TokenMagic !== 'undefined') {
       let bpresets = []
 

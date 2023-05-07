@@ -31,7 +31,7 @@
     },
     {
       "name": "beneostokens_actors_pf2",
-      "label": "PF2 - Beneos Tokens",
+      "label": "Beneos Tokens - PF2",
       "path": "packs/beneostokens_actors_pf2.db",
       "system": "pf2e",
       "type": "Actor",

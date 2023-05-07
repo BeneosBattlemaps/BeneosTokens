@@ -119,6 +119,9 @@ export class BeneosCompendiumManager {
             let r = await fetch(filename)
             let records = await r.json() // This DD5 stuff...
             let pf2Record = { name: records.name, type: "npc", img: this.replaceImgPath(dataFolder.target, records.img, false) } 
+            if (records.prototypeToken) {
+              pf2Record.prototypeToken = { texture: {src: this.replaceImgPath(dataFolder.target, records.prototypeToken.texture.src, true) }}
+            }
             let actor = await Actor.create(pf2Record, { temporary: true })
             let imported = await actorPack.importDocument(actor)
             console.log("ACTOR IMPO", imported)
