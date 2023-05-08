@@ -1077,10 +1077,19 @@ export class BeneosUtility {
   /********************************************************************************** */
   static async userIncDecSize(tokenId, tokenKey, incDec) {
     let token = BeneosUtility.getToken(tokenId)
+
+    let isAutoscale = false
+    if (game.system.id == 'pf2e' && token.document.flags.pf2e.autoscale) {
+      isAutoscale = true
+      await token.document.update({"flags.pf2e.autoscale":false})
+      ui.notifications.info("Token size was in auto-scale mode. Auto-scale mode has been disabled for this token, you can re-enable it in the token configuration window.")
+    }
+
     let tokenConfig = this.beneosTokens[tokenKey]
     if ( !token || !tokenConfig) {
       return
     }
+
     let tokenUserSize = this.userSizes[tokenId] || { tokenId: tokenId, tokenKey: tokenKey, sizeFactor: 1.0}
     tokenUserSize.sizeFactor += incDec
     this.userSizes[tokenId] = tokenUserSize
