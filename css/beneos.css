@@ -45,9 +45,9 @@
 
 #token-hud .beneos-token-button {    
 	max-width: 380px;	
-    height: 50px;
-    margin: 4px 0px 4px 8px;
-    object-fit: contain;
+  height: 50px;
+  margin: 4px 0px 4px 8px;
+  object-fit: contain;
 }
 
 
@@ -315,4 +315,38 @@
 }
 .beneos-description-text {
   font-size: 0.8rem;
+}
+
+.beneos-actor-menu .beneos-token-menu-element {
+  max-width: 380px;
+  width: 100%;
+  align-self: start;
+}
+
+.beneos-actor-menu .beneos-button-select {
+  max-width: 380px;
+  width: 100%;
+  align-items: start;
+  align-content:start;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding: 0 ;
+  margin: 0 ;
+  text-align: left;
+}
+.beneos-actor-menu .beneos-token-button {    
+  height: 50px;
+  border-width: 0px;
+  margin: 4px 0px 4px 8px;
+  display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	margin: auto;
+}
+.beneos-actor-menu .beneos-token-text {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+	font-size: 18px;
+	margin: auto;
 }

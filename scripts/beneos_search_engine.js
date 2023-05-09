@@ -5,6 +5,45 @@ const tokenDBURL = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-da
 const battlemapDBURL = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/beneos_battlemaps_database.json"
 
 /********************************************************************************** */
+export class BeneosTokensMenu extends Dialog {
+
+  /********************************************************************************** */
+  constructor(html, actor, x, y) {
+
+    let myButtons = {
+    }
+
+    // Common conf
+    let dialogConf = { content: html, title: "Beneos Tokens List", buttons: myButtons };
+    let dialogOptions = { classes: ["beneos-actor-menu", "draggable"], left: x + 60, top: y + 20, width: 382, height: 520, 'z-index': 99999 }
+    super(dialogConf, dialogOptions)
+
+    this.actor = actor
+  }
+
+  /********************************************************************************** */
+  activateListeners() {
+
+    let myObject = this
+    $(".beneos-actor-menu .beneos-button-select").click( async event => {
+      let actorId = $(event.currentTarget).data("actor-id")
+
+      const pack = game.packs.get( BeneosUtility.getActorCompendium() ) // find that key by doing game.packs.keys(); in the console.
+      const myActor = await pack.getDocument(actorId)
+      console.log(">>>>>> ACTOR", actorId, myActor, myObject.actor)
+      await myObject.actor.update({ 'img': myActor.img})
+      if (myObject.actor.token) {
+        await myObject.actor.token.update({ texture: {src: myActor.prototypeToken.texture.src }})
+        await myObject.actor.prototypeToken.update({ texture: {src: myActor.prototypeToken.texture.src }})
+      } else {
+        await myObject.actor.prototypeToken.update({ texture: {src: myActor.prototypeToken.texture.src }})
+      }
+      myObject.close()
+    })
+  }
+}
+
+/********************************************************************************** */
 export class BeneosDatabaseHolder {
 
   /********************************************************************************** */
@@ -176,9 +215,9 @@ export class BeneosDatabaseHolder {
   static searchByProperty(type, propertyName, value, searchResults, strict = false) {
     let newResults = {}
     value = value.toLowerCase()
-    
+
     //console.log(">>>>>", type, propertyName, value)
-    
+
     for (let key in searchResults) {
       let item = searchResults[key]
       item.kind = (type == "token") ? "token" : item.properties.type
@@ -192,7 +231,7 @@ export class BeneosDatabaseHolder {
       }
       //console.log("PROP", type, propertyName, value, searchResults, item.properties[propertyName])
       if (item[propertyName]) {
-        if ( item[propertyName].toLowerCase() == value) {
+        if (item[propertyName].toLowerCase() == value) {
           newResults[key] = duplicate(item)
         }
       }
@@ -200,7 +239,7 @@ export class BeneosDatabaseHolder {
         //console.log(item.properties[propertyName], typeof(item.properties[propertyName]))
         if (typeof (item.properties[propertyName]) == "string") {
           if (strict) {
-            if (item.properties[propertyName].toLowerCase().toString() == value.toString() ) {
+            if (item.properties[propertyName].toLowerCase().toString() == value.toString()) {
               newResults[key] = duplicate(item)
             }
           } else {
@@ -277,7 +316,7 @@ export class BeneosSearchResults extends Dialog {
 
     $(".token-search-data").on('dragstart', function (e) {
       let id = e.target.getAttribute("data-document-id");
-      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "uuid": "Compendium.beneostokens.beneostokens_actors."+id }
+      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "uuid": "Compendium.beneostokens.beneostokens_actors." + id }
       //console.log("DRAGDARA", drag_data)
       e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(drag_data));
     })
@@ -286,7 +325,7 @@ export class BeneosSearchResults extends Dialog {
       let biom = $(event.currentTarget).data("biom-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "biom", biom.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
-      $("#bioms-selector").val( BeneosUtility.firstLetterUpper( biom.toString() ) )
+      $("#bioms-selector").val(BeneosUtility.firstLetterUpper(biom.toString()))
     })
     $(".beneos-button-grid").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
@@ -294,14 +333,14 @@ export class BeneosSearchResults extends Dialog {
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "grid", grid.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
       console.log("Set grid", grid.toString())
-      $("#bmap-grid").val( grid.toString() )
+      $("#bmap-grid").val(grid.toString())
     })
     $(".beneos-button-brightness").click(event => {
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
       let brightness = $(event.currentTarget).data("brightness-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "brightness", brightness.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
-      $("#bmap-brightness").val( brightness.toString() )
+      $("#bmap-brightness").val(brightness.toString())
     })
     $(".beneos-jump-linked").click(event => {
       let jumpKey = $(event.currentTarget).data("jump-data")
@@ -321,7 +360,7 @@ export class BeneosSearchResults extends Dialog {
       let element = $(event.currentTarget)?.parents(".token-root-div")
       let tokenKey = element.data("token-key")
       let searchResults = BeneosDatabaseHolder.getAll("bmap")
-      let bmap = searchResults[tokenKey]      
+      let bmap = searchResults[tokenKey]
       //console.log("Search in moulinette !!!!", bmap)
       //game.moulinette.applications.MoulinetteSearch.search(bmap.name, "scenes", tokenKey)
     })
@@ -345,7 +384,7 @@ export class BeneosSearchResults extends Dialog {
       let purpose = $(event.currentTarget).data("purpose-value")
       searchResults = BeneosDatabaseHolder.searchByProperty("token", "purpose", purpose.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
-      $("#token-purpose").val(purpose) 
+      $("#token-purpose").val(purpose)
     })
 
     $(".beneos-button-journal").click(event => {
@@ -459,7 +498,7 @@ export class BeneosSearchEngine extends Dialog {
     let kindValue = $("#kind-selector").val()
     if (kindValue && kindValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "kind", kindValue, searchResults)
-    }        
+    }
     let brightnessValue = $("#bmap-brightness").val()
     if (brightnessValue && brightnessValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "brightness", brightnessValue, searchResults)
@@ -508,13 +547,13 @@ export class BeneosSearchEngine extends Dialog {
 
   /********************************************************************************** */
   cleanFilters() {
-    $("#bioms-selector").val( "any" )
-    $("#bmap-grid").val( "any" )
-    $("#bmap-brightness").val( "any" )
+    $("#bioms-selector").val("any")
+    $("#bmap-grid").val("any")
+    $("#bmap-brightness").val("any")
     $('#bmap-adventure').val("any")
     $("#token-cr").val("any")
     $('#token-fight-style').val("any")
-    $("#token-purpose").val("any") 
+    $("#token-purpose").val("any")
   }
 
   /********************************************************************************** */
@@ -563,7 +602,7 @@ export class BeneosSearchEngine extends Dialog {
       this.updateContent()
       this.updateSelector(event)
     })
-    
+
     $("#reset-search-list").click(event => {
       let type = (this.dbData.searchToken) ? "token" : "bmap"
       this.cleanFilters()

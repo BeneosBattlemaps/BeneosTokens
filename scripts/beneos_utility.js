@@ -1,6 +1,6 @@
 /********************************************************************************* */
 import { BeneosCompendiumManager, BeneosCompendiumReset } from "./beneos_compendium.js";
-import { BeneosSearchEngineLauncher, BeneosDatabaseHolder } from "./beneos_search_engine.js";
+import { BeneosSearchEngineLauncher, BeneosDatabaseHolder, BeneosTokensMenu } from "./beneos_search_engine.js";
 
 /********************************************************************************* */
 const BENEOS_MODULE_NAME = "Beneos Tokens"
@@ -200,7 +200,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   static processUpdate() {
     let isUpdated = game.settings.get(BeneosUtility.moduleID(), 'beneos-disable-walk-updated')
-    if ( !isUpdated) {
+    if (!isUpdated) {
       game.settings.set(BeneosUtility.moduleID(), 'beneos-disable-walk', true)
       game.settings.set(BeneosUtility.moduleID(), 'beneos-disable-walk-updated', true)
     }
@@ -210,7 +210,7 @@ export class BeneosUtility {
   static init() {
     this.file_cache = {}
 
-    this.userSizes = duplicate( game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config') )
+    this.userSizes = duplicate(game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config'))
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
     //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
@@ -493,7 +493,7 @@ export class BeneosUtility {
   // Function to add FX from the Token Magic module or from the ones defined in the configuration files.
   static async addFx(token, bfx, replace = true, apply = true) {
     //if (!game.dnd5e) {
-      //return
+    //return
     //}
     if (typeof TokenMagic !== 'undefined') {
       let bpresets = []
@@ -595,13 +595,13 @@ export class BeneosUtility {
               actionType = "item";
               break;
           }
-          if ( flags["midi-qol"].damageTotal )  {
+          if (flags["midi-qol"].damageTotal) {
             actionType = "damage";
           }
-        } else if ( flags['rsr5e'] ) {
+        } else if (flags['rsr5e']) {
           console.log(">>>>>>>>>>>>>>>RS5E")
-          for(let field of flags.rsr5e.fields) {
-            if ( field[0] && field[0] == "header" && field[1] && field[1].title ) {
+          for (let field of flags.rsr5e.fields) {
+            if (field[0] && field[0] == "header" && field[1] && field[1].title) {
               action = field[1].title
               actionType = "damage";
             }
@@ -651,6 +651,15 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static async prepareMenu(e, sheet) {
+    if( e.button == 2 ) { 
+      const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenu("beneos-actor-menu.html")
+      let menu = new BeneosTokensMenu(beneosTokensDisplay, sheet.actor.token?.actor || sheet.actor, e.pageX, e.pageY)
+      menu.render(true)
+    }
+  }
+
+  /********************************************************************************** */
   static getIdleTokens(token) {
     let matchArray = token.document.texture.src.match("(\\d\\d\\d[_\\d\\w]+)")
     let tokenKey = matchArray[0]
@@ -683,6 +692,15 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static getActorCompendium() {
+    if ( game.system.id == "pf2e") {
+      return "beneostokens.beneostokens_actors_pf2" 
+    } else {
+      return "beneostokens.beneostokens_actors" 
+    }
+    
+  }
+  /********************************************************************************** */
   static isLoaded(tokenKey) {
     return this.beneosTokens[tokenKey]
   }
@@ -698,21 +716,23 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getAnimatedTokens(token) {
-    console.log("TOKEN: ", token)
+    //console.log("TOKEN: ", token)
     let tokenData = this.getTokenImageInfo(token.document.texture.src)
     let tokenList = []
 
     if (tokenData && tokenData.tokenKey) {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
-      for (let imgVideo of tokenConfig.imgVideoList) {
-        if (imgVideo.includes("top") && imgVideo.includes(".webm")) {
-          let modeName = imgVideo.match("-([\\w_]*).web")
-          modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
-          tokenList.push({
-            isVideo: imgVideo.includes("webm"),
-            token: imgVideo, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
-            name: modeName, tokenvideo: imgVideo
-          })
+      if (tokenConfig.imgVideoList) {
+        for (let imgVideo of tokenConfig.imgVideoList) {
+          if (imgVideo.includes("top") && imgVideo.includes(".webm")) {
+            let modeName = imgVideo.match("-([\\w_]*).web")
+            modeName = this.firstLetterUpper(modeName[1].replace(/_/g, ", "))
+            tokenList.push({
+              isVideo: imgVideo.includes("webm"),
+              token: imgVideo, //this.getFullPathWithSlash() + tokenKey + '/' + tokenKey + "-idle_face_still.webp",
+              name: modeName, tokenvideo: imgVideo
+            })
+          }
         }
       }
     }
@@ -743,7 +763,7 @@ export class BeneosUtility {
     let userSize = this.userSizes[token.id]?.sizeFactor || 1.0
     let s = (sData && sData.s) ? sData.s : 1.0
     // When face tokens, scale is always 1.0
-    if (newImage &&  newImage.includes("__face")) {
+    if (newImage && newImage.includes("__face")) {
       newScaleFactor = 1.0
     } else {
       newScaleFactor *= s * userSize
@@ -1075,28 +1095,70 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static async buildAvailableTokensMenu(template) {
+    let beneosTokensHUD = []
+
+    Object.entries(BeneosUtility.beneosTokens).forEach(([key, value]) => {
+      beneosTokensHUD.push({
+        "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
+        "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm",
+        "actorId": value.actorId
+      })
+    })
+    console.log(">>>>>>> ", beneosTokensHUD)
+    const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/' + template,
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
+
+    return beneosTokensDisplay
+  }
+
+  /********************************************************************************** */
+  static manageAvailableTokensMenu(token, html, event) {
+    let beneosClickedButton = event.target.parentElement
+    let beneosTokenButton = html.find('.beneos-token-hud-action')[0]
+
+    if (beneosClickedButton === beneosTokenButton) {
+      beneosTokenButton.classList.add('active')
+      html.find('.beneos-selector-wrap')[0].classList.add('beneos-active')
+      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-disabled')
+    } else {
+      beneosTokenButton.classList.remove('active')
+      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-active')
+      html.find('.beneos-selector-wrap')[0].classList.add('beneos-disabled')
+      if (beneosClickedButton.classList.contains("beneos-button-token")) {
+        event.preventDefault()
+        let finalImage = beneosClickedButton.dataset.token
+        BeneosUtility.preloadToken(token)
+        setTimeout(function () {
+          BeneosUtility.forceChangeToken(token.id, finalImage)
+        }, 200)
+      }
+    }
+  }
+
+  /********************************************************************************** */
   static async userIncDecSize(tokenId, tokenKey, incDec) {
     let token = BeneosUtility.getToken(tokenId)
 
     let isAutoscale = false
     if (game.system.id == 'pf2e' && token.document.flags.pf2e.autoscale) {
       isAutoscale = true
-      await token.document.update({"flags.pf2e.autoscale":false})
+      await token.document.update({ "flags.pf2e.autoscale": false })
       ui.notifications.info("Token size was in auto-scale mode. Auto-scale mode has been disabled for this token, you can re-enable it in the token configuration window.")
     }
 
     let tokenConfig = this.beneosTokens[tokenKey]
-    if ( !token || !tokenConfig) {
+    if (!token || !tokenConfig) {
       return
     }
 
-    let tokenUserSize = this.userSizes[tokenId] || { tokenId: tokenId, tokenKey: tokenKey, sizeFactor: 1.0}
+    let tokenUserSize = this.userSizes[tokenId] || { tokenId: tokenId, tokenKey: tokenKey, sizeFactor: 1.0 }
     tokenUserSize.sizeFactor += incDec
     this.userSizes[tokenId] = tokenUserSize
-    game.settings.set( BeneosUtility.moduleID(), 'beneos-user-config', this.userSizes)
+    game.settings.set(BeneosUtility.moduleID(), 'beneos-user-config', this.userSizes)
     //console.log("USZER SIZES", this.userSizes)
     // Update with new s
-    let s = this.getScaleFactor(token, token.document.texture.src) 
+    let s = this.getScaleFactor(token, token.document.texture.src)
     await token.document.update({ scale: s })
   }
 
@@ -1123,9 +1185,9 @@ export class BeneosUtility {
           variantName = "top"
         }
         if (!tokenConfig[variantName]) {
-          if ( variantName != "idle" && variantName.includes("idle")  ) { // Dynamic stuff for idle_X
+          if (variantName != "idle" && variantName.includes("idle")) { // Dynamic stuff for idle_X
             tokenConfig[variantName] = duplicate(tokenConfig["idle"])
-          } else { 
+          } else {
             ui.notifications.warn("Unable to find token/variant data for " + variantName)
             return
           }

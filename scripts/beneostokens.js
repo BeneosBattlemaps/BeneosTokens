@@ -1,6 +1,6 @@
 import { libWrapper } from "./shim.js";
 import { BeneosUtility } from "./beneos_utility.js";
-import { BeneosSearchEngineLauncher, BeneosDatabaseHolder } from "./beneos_search_engine.js";
+import { BeneosSearchEngineLauncher, BeneosTokensMenu } from "./beneos_search_engine.js";
 
 /********************************************************************************** */
 Hooks.once('init', () => {
@@ -73,6 +73,19 @@ Hooks.once('ready', () => {
     return
   }
 
+  // Try to catch right click on profile image
+  Hooks.on('renderActorSheet',  (sheet, html, data) => {  
+    if (game.system.id == "pf2e") {
+      $(".image-container .actor-image").mousedown( async function(e) {
+        BeneosUtility.prepareMenu(e, sheet)
+      })
+    } else {
+      $(".sheet-header .profile").mousedown( async function(e) {
+        BeneosUtility.prepareMenu(e, sheet)
+      })
+    }
+  });
+
   //if (game.dnd5e) {
   if (true) {
       BeneosUtility.updateSceneTokens()
@@ -136,7 +149,7 @@ Hooks.once('ready', () => {
       BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
       //BeneosUtility.detectMoveEnd(token, "updateToken")
 
-      if (changeData.actorData != undefined && changeData.actorData.system.attributes != undefined && changeData.actorData.system.attributes.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
+      if (changeData.actorData != undefined && changeData.actorData.system?.attributes != undefined && changeData.actorData.system.attributes?.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
         if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
           BeneosUtility.updateToken(token.id, "hit", changeData)
           return
@@ -363,37 +376,9 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   })
 
   // REPLACEMENT TOKEN HUD
-  let beneosTokensHUD = []
-  Object.entries(BeneosUtility.beneosTokens).forEach(([key, value]) => {
-    beneosTokensHUD.push({
-      "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
-      "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm"
-    })
-  })
-  const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/beneoshud.html',
-    { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
-
+  const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenu("beneoshud.html")
   html.find('div.right').append(beneosTokensDisplay).click((event) => {
-    let beneosClickedButton = event.target.parentElement
-    let beneosTokenButton = html.find('.beneos-token-hud-action')[0]
-
-    if (beneosClickedButton === beneosTokenButton) {
-      beneosTokenButton.classList.add('active')
-      html.find('.beneos-selector-wrap')[0].classList.add('beneos-active')
-      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-disabled')
-    } else {
-      beneosTokenButton.classList.remove('active')
-      html.find('.beneos-selector-wrap')[0].classList.remove('beneos-active')
-      html.find('.beneos-selector-wrap')[0].classList.add('beneos-disabled')
-      if (beneosClickedButton.classList.contains("beneos-button-token")) {
-        event.preventDefault()
-        let finalImage = beneosClickedButton.dataset.token
-        BeneosUtility.preloadToken(token)
-        setTimeout(function () {
-          BeneosUtility.forceChangeToken(token.id, finalImage)
-        }, 200)
-      }
-    }
+    BeneosUtility.manageAvailableTokensMenu(token, html, event)
   })
 
   // Size management
