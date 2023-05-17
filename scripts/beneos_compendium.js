@@ -71,6 +71,7 @@ export class BeneosCompendiumManager {
         let idleList = []
         let imgVideoList = []
         let currentId = ""
+        let currentName = ""
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", res[1])
 
@@ -125,6 +126,7 @@ export class BeneosCompendiumManager {
             let actor = await Actor.create(pf2Record, { temporary: true })
             let imported = await actorPack.importDocument(actor)
             console.log("ACTOR IMPO", imported)
+            currentName = actor.name
             currentId = imported.id
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
@@ -152,6 +154,7 @@ export class BeneosCompendiumManager {
           BeneosUtility.beneosTokens[key].idleList = duplicate(idleList)
           BeneosUtility.beneosTokens[key].imgVideoList = duplicate(imgVideoList)
           BeneosUtility.beneosTokens[key].actorId = currentId
+          BeneosUtility.beneosTokens[key].actorName = currentName
         }
       }
     }
@@ -191,6 +194,7 @@ export class BeneosCompendiumManager {
         let idleList = []
         let imgVideoList = []
         let currentId = ""
+        let currentName = ""
         let key = subFolder.substring(subFolder.lastIndexOf("/") + 1)
         //console.log("KEY", res[1])
 
@@ -251,6 +255,7 @@ export class BeneosCompendiumManager {
             let imported = await actorPack.importDocument(actor)
             console.log("ACTOR IMPO", imported)
             currentId = imported.id
+            currentName = actor.name
           }
           if (filename.toLowerCase().includes("journal_") && filename.toLowerCase().includes(".json")) {
             let r = await fetch(filename)
@@ -269,6 +274,7 @@ export class BeneosCompendiumManager {
           BeneosUtility.beneosTokens[key].idleList = duplicate(idleList)
           BeneosUtility.beneosTokens[key].imgVideoList = duplicate(imgVideoList)
           BeneosUtility.beneosTokens[key].actorId = currentId
+          BeneosUtility.beneosTokens[key].actorName = currentName
         }
       }
     }

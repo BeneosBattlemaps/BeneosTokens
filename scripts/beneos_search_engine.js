@@ -8,7 +8,7 @@ const battlemapDBURL = "https://raw.githubusercontent.com/BeneosBattlemaps/beneo
 export class BeneosTokensMenu extends Dialog {
 
   /********************************************************************************** */
-  constructor(html, actor, x, y) {
+  constructor(html, tokenList, actor, x, y, template) {
 
     let myButtons = {
     }
@@ -19,24 +19,69 @@ export class BeneosTokensMenu extends Dialog {
     super(dialogConf, dialogOptions)
 
     this.actor = actor
+    this.tokenList = tokenList
+    this.listTemplate = template
+  }
+  /********************************************************************************** */
+  async displayResults(beneosTokensHUD, searchValue = "") {
+    if (beneosTokensHUD.length == 0) {
+      beneosTokensHUD.push({ name: "No results" })
+    }
+
+    //console.log("SEARCH results", results)
+    let html = await renderTemplate('modules/beneostokens/templates/' + this.listTemplate, 
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD, searchValue })
+    this.data.content = html
+    this.render(true)
+  }
+
+  /********************************************************************************** */
+  textSearch(searchValue) {
+    let newList = this.tokenList.filter( t => t.name.toLowerCase().includes( searchValue.toLowerCase()))
+    return newList
+  }
+
+  /********************************************************************************** */
+  processTextSearch(event) {
+    let code = event.keyCode ? event.keyCode : event.which
+    if (code == 13) {  // Enter keycode
+      return
+    }
+    if (event.currentTarget.value && event.currentTarget.value.length >= 3) {
+      let results = this.textSearch(event.currentTarget.value)
+      this.displayResults(results, event.currentTarget.value)
+    } else {
+      this.displayResults(this.tokenList, event.currentTarget.value)
+    }
   }
 
   /********************************************************************************** */
   activateListeners() {
 
     let myObject = this
-    $(".beneos-actor-menu .beneos-button-select").click( async event => {
+    $(".beneos-actor-menu .beneos-search-token-text").keyup(event => {
+      let code = event.keyCode ? event.keyCode : event.which
+      if (code == 13) {  // Enter keycode
+        event.preventDefault()
+        return
+      }
+      clearTimeout(myObject.timeout)
+      myObject.timeout = setTimeout(function () {
+        myObject.processTextSearch(event)
+      }, 600)
+    })
+    $(".beneos-actor-menu .beneos-button-select").click(async event => {
       let actorId = $(event.currentTarget).data("actor-id")
 
-      const pack = game.packs.get( BeneosUtility.getActorCompendium() ) // find that key by doing game.packs.keys(); in the console.
+      const pack = game.packs.get(BeneosUtility.getActorCompendium()) // find that key by doing game.packs.keys(); in the console.
       const myActor = await pack.getDocument(actorId)
       console.log(">>>>>> ACTOR", actorId, myActor, myObject.actor)
-      await myObject.actor.update({ 'img': myActor.img})
+      await myObject.actor.update({ 'img': myActor.img })
       if (myObject.actor.token) {
-        await myObject.actor.token.update({ texture: {src: myActor.prototypeToken.texture.src }})
-        await myObject.actor.prototypeToken.update({ texture: {src: myActor.prototypeToken.texture.src }})
+        await myObject.actor.token.update({ texture: { src: myActor.prototypeToken.texture.src } })
+        await myObject.actor.prototypeToken.update({ texture: { src: myActor.prototypeToken.texture.src } })
       } else {
-        await myObject.actor.prototypeToken.update({ texture: {src: myActor.prototypeToken.texture.src }})
+        await myObject.actor.prototypeToken.update({ texture: { src: myActor.prototypeToken.texture.src } })
       }
       myObject.close()
     })
@@ -464,7 +509,7 @@ export class BeneosSearchEngine extends Dialog {
 
   /********************************************************************************** */
   processTextSearch(event) {
-    var code = event.keyCode ? event.keyCode : event.which
+    let code = event.keyCode ? event.keyCode : event.which
     if (code == 13) {  // Enter keycode
       return
     }
@@ -562,7 +607,7 @@ export class BeneosSearchEngine extends Dialog {
     let myObject = this
 
     $('#beneos-search-text').bind("enterKey", function (event) {
-      var key = event.keyCode ? event.keyCode : event.which
+      let key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {
         //console.log("HERE KEYDOWN 13 - 2!!!!")
         event.preventDefault()
@@ -570,7 +615,7 @@ export class BeneosSearchEngine extends Dialog {
       }
     });
     $('#beneos-search-form').keydown(function (event) {
-      var key = event.keyCode ? event.keyCode : event.which
+      let key = event.keyCode ? event.keyCode : event.which
       if (key == 13) {
         event.preventDefault()
         //console.log("HERE KEYDOWN 13 - 2!!!!")
@@ -578,7 +623,7 @@ export class BeneosSearchEngine extends Dialog {
       }
     });
     $("#beneos-search-text").keyup(event => {
-      var code = event.keyCode ? event.keyCode : event.which
+      let code = event.keyCode ? event.keyCode : event.which
       if (code == 13) {  // Enter keycode
         event.preventDefault()
         //console.log("HERE 13!!!!")

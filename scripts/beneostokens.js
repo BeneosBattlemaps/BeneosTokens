@@ -74,170 +74,167 @@ Hooks.once('ready', () => {
   }
 
   // Try to catch right click on profile image
-  Hooks.on('renderActorSheet',  (sheet, html, data) => {  
+  Hooks.on('renderActorSheet', (sheet, html, data) => {
     if (game.system.id == "pf2e") {
-      $(".image-container .actor-image").mousedown( async function(e) {
+      $(".image-container .actor-image").mousedown(async function (e) {
         BeneosUtility.prepareMenu(e, sheet)
       })
     } else {
-      $(".sheet-header .profile").mousedown( async function(e) {
+      $(".sheet-header .profile").mousedown(async function (e) {
         BeneosUtility.prepareMenu(e, sheet)
       })
     }
   });
 
-  //if (game.dnd5e) {
-  if (true) {
-      BeneosUtility.updateSceneTokens()
+  BeneosUtility.updateSceneTokens()
 
-    /********************************************************************************** */
-    Hooks.on("renderChatMessage", (message, data, html) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
+  /********************************************************************************** */
+  Hooks.on("renderChatMessage", (message, data, html) => {
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
+      return
+    }
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
+    console.log("Message rendering !!!", message)
+    BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
+  })
+
+
+  /********************************************************************************** */
+  Hooks.on('preUpdateToken', (token, changeData) => {
+    //console.log("CHANGEDATA", token)
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
+      return
+    }
+
+    if (!token) {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
+      return
+    }
+
+    if (BeneosUtility.checkIsBeneosToken(token)) {
+      if (changeData.scale != undefined) {
+        let tokenData = BeneosUtility.getTokenImageInfo(token.texture.src)
+        for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
+          if (value["a"] == tokenData.currentStatus) {
+            let scaleFactor = (changeData.scale / value["s"])
+            BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token scale....")
+            token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
+            break
+          }
+        }
+      }
+    }
+  })
+
+  /********************************************************************************** */
+  Hooks.on('refreshToken', (token, changeData) => {
+    BeneosUtility.detectMoveEnd(token, "refreshToken")
+  })
+
+
+  /********************************************************************************** */
+  Hooks.on('updateToken', (token, changeData) => {
+    if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
+      return
+    }
+
+    if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
+      if (changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
+        BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
+      }
+      return
+    }
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
+    //BeneosUtility.detectMoveEnd(token, "updateToken")
+
+    if (changeData.actorData != undefined && changeData.actorData.system?.attributes != undefined && changeData.actorData.system.attributes?.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
+      if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+        BeneosUtility.updateToken(token.id, "hit", changeData)
         return
       }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
-      console.log("Message rendering !!!", message)
-      BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
-    })
-
-
-    /********************************************************************************** */
-    Hooks.on('preUpdateToken', (token, changeData) => {
-      //console.log("CHANGEDATA", token)
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
+      if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+        BeneosUtility.updateToken(token.id, "heal", changeData)
         return
       }
+    }
+    if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
+      setTimeout(function () { BeneosUtility.updateToken(token.id, "move", changeData) }, 50)
+      return
+    }
 
-      if (!token) {
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
+
+  });
+
+  /********************************************************************************** */
+  Hooks.on('updateActor', (actor, changeData) => {
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
+      return
+    }
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
+
+    let activeTokens = actor.getActiveTokens()
+    if (!activeTokens) return
+    activeTokens.forEach(token => {
+      if (token == undefined) {
         BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
         return
       }
-
-      if (BeneosUtility.checkIsBeneosToken(token)) {
-        if (changeData.scale != undefined) {
-          let tokenData = BeneosUtility.getTokenImageInfo(token.texture.src)
-          for (let [key, value] of Object.entries(BeneosUtility.beneosTokens[tokenData.tokenKey][tokenData.variant])) {
-            if (value["a"] == tokenData.currentStatus) {
-              let scaleFactor = (changeData.scale / value["s"])
-              BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos PreUpdate Token scale....")
-              token.document.setFlag(BeneosUtility.moduleID(), "scalefactor", scaleFactor)
-              break
-            }
+      let action = "standing";
+      if (changeData.system && changeData.system.attributes) {
+        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
+          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
+            action = "hit";
+          }
+          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
+            action = "heal";
           }
         }
       }
+      BeneosUtility.updateToken(token.id, action, changeData)
     })
+  })
 
-    /********************************************************************************** */
-    Hooks.on('refreshToken', (token, changeData) => {
-      BeneosUtility.detectMoveEnd(token, "refreshToken")
-    })
-
-
-    /********************************************************************************** */
-    Hooks.on('updateToken', (token, changeData) => {
-      if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
-        return
-      }
-
-      if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
-        if ( changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
-          BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
-        }
-        return
-      }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
-      //BeneosUtility.detectMoveEnd(token, "updateToken")
-
-      if (changeData.actorData != undefined && changeData.actorData.system?.attributes != undefined && changeData.actorData.system.attributes?.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
-        if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-          BeneosUtility.updateToken(token.id, "hit", changeData)
-          return
-        }
-        if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-          BeneosUtility.updateToken(token.id, "heal", changeData)
-          return
-        }
-      }
-      if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-        setTimeout(function() { BeneosUtility.updateToken(token.id, "move", changeData)}, 50)
-        return
-      }
-
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
-
-    });
-
-    /********************************************************************************** */
-    Hooks.on('updateActor', (actor, changeData) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-        return
-      }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
-
-      let activeTokens = actor.getActiveTokens()
-      if (!activeTokens) return
-      activeTokens.forEach(token => {
-        if (token == undefined) {
-          BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
-          return
-        }
-        let action = "standing";
-        if ( changeData.system && changeData.system.attributes) { 
-          if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
-            if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-              action = "hit";
-            }
-            if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-              action = "heal";
-            }
-          }
-        }
-        BeneosUtility.updateToken(token.id, action, changeData)
-      })
-    })
-
-    /********************************************************************************** */
-    Hooks.on('createCombatant', (combatant) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-        return
-      }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat Start Token")
-      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
-    })
+  /********************************************************************************** */
+  Hooks.on('createCombatant', (combatant) => {
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
+      return
+    }
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat Start Token")
+    BeneosUtility.updateToken(combatant.tokenId, "standing", {})
+  })
 
 
-    /********************************************************************************** */
-    Hooks.on('deleteCombatant', (combatant, data) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-        return
-      }
-      BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat End Token")
-      BeneosUtility.updateToken(combatant.tokenId, "standing", {})
-    })
+  /********************************************************************************** */
+  Hooks.on('deleteCombatant', (combatant, data) => {
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
+      return
+    }
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Combat End Token")
+    BeneosUtility.updateToken(combatant.tokenId, "standing", {})
+  })
 
-    /********************************************************************************** */
-    Hooks.on('createToken', (token) => {
-      if (!game.user.isGM || !BeneosUtility.isBeneosModule()) {
-        return
-      }
-      BeneosUtility.createToken(token)
-    })
+  /********************************************************************************** */
+  Hooks.on('createToken', (token) => {
+    if (!game.user.isGM || !BeneosUtility.isBeneosModule()) {
+      return
+    }
+    BeneosUtility.createToken(token)
+  })
 
-    /********************************************************************************** */
-    Hooks.on('canvasReady', () => {
-      if (!game.user.isGM) {
-        return
-      }
-      if (typeof ForgeVTT === "undefined" || !ForgeVTT.usingTheForge) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] This process should only be run in Forge.")
-      } else {
-        BeneosUtility.updateSceneTokens()
-      }
+  /********************************************************************************** */
+  Hooks.on('canvasReady', () => {
+    if (!game.user.isGM) {
+      return
+    }
+    if (typeof ForgeVTT === "undefined" || !ForgeVTT.usingTheForge) {
+      BeneosUtility.debugMessage("[BENEOS TOKENS] This process should only be run in Forge.")
+    } else {
+      BeneosUtility.updateSceneTokens()
+    }
 
-      BeneosUtility.processCanvasReady()
-    });
-  }
+    BeneosUtility.processCanvasReady()
+  });
 
   /********************************************************************************** */
   Hooks.on('controlToken', (token) => {
@@ -376,7 +373,8 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   })
 
   // REPLACEMENT TOKEN HUD
-  const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenu("beneoshud.html")
+  let tokenList = BeneosUtility.buildAvailableTokensMenu()
+  const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenuHTML("beneoshud.html", tokenList)
   html.find('div.right').append(beneosTokensDisplay).click((event) => {
     BeneosUtility.manageAvailableTokensMenu(token, html, event)
   })

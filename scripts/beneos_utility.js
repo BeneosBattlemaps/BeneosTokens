@@ -632,12 +632,6 @@ export class BeneosUtility {
     if (!myToken.hasOwnProperty(action)) {
       return null
     }
-    /*if (checkActionType &&
-      myToken[action]["actionType"] &&
-      myToken[action]["actionType"] != actionType) {
-      console.log("Null stuff !")
-      return null
-    }*/
 
     return action
   }
@@ -652,9 +646,10 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static async prepareMenu(e, sheet) {
-    if( e.button == 2 ) { 
-      const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenu("beneos-actor-menu.html")
-      let menu = new BeneosTokensMenu(beneosTokensDisplay, sheet.actor.token?.actor || sheet.actor, e.pageX, e.pageY)
+    if (e.button == 2) {
+      let tokenList = BeneosUtility.buildAvailableTokensMenu()
+      const beneosTokensDisplay = await BeneosUtility.buildAvailableTokensMenuHTML("beneos-actor-menu.html", tokenList)
+      let menu = new BeneosTokensMenu(beneosTokensDisplay, tokenList, sheet.actor.token?.actor || sheet.actor, e.pageX, e.pageY, "beneos-actor-menu.html")
       menu.render(true)
     }
   }
@@ -667,7 +662,7 @@ export class BeneosUtility {
 
     if (tokenKey) {
       let tokenConfig = this.beneosTokens[tokenKey]
-      if (!tokenConfig || !tokenConfig) {
+      if (!tokenConfig) {
         ui.notifications.warn("Error in BeneosTokens : the tokenKey seems wrong " + tokenKey)
         console.log("Working tokenKey - matchArray : ", tokenKey, matchArray)
         return tokenList
@@ -693,12 +688,12 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getActorCompendium() {
-    if ( game.system.id == "pf2e") {
-      return "beneostokens.beneostokens_actors_pf2" 
+    if (game.system.id == "pf2e") {
+      return "beneostokens.beneostokens_actors_pf2"
     } else {
-      return "beneostokens.beneostokens_actors" 
+      return "beneostokens.beneostokens_actors"
     }
-    
+
   }
   /********************************************************************************** */
   static isLoaded(tokenKey) {
@@ -760,6 +755,15 @@ export class BeneosUtility {
         }
       })
     }
+    if (!sData && tokenData.currentStatus.includes("idle_")) {
+      let testStatus = "idle_1"
+      Object.keys(myToken[tokenData.variant]).forEach(k => {
+        //console.log("Testing...", k, myToken[tokenData.variant][k])
+        if (myToken[tokenData.variant][k].a == testStatus) {
+          sData = myToken[tokenData.variant][k]
+        }
+      })
+    }
     let userSize = this.userSizes[token.id]?.sizeFactor || 1.0
     let s = (sData && sData.s) ? sData.s : 1.0
     // When face tokens, scale is always 1.0
@@ -768,7 +772,7 @@ export class BeneosUtility {
     } else {
       newScaleFactor *= s * userSize
     }
-    console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.currentStatus, userSize)
+    console.log("Scale factor : ", newScaleFactor, newImage, sData, tokenData.variant, tokenData.currentStatus, userSize)
     if (newScaleFactor != scaleFactor) {
       object.setFlag(BeneosUtility.moduleID(), "scalefactor", newScaleFactor)
     }
@@ -809,11 +813,9 @@ export class BeneosUtility {
     token.document.setFlag(BeneosUtility.moduleID(), "idleimg", newImage)
     token.document.setFlag(BeneosUtility.moduleID(), "tokenKey", tokenData.tokenKey)
     console.log("New IDLE image", scaleFactor)
-    await token.document.update({ img: newImage, scale: scaleFactor, rotation: 1.0 })
+    await token.document.update({ img: newImage })
+    await token.document.update({ scale: scaleFactor, rotation: 1.0 })
 
-    //if (scaleFactor != 1.0) {
-    //await token.document.update({ scale: scaleFactor })
-    //}
     if (tokenData.variant == "top") {
       let tokenConfig = this.beneosTokens[tokenData.tokenKey]
       if (tokenConfig && tokenConfig.top && tokenConfig.top.idle && tokenConfig.top.idle.fx) {
@@ -1095,17 +1097,22 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static async buildAvailableTokensMenu(template) {
+  static buildAvailableTokensMenu() {
     let beneosTokensHUD = []
 
     Object.entries(BeneosUtility.beneosTokens).forEach(([key, value]) => {
       beneosTokensHUD.push({
         "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
         "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm",
-        "actorId": value.actorId
+        "actorId": value.actorId,
+        "actorName": value.actorName
       })
     })
-    console.log(">>>>>>> ", beneosTokensHUD)
+    return beneosTokensHUD
+  }
+
+  /********************************************************************************** */
+  static async buildAvailableTokensMenuHTML(template, beneosTokensHUD) {
     const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/' + template,
       { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
 
