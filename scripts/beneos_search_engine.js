@@ -236,12 +236,9 @@ export class BeneosDatabaseHolder {
       } else {
         item.picture = "https://raw.githubusercontent.com/BeneosBattlemaps/beneos-database/main/battlemaps/thumbnails/" + item.key + ".webp"
       }
-      if (this.fieldTextSearch(item, text)) {
+      if (this.fieldTextSearch(item, text) || this.fieldTextSearch(item.properties, text)) {
         results.push(item)
-      } else if (this.fieldTextSearch(item.properties, text)) {
-        //item.picture = "https://github.com/BeneosBattlemaps/battlemaps/thumbnails/"+key+"-idle_face_still.webp"
-        results.push(item)
-      }
+      } 
     }
     return results
   }
@@ -361,7 +358,8 @@ export class BeneosSearchResults extends Dialog {
 
     $(".token-search-data").on('dragstart', function (e) {
       let id = e.target.getAttribute("data-document-id");
-      let drag_data = { "type": "Actor", "pack": "beneostokens.beneostokens_actors", "uuid": "Compendium.beneostokens.beneostokens_actors." + id }
+      let compendium = (game.system.id == "pf2e") ? "beneostokens.beneostokens_actors_pf2" : "beneostokens.beneostokens_actors"
+      let drag_data = { "type": "Actor", "pack": compendium, "uuid": "Compendium." + compendium + "." + id }
       //console.log("DRAGDARA", drag_data)
       e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(drag_data));
     })

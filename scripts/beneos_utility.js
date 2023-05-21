@@ -1096,6 +1096,21 @@ export class BeneosUtility {
     }
   }
 
+    /* -------------------------------------------- */
+  static sortArrayObjectsByName(myArray) {
+    myArray.sort((a, b) => {
+      let fa = a.actorName.toLowerCase();
+      let fb = b.actorName.toLowerCase();
+      if (fa < fb) {
+        return -1;
+      }
+      if (fa > fb) {
+        return 1;
+      }
+      return 0;
+    })
+  }
+
   /********************************************************************************** */
   static buildAvailableTokensMenu() {
     let beneosTokensHUD = []
@@ -1108,6 +1123,7 @@ export class BeneosUtility {
         "actorName": value.actorName
       })
     })
+    this.sortArrayObjectsByName(beneosTokensHUD)
     return beneosTokensHUD
   }
 
