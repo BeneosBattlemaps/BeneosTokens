@@ -656,14 +656,15 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getIdleTokens(token) {
-    let matchArray = token.document.texture.src.match("(\\d\\d\\d[_\\d\\w]+)")
-    let tokenKey = matchArray[0]
+    let tokenData = this.getTokenImageInfo(token.document.texture.src)
+    let tokenKey = tokenData.tokenKey
     let tokenList = []
 
     if (tokenKey) {
       let tokenConfig = this.beneosTokens[tokenKey]
       if (!tokenConfig) {
         ui.notifications.warn("Error in BeneosTokens : the tokenKey seems wrong " + tokenKey)
+        ui.notifications.warn("Check that the token image is a BeneosToken image, from the beneos tokens folder")
         console.log("Working tokenKey - matchArray : ", tokenKey, matchArray)
         return tokenList
       }
@@ -682,6 +683,9 @@ export class BeneosUtility {
           name: modeName, tokenvideo: idleImg
         })
       }
+    } else {
+      ui.notifications.warn("Error in BeneosTokens : tokenKey not found ")
+      ui.notifications.warn("Check that the token image is a BeneosToken image, from the beneos tokens folder")
     }
     return tokenList
   }
