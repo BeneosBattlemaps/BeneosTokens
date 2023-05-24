@@ -59,11 +59,13 @@ export class BeneosCompendiumManager {
     await actorPack.getIndex()
     await journalPack.getIndex()
 
+    // Unlock the compendiums
     await actorPack.configure({ locked: false })
     await journalPack.configure({ locked: false })
 
     // Parse subfolder
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)
+    // Loop thru folders
     for (let subFolder of rootFolder.dirs) {
       let res = subFolder.match("/(\\d*)_")
       if (res && !subFolder.includes("module_assets") && !subFolder.includes("ability_icons")) {

@@ -118,20 +118,20 @@ export class BeneosDatabaseHolder {
       }
       if (Array.isArray(list)) {
         for (let key of list) {
-          key = key.toString()
-          if (!valueList[key]) {
-            valueList[key] = 1
+          let keyStr = key.toString()
+          if (!valueList[keyStr]) {
+            valueList[keyStr] = 1
           } else {
-            valueList[key]++
+            valueList[keyStr]++
           }
         }
       } else if (typeof (list) == "object") {
         for (let key in list) {
-          key = list[key].toString()
-          if (!valueList[key]) {
-            valueList[key] = 1
+          let keyStr = list[key].toString()
+          if (!valueList[keyStr]) {
+            valueList[keyStr] = 1
           } else {
-            valueList[key]++
+            valueList[keyStr]++
           }
         }
       }
@@ -167,7 +167,7 @@ export class BeneosDatabaseHolder {
         mergeObject(this.purposeList, this.buildList(tokenData.properties.purpose))
         tokenData.isInstalled = BeneosUtility.isLoaded(key)
         tokenData.actorId = BeneosUtility.getActorId(key)
-        tokenData.description = tokenData.description
+        //tokenData.description = tokenData.description
       }
     }
     for (let key in this.bmapData.content) {
@@ -354,8 +354,6 @@ export class BeneosSearchResults extends Dialog {
   /********************************************************************************** */
   activateListeners() {
 
-    let myObject = this
-
     $(".token-search-data").on('dragstart', function (e) {
       let id = e.target.getAttribute("data-document-id");
       let compendium = (game.system.id == "pf2e") ? "beneostokens.beneostokens_actors_pf2" : "beneostokens.beneostokens_actors"
@@ -397,15 +395,6 @@ export class BeneosSearchResults extends Dialog {
       searchResults = BeneosDatabaseHolder.searchByProperty("bmap", "adventure", adventure.toString(), searchResults)
       game.beneosTokens.searchEngine.displayResults(searchResults)
       $('#bmap-adventure').val(adventure)
-    })
-    $(".moulinette-search").click(event => {
-      event.preventDefault()
-      let element = $(event.currentTarget)?.parents(".token-root-div")
-      let tokenKey = element.data("token-key")
-      let searchResults = BeneosDatabaseHolder.getAll("bmap")
-      let bmap = searchResults[tokenKey]
-      //console.log("Search in moulinette !!!!", bmap)
-      //game.moulinette.applications.MoulinetteSearch.search(bmap.name, "scenes", tokenKey)
     })
 
     $(".beneos-button-cr").click(event => {
@@ -574,7 +563,6 @@ export class BeneosSearchEngine extends Dialog {
     if (adventureValue && adventureValue.toLowerCase() != "any") {
       searchResults = BeneosDatabaseHolder.searchByProperty(type, "adventure", adventureValue, searchResults)
     }
-    //console.log("Search res", searchResults)
     this.displayResults(searchResults)
   }
 
