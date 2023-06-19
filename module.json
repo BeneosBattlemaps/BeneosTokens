@@ -1,11 +1,11 @@
 {
   "title": "Beneos Tokens",
   "description": "Compendium pack with high quality animated tokens, abilities and animation switching",
-  "version": "10.0.22",
+  "version": "11.0.0",
   "compatibility": {
     "minimum": "10",
-    "verified": "10",
-    "maximum": "10"
+    "verified": "11",
+    "maximum": "11"
   },
   "url": "https://github.com/BeneosBattlemaps/BeneosTokens",
   "manifest": "https://raw.githubusercontent.com/BeneosBattlemaps/BeneosTokens/v10/module.json",
