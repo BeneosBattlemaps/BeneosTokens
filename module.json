@@ -1,6 +1,6 @@
 {
-  "title": "Beneos Tokens",
-  "description": "Compendium pack with high quality animated tokens, abilities and animation switching",
+  "title": "Beneos Module",
+  "description": "Quality of life features for Beneos Battlemaps, Tokens, Spells and Items",
   "version": "11.0.0",
   "compatibility": {
     "minimum": "10",
