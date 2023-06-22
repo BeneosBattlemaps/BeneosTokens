@@ -89,17 +89,6 @@ Hooks.once('ready', () => {
   BeneosUtility.updateSceneTokens()
 
   /********************************************************************************** */
-  Hooks.on("renderChatMessage", (message, data, html) => {
-    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-      return
-    }
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
-    console.log("Message rendering !!!", message)
-    BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
-  })
-
-
-  /********************************************************************************** */
   Hooks.on('preUpdateToken', (token, changeData) => {
     //console.log("CHANGEDATA", token)
     if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
@@ -126,74 +115,22 @@ Hooks.once('ready', () => {
     }
   })
 
-  /********************************************************************************** */
-  Hooks.on('refreshToken', (token, changeData) => {
-    BeneosUtility.detectMoveEnd(token, "refreshToken")
-  })
-
 
   /********************************************************************************** */
   Hooks.on('updateToken', (token, changeData) => {
     if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
       return
     }
-
+    
     if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
       if (changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
         BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
       }
-      return
     }
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
-    //BeneosUtility.detectMoveEnd(token, "updateToken")
-
-    if (changeData.actorData != undefined && changeData.actorData.system?.attributes != undefined && changeData.actorData.system.attributes?.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
-      if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-        BeneosUtility.updateToken(token.id, "hit", changeData)
-        return
-      }
-      if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-        BeneosUtility.updateToken(token.id, "heal", changeData)
-        return
-      }
-    }
-    if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-      setTimeout(function () { BeneosUtility.updateToken(token.id, "move", changeData) }, 50)
-      return
-    }
-
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
+    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos update token state....")
+    BeneosUtility.updateToken(token.id, "standing", changeData)
 
   });
-
-  /********************************************************************************** */
-  Hooks.on('updateActor', (actor, changeData) => {
-    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-      return
-    }
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
-
-    let activeTokens = actor.getActiveTokens()
-    if (!activeTokens) return
-    activeTokens.forEach(token => {
-      if (token == undefined) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
-        return
-      }
-      let action = "standing";
-      if (changeData.system && changeData.system.attributes) {
-        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
-          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-            action = "hit";
-          }
-          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-            action = "heal";
-          }
-        }
-      }
-      BeneosUtility.updateToken(token.id, action, changeData)
-    })
-  })
 
   /********************************************************************************** */
   Hooks.on('createCombatant', (combatant) => {
