@@ -89,17 +89,6 @@ Hooks.once('ready', () => {
   BeneosUtility.updateSceneTokens()
 
   /********************************************************************************** */
-  Hooks.on("renderChatMessage", (message, data, html) => {
-    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-      return
-    }
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos Message Token")
-    console.log("Message rendering !!!", message)
-    BeneosUtility.updateToken(message.speaker.token, "action", { "action": message })
-  })
-
-
-  /********************************************************************************** */
   Hooks.on('preUpdateToken', (token, changeData) => {
     //console.log("CHANGEDATA", token)
     if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || token.texture.src != undefined) {
@@ -132,12 +121,11 @@ Hooks.once('ready', () => {
     if (!token || !game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready || changeData.texture?.src != undefined) {
       return
     }
-
+    
     if (changeData["flags"] !== undefined && changeData["flags"]["tokenmagic"] !== undefined) {
       if (changeData.flags.tokenmagic.animeInfo && changeData.flags.tokenmagic.animeInfo[0] && token.state != "move") {
         BeneosUtility.processEndEffect(token.id, changeData.flags.tokenmagic.animeInfo)
       }
-      return
     }
     BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken", changeData)
     //BeneosUtility.detectMoveEnd(token, "updateToken")
@@ -156,35 +144,6 @@ Hooks.once('ready', () => {
     BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
 
   });
-
-  /********************************************************************************** */
-  Hooks.on('updateActor', (actor, changeData) => {
-    if (!game.user.isGM || !BeneosUtility.isBeneosModule() || !canvas.ready) {
-      return
-    }
-    BeneosUtility.debugMessage("[BENEOS TOKENS] Beneos UpdateToken from Actor", changeData)
-
-    let activeTokens = actor.getActiveTokens()
-    if (!activeTokens) return
-    activeTokens.forEach(token => {
-      if (token == undefined) {
-        BeneosUtility.debugMessage("[BENEOS TOKENS] Token not found")
-        return
-      }
-      let action = "standing";
-      if (changeData.system && changeData.system.attributes) {
-        if (changeData.system.attributes != undefined && changeData.system.attributes.hp != undefined && changeData.system.attributes.hp.value != 0) {
-          if (changeData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-            action = "hit";
-          }
-          if (changeData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
-            action = "heal";
-          }
-        }
-      }
-      BeneosUtility.updateToken(token.id, action, changeData)
-    })
-  })
 
   /********************************************************************************** */
   Hooks.on('createCombatant', (combatant) => {
