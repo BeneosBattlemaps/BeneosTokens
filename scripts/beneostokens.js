@@ -126,11 +126,6 @@ Hooks.once('ready', () => {
     }
   })
 
-  /********************************************************************************** */
-  Hooks.on('refreshToken', (token, changeData) => {
-    BeneosUtility.detectMoveEnd(token, "refreshToken")
-  })
-
 
   /********************************************************************************** */
   Hooks.on('updateToken', (token, changeData) => {
@@ -149,17 +144,13 @@ Hooks.once('ready', () => {
 
     if (changeData.actorData != undefined && changeData.actorData.system?.attributes != undefined && changeData.actorData.system.attributes?.hp != undefined && changeData.actorData.system.attributes.hp.value != 0) {
       if (changeData.actorData.system.attributes.hp.value < BeneosUtility.beneosHealth[token.id]) {
-        BeneosUtility.updateToken(token.id, "hit", changeData)
+        BeneosUtility.updateToken(token.id, "standing", changeData)
         return
       }
       if (changeData.actorData.system.attributes.hp.value > BeneosUtility.beneosHealth[token.id]) {
         BeneosUtility.updateToken(token.id, "heal", changeData)
         return
       }
-    }
-    if (token.state != "move" && changeData.hasOwnProperty("x") || changeData.hasOwnProperty("y")) {
-      setTimeout(function () { BeneosUtility.updateToken(token.id, "move", changeData) }, 50)
-      return
     }
 
     BeneosUtility.debugMessage("[BENEOS TOKENS] Nothing to do")
@@ -290,7 +281,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
         }
         if (beneosJournalEntry) {
           const beneosJournalDisplay = await renderTemplate('modules/beneostokens/templates/beneosjournal.html',
-            { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath() })
+            { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath() })
           html.find('div.left').append(beneosJournalDisplay);
           html.find('img.beneosJournalAction').click((event) => {
             event.preventDefault()
@@ -317,7 +308,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
       })
 
       const beneosVariantsDisplay = await renderTemplate('modules/beneostokens/templates/beneosvariants.html',
-        { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosVariantsHUD })
+        { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath(), beneosVariantsHUD })
       if (!BeneosUtility.isBeneosModule()) {
         return
       }
@@ -349,7 +340,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
     beneosTokensIdleHUD = beneosTokensIdleHUD.concat(BeneosUtility.getAnimatedTokens(token))
   }
   const beneosTokensIdleDisplay = await renderTemplate('modules/beneostokens/templates/beneosidlehud.html',
-    { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensIdleHUD })
+    { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath(), beneosTokensIdleHUD })
   html.find('div.right').append(beneosTokensIdleDisplay).click((event) => {
     let beneosClickedButton = event.target.parentElement
     let beneosTokenButton = html.find('.beneos-token-hud-idle-action')[0]
@@ -382,7 +373,7 @@ Hooks.on('renderTokenHUD', async (hud, html, token) => {
   // Size management
   if (game.user.isGM && game.settings.get(BeneosUtility.moduleID(), 'beneos-god-mode')) {
     const beneosTokensSize = await renderTemplate('modules/beneostokens/templates/beneosreloadjson.html',
-      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), tokenData })
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath(), tokenData })
     let buttonSize = html.find('div.right').append(beneosTokensSize)
 
     buttonSize.click((event) => {

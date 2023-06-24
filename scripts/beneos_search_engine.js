@@ -30,7 +30,7 @@ export class BeneosTokensMenu extends Dialog {
 
     //console.log("SEARCH results", results)
     let html = await renderTemplate('modules/beneostokens/templates/' + this.listTemplate, 
-      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD, searchValue })
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath(), beneosTokensHUD, searchValue })
     this.data.content = html
     this.render(true)
   }

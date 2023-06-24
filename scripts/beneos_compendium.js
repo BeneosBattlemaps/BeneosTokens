@@ -51,7 +51,7 @@ export class BeneosCompendiumManager {
     ui.notifications.info("BeneosTokens : PF2 Compendium building .... Please wait !")
 
     BeneosUtility.resetTokenData()
-    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
+    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath()
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens.beneostokens_actors_pf2")
@@ -176,7 +176,7 @@ export class BeneosCompendiumManager {
     ui.notifications.info("BeneosTokens : Compendium building .... Please wait !")
 
     BeneosUtility.resetTokenData()
-    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
+    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath()
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens.beneostokens_actors")
@@ -295,7 +295,7 @@ export class BeneosCompendiumManager {
     for (let item of records.items) {
       if (item.img && item.img.match("_ability_icons")) {
         let filename = item.img.substring(item.img.lastIndexOf("/") + 1)
-        item.img = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/_ability_icons/" + filename
+        item.img = BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath() + "/_ability_icons/" + filename
       }
     }
   }
@@ -323,6 +323,7 @@ export class BeneosCompendiumManager {
         if (filename[2] == "_") { // No 3 digits in the preview file
           filename = "0" + filename
         }
+        console.log("Folder", currentFolder, filename)
         let newPath = currentFolder + "/" + filename
         let newContent = content.replace(res[1], newPath) // Replace filepath
         return newContent
