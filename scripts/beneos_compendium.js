@@ -51,7 +51,7 @@ export class BeneosCompendiumManager {
     ui.notifications.info("BeneosTokens : PF2 Compendium building .... Please wait !")
 
     BeneosUtility.resetTokenData()
-    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
+    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/tokens/"
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens.beneostokens_actors_pf2")
@@ -176,7 +176,7 @@ export class BeneosCompendiumManager {
     ui.notifications.info("BeneosTokens : Compendium building .... Please wait !")
 
     BeneosUtility.resetTokenData()
-    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath()
+    let tokenDataFolder = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/tokens/"
 
     // get the packs to update/check
     let actorPack = game.packs.get("beneostokens.beneostokens_actors")
@@ -189,7 +189,9 @@ export class BeneosCompendiumManager {
 
     // Parse subfolder
     let rootFolder = await FilePicker.browse("data", tokenDataFolder)
+    console.log("ROOT", rootFolder)
     for (let subFolder of rootFolder.dirs) {
+      console.log("SUBFOLDER", subFolder)
       let res = subFolder.match("/(\\d*)_")
       if (res && !subFolder.includes("module_assets") && !subFolder.includes("ability_icons")) {
         // Token config
@@ -295,7 +297,7 @@ export class BeneosCompendiumManager {
     for (let item of records.items) {
       if (item.img && item.img.match("_ability_icons")) {
         let filename = item.img.substring(item.img.lastIndexOf("/") + 1)
-        item.img = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/_ability_icons/" + filename
+        item.img = BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/tokens/_ability_icons/" + filename
       }
     }
   }

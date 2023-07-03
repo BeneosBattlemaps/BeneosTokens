@@ -5,7 +5,7 @@ import { BeneosSearchEngineLauncher, BeneosDatabaseHolder, BeneosTokensMenu } fr
 /********************************************************************************* */
 const BENEOS_MODULE_NAME = "Beneos Tokens"
 const BENEOS_MODULE_ID = "beneostokens"
-const BENEOS_DEFAULT_TOKEN_PATH = "beneos_tokens_assets"
+const BENEOS_DEFAULT_TOKEN_PATH = "beneos_assets"
 
 let beneosDebug = true
 let beneosFadingSteps = 10
@@ -212,8 +212,9 @@ export class BeneosUtility {
 
     this.userSizes = duplicate(game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config'))
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
-    this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH
-    //this.tokenDataPath = BENEOS_DEFAULT_TOKEN_PATH
+    this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/tokens/"
+    this.itemDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/items/"
+    this.spellDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/spells/"
 
     this.beneosHealth = []
     this.beneosPreload = []
