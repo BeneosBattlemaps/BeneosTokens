@@ -213,8 +213,13 @@ export class BeneosUtility {
     this.userSizes = duplicate(game.settings.get(BeneosUtility.moduleID(), 'beneos-user-config'))
     this.beneosModule = game.settings.get(BeneosUtility.moduleID(), 'beneos-animations')
     this.tokenDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/tokens/"
+<<<<<<< HEAD
     this.itemDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/items/"
     this.spellDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/spells/"
+=======
+    this.spellDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/spells/"
+    this.itemDataPath = game.settings.get(BeneosUtility.moduleID(), 'beneos-datapath') || BENEOS_DEFAULT_TOKEN_PATH + "/items/"
+>>>>>>> a5bd17ff219cb7201ed6861e767aa491e02f307a
 
     this.beneosHealth = []
     this.beneosPreload = []
@@ -274,8 +279,8 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
-  static getBeneosDataPath() {
-    return this.tokenDataPath + "/"
+  static getBeneosTokensDataPath() {
+    return this.tokenDataPath + "/tokens/"
   }
 
   /********************************************************************************** */
@@ -302,7 +307,7 @@ export class BeneosUtility {
 
   /********************************************************************************** */
   static getFullPathWithSlash() {
-    return this.getBasePath() + this.getBeneosDataPath()
+    return this.getBasePath() + this.getBeneosTokensDataPath()
   }
   /********************************************************************************** */
   static seed(i) {
@@ -439,9 +444,18 @@ export class BeneosUtility {
     token.texture.src = animation
     tkangle = tkangle || token.rotation || token.document?.rotation || 0
     BeneosUtility.debugMessage("[BENEOS TOKENS] Change animation with scale: " + tkscale, tkangle)
+    if (token.state == "move" || token.state == "action") {
+      await token.document.setFlag("core", "randomizeVideo", false)
+    } else {
+      await token.document.setFlag("core", "randomizeVideo", true)
+    }
+    if (token.state == "dead") {
+
+    }
     await token.document.update({ img: animation, scale: tkscale, rotation: tkangle, alpha: 1.0, data: { img: animation } }, { animate: false })
     this.addFx(token, bfx, true, true)
     BeneosUtility.debugMessage("[BENEOS TOKENS] Finished changing animation: " + tkscale)
+
   }
 
   /********************************************************************************** */
@@ -472,7 +486,7 @@ export class BeneosUtility {
                 if (kid.indexOf("eval_") != -1) {
                   let newkid = kid.replace("eval_", "")
                   kidvalue = kidvalue.replace("random()", "BeneosUtility.random()")
-                  kidvalue = kidvalue.replace("__BENEOS_DATA_PATH__", BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath())
+                  kidvalue = kidvalue.replace("__BENEOS_DATA_PATH__", BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath())
                   pressetvalue[newkid] = eval(kidvalue)
                 };
               });
@@ -684,6 +698,12 @@ export class BeneosUtility {
   }
 
   /********************************************************************************** */
+  static delayDetectEnd(token) {
+    token.detectEnd = true
+    setTimeout(function () { BeneosUtility.detectMoveEnd(token) }, 800)
+  }
+
+  /********************************************************************************** */
   static processEndEffect(tokenId, animeInfo) {
     BeneosUtility.debugMessage("[BENEOS TOKENS] Effect END ! ", animeInfo[0].tmFilterId)
     let token = canvas.tokens.placeables.find(t => t.id == tokenId)
@@ -800,8 +820,8 @@ export class BeneosUtility {
 
     Object.entries(BeneosUtility.beneosTokens).forEach(([key, value]) => {
       beneosTokensHUD.push({
-        "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
-        "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosDataPath() + "/" + key + '/' + key + "-idle_face.webm",
+        "token": BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath() + "/" + key + '/' + key + "-idle_face_still.webp",
+        "name": key.replaceAll("_", " "), 'tokenvideo': BeneosUtility.getBasePath() + BeneosUtility.getBeneosTokensDataPath() + "/" + key + '/' + key + "-idle_face.webm",
         "actorId": value.actorId,
         "actorName": value.actorName
       })
@@ -813,7 +833,7 @@ export class BeneosUtility {
   /********************************************************************************** */
   static async buildAvailableTokensMenuHTML(template, beneosTokensHUD) {
     const beneosTokensDisplay = await renderTemplate('modules/beneostokens/templates/' + template,
-      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosDataPath(), beneosTokensHUD })
+      { beneosBasePath: BeneosUtility.getBasePath(), beneosDataPath: BeneosUtility.getBeneosTokensDataPath(), beneosTokensHUD })
 
     return beneosTokensDisplay
   }
